@@ -11,8 +11,17 @@
   <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
   <style>
+    /* Container to ensure consistent width */
+    .container {
+      width: 60%;
+      margin: 0 auto;
+    }
+    
     /* Responsive styles for mobile devices */
     @media (max-width: 768px) {
+      .container {
+        width: 90%;
+      }
       header {
         flex-direction: column;
         padding: 20px;
@@ -49,22 +58,24 @@
       font-family: 'Montserrat', sans-serif;
     }
     
-    /* Header: Removed text shadow */
+    /* Header Styling (Matches Footer Style) */
     header {
+      background-color: #1B263B;  /* Deep blue matching footer */
+      width: 60%;
+      margin: 0 auto;
+      padding: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 40px 100px;
-      background-color: #1B263B;  /* Deep blue */
-      font-size: 2em;
     }
     header img {
-      height: 200px;
-      margin-right: 30px;
+      height: 150px;
+      margin-right: 20px;
     }
     header h1 {
-      /* Removed text-shadow from header */
       text-transform: uppercase;
+      margin: 0;
+      /* No text shadow */
     }
     
     /* Wallet Buttons with 3D effect and black border */
@@ -84,7 +95,7 @@
     .wallet-button:hover {
       background: linear-gradient(to bottom, #D9A300, #F0A500);
       transform: translateY(2px);
-      box-shadow: none;  /* Remove shadow on hover for a "pressed" effect */
+      box-shadow: none;  /* Remove shadow on hover for pressed effect */
     }
     
     /* Status Bar Styling */
@@ -114,9 +125,8 @@
     
     /* Footer Styling */
     footer {
-      margin-top: 40px;
-      padding: 20px;
       background-color: #1B263B;
+      padding: 20px;
       font-size: 1em;
     }
     .footer-buttons {
@@ -197,77 +207,80 @@
     <h1>Laughing Hyena - $LHyena Presale</h1>
   </header>
 
-  <!-- Presale Progress and Instructions -->
-  <div class="hero">
-    <h2>Presale Progress</h2>
-    <div id="progress-bar">0%</div>
-    <p>Total ETH raised: <span id="ethRaised">0</span> ETH</p>
-    <p>Your Contribution: <span id="userContribution">0</span> ETH</p>
+  <!-- Main Content Container -->
+  <div class="container">
+    <!-- Presale Progress and Instructions -->
+    <div class="hero">
+      <h2>Presale Progress</h2>
+      <div id="progress-bar">0%</div>
+      <p>Total ETH raised: <span id="ethRaised">0</span> ETH</p>
+      <p>Your Contribution: <span id="userContribution">0</span> ETH</p>
+    
+      <!-- "Join the $LHyena Presale Now!" retains its shadow -->
+      <h1 style="text-shadow: 3px 3px 8px #F0A500;">Join the $LHyena Presale Now!</h1>
+      <p>Hardcap: 50 ETH | Softcap: 25 ETH | Token Rate: 20,000,000 LHyena/ETH</p>
+      <p>Vesting: 25% monthly for 4 months</p>
+      <p>Presale Contract Address: 0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20</p>
+      <h2>How to Participate?</h2>
+      <ol style="text-align: left; display: inline-block;">
+        <li>Connect your wallet (MetaMask or WalletConnect).</li>
+        <li>Enter the amount of ETH you want to contribute (min 0.1 ETH, max 5 ETH).</li>
+        <li>Click "Buy Tokens" and confirm your transaction.</li>
+      </ol>
+    </div>
   
-    <!-- "Join the $LHyena Presale Now!" heading retains shadow -->
-    <h1 style="text-shadow: 3px 3px 8px #F0A500;">Join the $LHyena Presale Now!</h1>
-    <p>Hardcap: 50 ETH | Softcap: 25 ETH | Token Rate: 20,000,000 LHyena/ETH</p>
-    <p>Vesting: 25% monthly for 4 months</p>
-    <p>Presale Contract Address: 0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20</p>
-    <h2>How to Participate?</h2>
-    <ol style="text-align: left; display: inline-block;">
-      <li>Connect your wallet (MetaMask or WalletConnect).</li>
-      <li>Enter the amount of ETH you want to contribute (min 0.1 ETH, max 5 ETH).</li>
-      <li>Click "Buy Tokens" and confirm your transaction.</li>
-    </ol>
-  </div>
-  
-  <!-- Status Bar placed above wallet connection buttons -->
-  <div id="status" class="status">Not connected</div>
+    <!-- Status Bar placed above wallet connection buttons -->
+    <div id="status" class="status">Not connected</div>
 
-  <!-- Wallet Connection Buttons -->
-  <div>
-    <button id="connectMetaMask" class="wallet-button" onclick="connectMetaMask()">
-      <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24" style="vertical-align: middle; margin-right: 8px;">MetaMask
-    </button>
-    <button id="connectWallet" class="wallet-button" onclick="connectWalletConnect()">
-      <img src="https://gateway.pinata.cloud/ipfs/bafkreica2kla4alapcinmznch47tssr2g26dpdtb3u6ltv3gzlwzmchl4a" alt="WalletConnect Logo" width="24" height="24" style="vertical-align: middle; margin-right: 8px;">WalletConnect
-    </button>
-    <button id="disconnectWallet" class="wallet-button" onclick="disconnectWallet()">Disconnect Wallet</button>
-  </div>
-  
-  <!-- Token Purchase Section -->
-  <div>
-    <h2>Buy $LHyena Tokens</h2>
-    <input type="number" id="ethAmount" style="width: 150px;" placeholder="Enter ETH (Max 5ETH)" min="0.1" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
-    <p>You will receive: <span id="tokenAmount">0</span> LHyena</p>
-    <button id="buyTokensButton" class="wallet-button" onclick="promptBuyTokens()">Buy Tokens</button>
-  </div>
-  
-  <!-- Modal Confirmation Dialog -->
-  <div id="confirmationModal" class="modal-overlay">
-    <div class="modal">
-      <h3>Confirm Your Transaction</h3>
-      <p id="transactionSummary">You are about to contribute X ETH to receive Y LHyena tokens.</p>
-      <button class="confirm-btn" onclick="confirmedBuyTokens()">Confirm Purchase</button>
-      <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+    <!-- Wallet Connection Buttons -->
+    <div>
+      <button id="connectMetaMask" class="wallet-button" onclick="connectMetaMask()">
+        <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24" style="vertical-align: middle; margin-right: 8px;">MetaMask
+      </button>
+      <button id="connectWallet" class="wallet-button" onclick="connectWalletConnect()">
+        <img src="https://gateway.pinata.cloud/ipfs/bafkreica2kla4alapcinmznch47tssr2g26dpdtb3u6ltv3gzlwzmchl4a" alt="WalletConnect Logo" width="24" height="24" style="vertical-align: middle; margin-right: 8px;">WalletConnect
+      </button>
+      <button id="disconnectWallet" class="wallet-button" onclick="disconnectWallet()">Disconnect Wallet</button>
     </div>
-  </div>
   
-  <!-- Footer with Links as Buttons with Logos -->
-  <footer>
-    <p>&copy; 2025 Laughing Hyena. All Rights Reserved.</p>
-    <div class="footer-buttons">
-      <a class="footer-button" href="https://memehive.click/lhyena" target="_blank">
-        <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreifbwyukqegxt7il3odigkndzchztr2t55hibnyry7mlz6lbbl55jq" alt="Website Logo"> Website
-      </a>
-      <a class="footer-button" href="https://x.com/Laughing_LHyena" target="_blank">
-        <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreiacaeohlzwepumuvisibrwojwysaraqupy6c7p2nqdqdnpuvrzkiu" alt="Twitter Logo"> Twitter
-      </a>
-      <a class="footer-button" href="https://t.me/Laughing_LHyena" target="_blank">
-        <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreihu2e3j4xjpevv77kjjonnwro3fkak7ghrtfdttgkbjg76tqeuazm" alt="Telegram Logo"> Telegram
-      </a>
-      <a class="footer-button" href="https://www.facebook.com/share/15sZairCuW/?mibextid=wwXIfr" target="_blank">
-        <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreieghdvsc2s43xfvbetosyezg3kaukny6motwti3fz6amtqw7tatyy" alt="Facebook Logo"> Facebook
-      </a>
+    <!-- Token Purchase Section -->
+    <div>
+      <h2>Buy $LHyena Tokens</h2>
+      <input type="number" id="ethAmount" style="width: 150px;" placeholder="Enter ETH (Max 5ETH)" min="0.1" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
+      <p>You will receive: <span id="tokenAmount">0</span> LHyena</p>
+      <button id="buyTokensButton" class="wallet-button" onclick="promptBuyTokens()">Buy Tokens</button>
     </div>
-  </footer>
   
+    <!-- Modal Confirmation Dialog -->
+    <div id="confirmationModal" class="modal-overlay">
+      <div class="modal">
+        <h3>Confirm Your Transaction</h3>
+        <p id="transactionSummary">You are about to contribute X ETH to receive Y LHyena tokens.</p>
+        <button class="confirm-btn" onclick="confirmedBuyTokens()">Confirm Purchase</button>
+        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  
+    <!-- Footer with Links as Buttons with Logos -->
+    <footer>
+      <p>&copy; 2025 Laughing Hyena. All Rights Reserved.</p>
+      <div class="footer-buttons">
+        <a class="footer-button" href="https://memehive.click/lhyena" target="_blank">
+          <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreifbwyukqegxt7il3odigkndzchztr2t55hibnyry7mlz6lbbl55jq" alt="Website Logo"> Website
+        </a>
+        <a class="footer-button" href="https://x.com/Laughing_LHyena" target="_blank">
+          <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreiacaeohlzwepumuvisibrwojwysaraqupy6c7p2nqdqdnpuvrzkiu" alt="Twitter Logo"> Twitter
+        </a>
+        <a class="footer-button" href="https://t.me/Laughing_LHyena" target="_blank">
+          <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreihu2e3j4xjpevv77kjjonnwro3fkak7ghrtfdttgkbjg76tqeuazm" alt="Telegram Logo"> Telegram
+        </a>
+        <a class="footer-button" href="https://www.facebook.com/share/15sZairCuW/?mibextid=wwXIfr" target="_blank">
+          <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreieghdvsc2s43xfvbetosyezg3kaukny6motwti3fz6amtqw7tatyy" alt="Facebook Logo"> Facebook
+        </a>
+      </div>
+    </footer>
+  </div> <!-- End of container -->
+
   <script>
     // ---------------- Configuration Constants ----------------
     const BASE_CHAIN_ID_DEC = 8453;
