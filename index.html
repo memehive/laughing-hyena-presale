@@ -112,6 +112,40 @@
     <p>&copy; 2025 Laughing Hyena. All Rights Reserved.</p>
 </footer>
 <script>
+    async function connectMetaMask() {
+        if (window.ethereum) {
+            try {
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                await window.ethereum.request({ method: "eth_requestAccounts" });
+                signer = provider.getSigner();
+                userAddress = await signer.getAddress();
+                document.getElementById("walletAddress").innerText = "Connected: " + userAddress;
+                alert("Connected to MetaMask!");
+            } catch (error) {
+                console.error(error);
+                alert("Failed to connect MetaMask.");
+            }
+        } else {
+            alert("MetaMask is not installed. Please install it to continue.");
+        }
+    }
+
+    async function connectWalletConnect() {
+        try {
+            const walletConnectProvider = new WalletConnectProvider({
+                rpc: { 1: "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID" }
+            });
+            await walletConnectProvider.enable();
+            provider = new ethers.providers.Web3Provider(walletConnectProvider);
+            signer = provider.getSigner();
+            userAddress = await signer.getAddress();
+            document.getElementById("walletAddress").innerText = "Connected: " + userAddress;
+            alert("Connected via WalletConnect!");
+        } catch (error) {
+            console.error(error);
+            alert("Failed to connect WalletConnect.");
+        }
+    }
     function updateProgressBar(ethRaised) {
         const hardCap = 50;
         const progress = Math.min((ethRaised / hardCap) * 100, 100);
