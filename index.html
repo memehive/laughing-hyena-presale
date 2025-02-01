@@ -69,6 +69,8 @@ window.onload = function () {
     document.getElementById("connectMetaMask").onclick = connectMetaMask;
 };
 </style>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 </head>
 <body>
 <header>
@@ -117,10 +119,6 @@ window.onload = function () {
     <p>&copy; 2025 Laughing Hyena. All Rights Reserved.</p>
 </footer>
 <script>
-if (typeof ethers === 'undefined') {
-    alert('Ethers.js is not loaded. Please check your script imports.');
-    console.error('Ethers.js is missing. Ensure it is included before running any Web3 functions.');
-}
 if (typeof ethers === 'undefined') {
     alert('Ethers.js is not loaded. Please check your script imports.');
     console.error('Ethers.js is missing. Ensure it is included before running any Web3 functions.');
