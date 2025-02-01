@@ -152,44 +152,74 @@
 
     // ----- Wallet Connection Functions -----
 
-    // Connect using MetaMask with a check for MetaMask-specific provider
+    // Connect using MetaMask and ensure it's connected to Basechain (chainId 8453)
     async function connectMetaMask() {
       if (window.ethereum) {
-        // Check if the provider is MetaMask by verifying the isMetaMask flag
         if (window.ethereum.isMetaMask) {
           try {
+            // Request account access from MetaMask
             await window.ethereum.request({ method: 'eth_requestAccounts' });
             provider = new ethers.providers.Web3Provider(window.ethereum);
+            
+            // Check if the current network is Basechain (chainId 8453)
+            const network = await provider.getNetwork();
+            const baseChainId = 8453; // Decimal chain ID for Basechain
+            if (network.chainId !== baseChainId) {
+              try {
+                // Request MetaMask to switch to Basechain
+                await window.ethereum.request({
+                  method: 'wallet_switchEthereumChain',
+                  params: [{ chainId: '0x2105' }]  // 0x2105 is 8453 in hexadecimal
+                });
+                // Reinitialize the provider after the network switch
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+              } catch (switchError) {
+                console.error(switchError);
+                alert("Please switch to the Basechain network in MetaMask.");
+                return;
+              }
+            }
             signer = provider.getSigner();
             userAddress = await signer.getAddress();
-            alert("Connected to MetaMask: " + userAddress);
+            alert("Connected to MetaMask on Basechain: " + userAddress);
           } catch (error) {
             console.error(error);
             alert("Connection to MetaMask failed.");
           }
         } else {
-          alert("MetaMask was not detected. Please ensure you are using MetaMask and not another wallet like Crypto.com Wallet.");
+          alert("MetaMask was not detected. Please ensure you are using the MetaMask extension.");
         }
       } else {
         alert("No Ethereum provider found. Please install the MetaMask extension.");
       }
     }
 
-    // Connect using WalletConnect without triggering a QR code modal
+    // Connect using WalletConnect configured for Basechain (chainId 8453)
     async function connectWalletConnect() {
       try {
+        // Initialize WalletConnect Provider for Basechain
         walletConnectProvider = new WalletConnectProvider.default({
           rpc: { 
-            1: "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID" 
+            8453: "https://YOUR_BASECHAIN_RPC_URL" // Replace with your Basechain RPC endpoint
           },
-          chainId: 1,
-          qrcode: false  // Disables the QR code modal
+          chainId: 8453,
+          // Do not disable the QR code modal so that a popup appears
+          // (qrcode defaults to true)
         });
+        // Enable session (this will trigger the QR code modal)
         await walletConnectProvider.enable();
         provider = new ethers.providers.Web3Provider(walletConnectProvider);
+        
+        // Verify the connected network is Basechain
+        const network = await provider.getNetwork();
+        if (network.chainId !== 8453) {
+          alert("Please connect to the Basechain network using your WalletConnect wallet.");
+          return;
+        }
+        
         signer = provider.getSigner();
         userAddress = await signer.getAddress();
-        alert("Connected with WalletConnect: " + userAddress);
+        alert("Connected with WalletConnect on Basechain: " + userAddress);
       } catch (error) {
         console.error(error);
         alert("Connection with WalletConnect failed.");
