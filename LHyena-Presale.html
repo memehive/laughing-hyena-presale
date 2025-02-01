@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laughing Hyena Presale</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+    <style>
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                padding: 20px 20px;
+                text-align: center;
+            }
+            header img {
+                max-width: 100px;
+                height: auto;
+                margin-bottom: 10px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+        }
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Changa+One&display=swap');
+        
+        body {
+            font-family: 'VT323', monospace;
+            margin: 0;
+            padding: 0;
+            background-color: #203751;
+            color: white;
+            text-align: center;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 100px;
+            background-color: #142535;
+            color: white;
+            font-family: 'Changa One', monospace;
+            font-size: 2em;
+        }
+        header img {
+            height: 200px;
+            margin-right: 30px;
+        }
+        .wallet-button {
+            background: linear-gradient(to bottom, #4da36d, #318a2a);
+            color: white;
+            font-weight: bold;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            border: 2px solid black;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        .wallet-button:hover {
+            background: linear-gradient(to bottom, #318a2a, #1e5e1d);
+            transform: translateY(2px);
+        }
+    </style>
+</head>
+<body>
+<header>
+    <img src="https://gateway.pinata.cloud/ipfs/bafybeifvoit5z7zcwgqgkd5mf65gvktzstdsztbavsvm5x3alliyfugrwu" alt="Laughing Hyena Logo">
+    <h1 style="text-shadow: 3px 3px 8px #ffd700; font-weight: bold; font-size: 2em; text-transform: uppercase;">Laughing Hyena - $LHyena Presale</h1>
+</header>
+<div class="hero">
+    <h2>Presale Progress</h2>
+    <div style="width: 80%; background-color: #333; border-radius: 10px; margin: auto; padding: 5px;">
+        <div id="progress-bar" style="width: 0%; height: 20px; background-color: #4CAF50; border-radius: 10px; text-align: center; color: white; line-height: 20px; font-weight: bold;">0%</div>
+    </div>
+    <p style="margin-top: 10px;"><span id="ethRaised">0</span> ETH raised of 50 ETH</p>
+    <p>Your Contribution: <span id="userContribution">0</span> ETH</p>
+  
+    <h1 style="text-shadow: 3px 3px 8px #ffd700; font-size: 3em;">Join the $LHyena Presale Now!</h1>
+    <p>Hardcap: 50 ETH | Softcap: 25 ETH | Token Rate: 25,000,000 LHyena/ETH</p>
+    <p>Vesting: 25% monthly for 4 months</p>
+    <p>Presale Contract Address: 0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20</p>
+    <h2>How to Participate?</h2>
+    <p>Follow these 3 easy steps to buy $LHyena tokens:</p>
+    <ol style="text-align: left; display: inline-block;">
+        <li>Connect your wallet using MetaMask or WalletConnect.</li>
+        <li>Enter the amount of ETH you want to contribute.</li>
+        <li>Click 'Buy Tokens' to complete your purchase.</li>
+    </ol>
+</div>
+<div>
+    <button id="connectMetaMask" class="wallet-button" onclick="connectMetaMask()">
+        <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24" style="vertical-align: middle; margin-right: 8px;">
+        MetaMask
+    </button>
+    <button id="connectWallet" class="wallet-button" onclick="connectWalletConnect()">
+        <img src="https://gateway.pinata.cloud/ipfs/bafkreica2kla4alapcinmznch47tssr2g26dpdtb3u6ltv3gzlwzmchl4a" alt="WalletConnect Logo" width="24" height="24" style="vertical-align: middle; margin-right: 8px;">
+        WalletConnect
+    </button>
+    <p id="walletAddress"></p>
+</div>
+<div>
+    <h2>Buy $LHyena Tokens</h2>
+    <input type="number" id="ethAmount" style="width: 150px;" placeholder="Enter ETH (Max 5ETH)" min="0.1" max="5" step="0.01" oninput="validateEthAmount(); calculateTokens()">
+    <p>You will receive: <span id="tokenAmount">0</span> LHyena</p>
+    <button id="buyTokensButton" class="wallet-button" onclick="buyTokens()">Buy Tokens</button>
+</div>
+<footer>
+    <p>&copy; 2025 Laughing Hyena. All Rights Reserved.</p>
+</footer>
+<script>
+    function updateProgressBar(ethRaised) {
+        const hardCap = 50;
+        const progress = Math.min((ethRaised / hardCap) * 100, 100);
+        document.getElementById('progress-bar').style.width = progress + '%';
+        document.getElementById('progress-bar').innerText = Math.round(progress) + '%';
+        document.getElementById('ethRaised').innerText = ethRaised;
+    }
+    async function fetchPresaleProgress() {
+        if (!provider) return;
+        const contract = new ethers.Contract(presaleContractAddress, [{"inputs":[],"name":"getEthRaised","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}], provider);
+        const ethRaised = await contract.getEthRaised();
+        updateProgressBar(ethers.utils.formatEther(ethRaised));
+    }
+    setInterval(fetchPresaleProgress, 5000);
+    let provider, signer;
+    const presaleContractAddress = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
+    const tokenRate = 25000000;
+    let userAddress = "";
+
+    function validateEthAmount() {
+        let ethInput = document.getElementById("ethAmount");
+        let ethAmount = parseFloat(ethInput.value) || 0;
+        if (ethAmount < 0.1) {
+            ethInput.value = 0.1;
+        } else if (ethAmount > 5) {
+            ethInput.value = 5;
+            alert("Maximum contribution per wallet is 5 ETH");
+        }
+    }
+
+    function calculateTokens() {
+        let ethAmount = parseFloat(document.getElementById("ethAmount").value) || 0;
+        document.getElementById("tokenAmount").innerText = (ethAmount * tokenRate).toLocaleString();
+    }
+
+    async function buyTokens() {
+        if (!signer) {
+            alert("Please connect your wallet first!");
+            return;
+        }
+        let ethAmount = parseFloat(document.getElementById("ethAmount").value);
+        if (ethAmount < 0.1 || ethAmount > 5) {
+            alert("Contribution must be between 0.1 and 5 ETH.");
+            return;
+        }
+        const contract = new ethers.Contract(presaleContractAddress, [{"inputs":[],"name":"buyTokens","outputs":[],"stateMutability":"payable","type":"function"}], signer);
+        let tx = await contract.buyTokens({ value: ethers.utils.parseEther(ethAmount.toString()) });
+        await tx.wait();
+        alert("Transaction Successful! You have purchased $LHyena tokens.");
+    }
+</script>
+</body>
+</html>
