@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Laughing Hyena Presale</title>
+  <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
@@ -11,7 +12,7 @@
     @media (max-width: 768px) {
       header {
         flex-direction: column;
-        padding: 20px 20px;
+        padding: 20px;
         text-align: center;
       }
       header img {
@@ -40,7 +41,6 @@
       justify-content: center;
       padding: 40px 100px;
       background-color: #142535;
-      color: white;
       font-family: 'Changa One', monospace;
       font-size: 2em;
     }
@@ -64,28 +64,65 @@
       background: linear-gradient(to bottom, #318a2a, #1e5e1d);
       transform: translateY(2px);
     }
+    .status {
+      margin: 20px;
+      padding: 10px;
+      background-color: #333;
+      border-radius: 10px;
+      font-size: 1em;
+    }
+    /* Footer styling */
+    footer {
+      margin-top: 40px;
+      padding: 20px;
+      background-color: #142535;
+      font-size: 1em;
+    }
+    .footer-buttons {
+      margin-top: 10px;
+    }
+    .footer-button {
+      display: inline-block;
+      background: #4da36d;
+      color: white;
+      padding: 10px 15px;
+      margin: 5px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 1em;
+      transition: background 0.3s;
+      vertical-align: middle;
+    }
+    .footer-button:hover {
+      background: #318a2a;
+    }
+    .footer-logo {
+      height: 24px;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
   </style>
 </head>
 <body>
   <header>
     <img src="https://gateway.pinata.cloud/ipfs/bafybeifvoit5z7zcwgqgkd5mf65gvktzstdsztbavsvm5x3alliyfugrwu" alt="Laughing Hyena Logo" />
-    <h1 style="text-shadow: 3px 3px 8px #ffd700; font-weight: bold; font-size: 2em; text-transform: uppercase;">
+    <h1 style="text-shadow: 3px 3px 8px #ffd700; text-transform: uppercase;">
       Laughing Hyena - $LHyena Presale
     </h1>
   </header>
+
+  <!-- Status Area -->
+  <div id="status" class="status">Not connected</div>
+
   <div class="hero">
     <h2>Presale Progress</h2>
     <div style="width: 80%; background-color: #333; border-radius: 10px; margin: auto; padding: 5px;">
-      <div id="progress-bar" style="width: 0%; height: 20px; background-color: #4CAF50; border-radius: 10px; text-align: center; color: white; line-height: 20px; font-weight: bold;">
-        0%
-      </div>
+      <div id="progress-bar" style="width: 0%; height: 20px; background-color: #4CAF50; border-radius: 10px; text-align: center; color: white; line-height: 20px; font-weight: bold;">0%</div>
     </div>
     <p style="margin-top: 10px;"><span id="ethRaised">0</span> ETH raised of 50 ETH</p>
     <p>Your Contribution: <span id="userContribution">0</span> ETH</p>
   
-    <h1 style="text-shadow: 3px 3px 8px #ffd700; font-size: 3em;">
-      Join the $LHyena Presale Now!
-    </h1>
+    <h1 style="text-shadow: 3px 3px 8px #ffd700; font-size: 3em;">Join the $LHyena Presale Now!</h1>
     <p>Hardcap: 50 ETH | Softcap: 25 ETH | Token Rate: 25,000,000 LHyena/ETH</p>
     <p>Vesting: 25% monthly for 4 months</p>
     <p>Presale Contract Address: 0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20</p>
@@ -97,135 +134,154 @@
       <li>Click 'Buy Tokens' to complete your purchase.</li>
     </ol>
   </div>
+  
+  <!-- Wallet Connection Buttons -->
   <div>
     <button id="connectMetaMask" class="wallet-button" onclick="connectMetaMask()">
-      <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24" style="vertical-align: middle; margin-right: 8px;">
-      MetaMask
+      <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24" style="vertical-align: middle; margin-right: 8px;">MetaMask
     </button>
     <button id="connectWallet" class="wallet-button" onclick="connectWalletConnect()">
-      <img src="https://gateway.pinata.cloud/ipfs/bafkreica2kla4alapcinmznch47tssr2g26dpdtb3u6ltv3gzlwzmchl4a" alt="WalletConnect Logo" width="24" height="24" style="vertical-align: middle; margin-right: 8px;">
-      WalletConnect
+      <img src="https://gateway.pinata.cloud/ipfs/bafkreica2kla4alapcinmznch47tssr2g26dpdtb3u6ltv3gzlwzmchl4a" alt="WalletConnect Logo" width="24" height="24" style="vertical-align: middle; margin-right: 8px;">WalletConnect
     </button>
-    
-    <button id="disconnectWallet" class="wallet-button" style="background: linear-gradient(to bottom, #d9534f, #a94442); border: 2px solid black;" onclick="disconnectWallet()">
-      Disconnect Wallet
-    </button>
+    <button id="disconnectWallet" class="wallet-button" style="background: linear-gradient(to bottom, #d9534f, #a94442); border: 2px solid black;" onclick="disconnectWallet()">Disconnect Wallet</button>
   </div>
+  
+  <!-- Token Purchase Area -->
   <div>
     <h2>Buy $LHyena Tokens</h2>
     <input type="number" id="ethAmount" style="width: 150px;" placeholder="Enter ETH (Max 5ETH)" min="0.1" max="5" step="0.01" oninput="validateEthAmount(); calculateTokens()">
     <p>You will receive: <span id="tokenAmount">0</span> LHyena</p>
     <button id="buyTokensButton" class="wallet-button" onclick="buyTokens()">Buy Tokens</button>
   </div>
+  
+  <!-- Footer with Links as Buttons Using Logos -->
   <footer>
     <p>&copy; 2025 Laughing Hyena. All Rights Reserved.</p>
+    <div class="footer-buttons">
+      <a class="footer-button" href="https://memehive.click/lhyena" target="_blank">
+        <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreifbwyukqegxt7il3odigkndzchztr2t55hibnyry7mlz6lbbl55jq" alt="Website Logo"> Website
+      </a>
+      <a class="footer-button" href="https://x.com/Laughing_LHyena" target="_blank">
+        <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreiacaeohlzwepumuvisibrwojwysaraqupy6c7p2nqdqdnpuvrzkiu" alt="Twitter Logo"> Twitter
+      </a>
+      <a class="footer-button" href="https://t.me/Laughing_LHyena" target="_blank">
+        <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreihu2e3j4xjpevv77kjjonnwro3fkak7ghrtfdttgkbjg76tqeuazm" alt="Telegram Logo"> Telegram
+      </a>
+      <a class="footer-button" href="https://www.facebook.com/share/15sZairCuW/?mibextid=wwXIfr" target="_blank">
+        <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreieghdvsc2s43xfvbetosyezg3kaukny6motwti3fz6amtqw7tatyy" alt="Facebook Logo"> Facebook
+      </a>
+    </div>
   </footer>
+  
   <script>
-    // ----- Progress Bar Functions -----
-    function updateProgressBar(ethRaised) {
-      const hardCap = 50;
-      const progress = Math.min((ethRaised / hardCap) * 100, 100);
-      document.getElementById('progress-bar').style.width = progress + '%';
-      document.getElementById('progress-bar').innerText = Math.round(progress) + '%';
-      document.getElementById('ethRaised').innerText = ethRaised;
-    }
+    // ---------------- Configuration Constants ----------------
+    const BASE_CHAIN_ID_DEC = 8453;
+    const BASE_CHAIN_ID_HEX = '0x2105';
+    const BASECHAIN_RPC_URL = "https://YOUR_BASECHAIN_RPC_URL"; // Replace with your Basechain RPC endpoint
 
-    async function fetchPresaleProgress() {
-      if (!provider) return;
-      const contract = new ethers.Contract(
-        presaleContractAddress, 
-        [{"inputs":[],"name":"getEthRaised","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}],
-        provider
-      );
-      const ethRaised = await contract.getEthRaised();
-      updateProgressBar(ethers.utils.formatEther(ethRaised));
-    }
+    const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
+    const TOKEN_RATE = 25000000;
 
-    setInterval(fetchPresaleProgress, 5000);
-
-    // ----- Global Variables -----
+    // ---------------- Global Variables ----------------
     let provider, signer;
-    let walletConnectProvider; // To hold WalletConnect instance
-    const presaleContractAddress = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
-    const tokenRate = 25000000;
+    let walletConnectProvider;
     let userAddress = "";
-
-    // ----- Wallet Connection Functions -----
-
-    // Connect using MetaMask and ensure it's connected to Basechain (chainId 8453)
+    
+    // ---------------- UI Helper ----------------
+    function updateStatus(message) {
+      document.getElementById("status").innerText = message;
+    }
+    
+    // ---------------- Helper Functions ----------------
+    async function ensureNetwork(currentProvider) {
+      const network = await currentProvider.getNetwork();
+      if (network.chainId !== BASE_CHAIN_ID_DEC) {
+        // Attempt to switch network
+        try {
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: BASE_CHAIN_ID_HEX }]
+          });
+          // Reinitialize provider after switching
+          return new ethers.providers.Web3Provider(window.ethereum);
+        } catch (error) {
+          throw new Error("Failed to switch to Basechain. Please switch manually.");
+        }
+      }
+      return currentProvider;
+    }
+    
+    // ---------------- Wallet Event Listeners ----------------
+    // For MetaMask, update status when accounts or chain changes.
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', (accounts) => {
+        if (accounts.length > 0) {
+          userAddress = accounts[0];
+          updateStatus("Connected: " + userAddress);
+        } else {
+          userAddress = "";
+          updateStatus("Not connected");
+        }
+      });
+      window.ethereum.on('chainChanged', (chainId) => {
+        // Reload the page or update the UI accordingly.
+        window.location.reload();
+      });
+    }
+    
+    // ---------------- Wallet Connection Functions ----------------
+    
+    // Connect using MetaMask (ensuring Basechain connection)
     async function connectMetaMask() {
       if (window.ethereum) {
         if (window.ethereum.isMetaMask) {
           try {
-            // Request account access from MetaMask
             await window.ethereum.request({ method: 'eth_requestAccounts' });
             provider = new ethers.providers.Web3Provider(window.ethereum);
-            
-            // Check if the current network is Basechain (chainId 8453)
-            const network = await provider.getNetwork();
-            const baseChainId = 8453; // Decimal chain ID for Basechain
-            if (network.chainId !== baseChainId) {
-              try {
-                // Request MetaMask to switch to Basechain
-                await window.ethereum.request({
-                  method: 'wallet_switchEthereumChain',
-                  params: [{ chainId: '0x2105' }]  // 0x2105 is 8453 in hexadecimal
-                });
-                // Reinitialize the provider after the network switch
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-              } catch (switchError) {
-                console.error(switchError);
-                alert("Please switch to the Basechain network in MetaMask.");
-                return;
-              }
-            }
+            provider = await ensureNetwork(provider);
             signer = provider.getSigner();
             userAddress = await signer.getAddress();
-            alert("Connected to MetaMask on Basechain: " + userAddress);
+            updateStatus("Connected to MetaMask on Basechain: " + userAddress);
           } catch (error) {
             console.error(error);
-            alert("Connection to MetaMask failed.");
+            updateStatus("MetaMask connection failed: " + error.message);
           }
         } else {
-          alert("MetaMask was not detected. Please ensure you are using the MetaMask extension.");
+          updateStatus("MetaMask not detected. Please use the MetaMask extension.");
         }
       } else {
-        alert("No Ethereum provider found. Please install the MetaMask extension.");
+        updateStatus("No Ethereum provider found. Please install MetaMask.");
       }
     }
-
-    // Connect using WalletConnect configured for Basechain (chainId 8453)
+    
+    // Connect using WalletConnect (configured for Basechain)
     async function connectWalletConnect() {
       try {
-        // Initialize WalletConnect Provider for Basechain
         walletConnectProvider = new WalletConnectProvider.default({
           rpc: { 
-            8453: "https://YOUR_BASECHAIN_RPC_URL" // Replace with your Basechain RPC endpoint
+            [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL 
           },
-          chainId: 8453,
-          // Do not disable the QR code modal so that a popup appears
-          // (qrcode defaults to true)
+          chainId: BASE_CHAIN_ID_DEC,
+          // QR code modal is enabled by default
         });
-        // Enable session (this will trigger the QR code modal)
+        // Trigger QR code modal for wallet selection
         await walletConnectProvider.enable();
         provider = new ethers.providers.Web3Provider(walletConnectProvider);
-        
-        // Verify the connected network is Basechain
+        // Verify network is Basechain
         const network = await provider.getNetwork();
-        if (network.chainId !== 8453) {
-          alert("Please connect to the Basechain network using your WalletConnect wallet.");
+        if (network.chainId !== BASE_CHAIN_ID_DEC) {
+          updateStatus("Please connect to Basechain using your WalletConnect wallet.");
           return;
         }
-        
         signer = provider.getSigner();
         userAddress = await signer.getAddress();
-        alert("Connected with WalletConnect on Basechain: " + userAddress);
+        updateStatus("Connected with WalletConnect on Basechain: " + userAddress);
       } catch (error) {
         console.error(error);
-        alert("Connection with WalletConnect failed.");
+        updateStatus("WalletConnect connection failed: " + error.message);
       }
     }
-
+    
     // Disconnect the wallet
     async function disconnectWallet() {
       if (walletConnectProvider && walletConnectProvider.disconnect) {
@@ -234,51 +290,103 @@
       provider = null;
       signer = null;
       userAddress = "";
-      alert("Wallet disconnected.");
+      updateStatus("Not connected");
     }
-
-    // ----- Token Purchase Functions -----
-
+    
+    // ---------------- Token Purchase Functions ----------------
+    
     function validateEthAmount() {
-      let ethInput = document.getElementById("ethAmount");
+      const ethInput = document.getElementById("ethAmount");
       let ethAmount = parseFloat(ethInput.value) || 0;
-      if (ethAmount < 0.1) {
-        ethInput.value = 0.1;
-      } else if (ethAmount > 5) {
-        ethInput.value = 5;
+      if (ethAmount > 5) {
         alert("Maximum contribution per wallet is 5 ETH");
+        ethInput.value = 5;
+        updateStatus("Maximum contribution per wallet is 5 ETH");
+      } else if (ethAmount < 0.1 && ethInput.value !== "") {
+        alert("Minimum contribution is 0.1 ETH");
+        ethInput.value = 0.1;
+        updateStatus("Minimum contribution is 0.1 ETH");
       }
     }
-
+    
     function calculateTokens() {
       let ethAmount = parseFloat(document.getElementById("ethAmount").value) || 0;
-      document.getElementById("tokenAmount").innerText = (ethAmount * tokenRate).toLocaleString();
+      document.getElementById("tokenAmount").innerText = (ethAmount * TOKEN_RATE).toLocaleString();
     }
-
+    
     async function buyTokens() {
       if (!signer) {
         alert("Please connect your wallet first!");
+        updateStatus("Please connect your wallet first!");
         return;
       }
       let ethAmount = parseFloat(document.getElementById("ethAmount").value);
       if (ethAmount < 0.1 || ethAmount > 5) {
-        alert("Contribution must be between 0.1 and 5 ETH.");
+        updateStatus("Contribution must be between 0.1 and 5 ETH.");
         return;
       }
       const contract = new ethers.Contract(
-        presaleContractAddress,
-        [{"inputs":[],"name":"buyTokens","outputs":[],"stateMutability":"payable","type":"function"}],
+        PRESALE_CONTRACT_ADDRESS,
+        [
+          {
+            "inputs": [],
+            "name": "buyTokens",
+            "outputs": [],
+            "stateMutability": "payable",
+            "type": "function"
+          }
+        ],
         signer
       );
       try {
-        let tx = await contract.buyTokens({ value: ethers.utils.parseEther(ethAmount.toString()) });
+        const tx = await contract.buyTokens({ value: ethers.utils.parseEther(ethAmount.toString()) });
+        updateStatus("Transaction submitted. Waiting for confirmation...");
         await tx.wait();
-        alert("Transaction Successful! You have purchased $LHyena tokens.");
+        updateStatus("Transaction Successful! You have purchased $LHyena tokens.");
       } catch (error) {
         console.error(error);
-        alert("Transaction failed.");
+        updateStatus("Transaction failed: " + error.message);
       }
     }
+    
+    // ---------------- Progress Bar Functions ----------------
+    
+    async function fetchPresaleProgress() {
+      if (!provider) return;
+      try {
+        const contract = new ethers.Contract(
+          PRESALE_CONTRACT_ADDRESS,
+          [
+            {
+              "inputs": [],
+              "name": "getEthRaised",
+              "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+              "stateMutability": "view",
+              "type": "function"
+            }
+          ],
+          provider
+        );
+        const ethRaised = await contract.getEthRaised();
+        const ethRaisedFormatted = ethers.utils.formatEther(ethRaised);
+        updateProgressBar(ethRaisedFormatted);
+        document.getElementById("ethRaised").innerText = ethRaisedFormatted;
+      } catch (error) {
+        console.error("Error fetching presale progress:", error);
+      }
+    }
+    
+    function updateProgressBar(ethRaised) {
+      const hardCap = 50;
+      const progress = Math.min((ethRaised / hardCap) * 100, 100);
+      const progressBar = document.getElementById("progress-bar");
+      progressBar.style.width = progress + '%';
+      progressBar.innerText = Math.round(progress) + '%';
+    }
+    
+    // Poll presale progress every 5 seconds
+    setInterval(fetchPresaleProgress, 5000);
+    
   </script>
 </body>
 </html>
