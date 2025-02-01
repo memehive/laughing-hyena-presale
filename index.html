@@ -86,7 +86,7 @@
     <h2>How to Participate?</h2>
     <p>Follow these 3 easy steps to buy $LHyena tokens:</p>
     <ol style="text-align: left; display: inline-block;">
-      <li>Connect your wallet using ONCHAIN (MetaMask) or WalletConnect.</li>
+      <li>Connect your wallet using MetaMask or WalletConnect.</li>
       <li>Enter the amount of ETH you want to contribute.</li>
       <li>Click 'Buy Tokens' to complete your purchase.</li>
     </ol>
@@ -94,7 +94,7 @@
   <div>
     <button id="connectMetaMask" class="wallet-button" onclick="connectMetaMask()">
       <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24" style="vertical-align: middle; margin-right: 8px;">
-      ONCHAIN Wallet
+      MetaMask
     </button>
     <button id="connectWallet" class="wallet-button" onclick="connectWalletConnect()">
       <img src="https://gateway.pinata.cloud/ipfs/bafkreica2kla4alapcinmznch47tssr2g26dpdtb3u6ltv3gzlwzmchl4a" alt="WalletConnect Logo" width="24" height="24" style="vertical-align: middle; margin-right: 8px;">
@@ -144,36 +144,37 @@
 
     // ----- Wallet Connection Functions -----
 
-    // Connect using MetaMask (as an ONCHAIN wallet)
+    // Connect using MetaMask
     async function connectMetaMask() {
       if (window.ethereum) {
         try {
-          // Request account access from the ONCHAIN wallet (MetaMask)
+          // Request account access from MetaMask
           await window.ethereum.request({ method: 'eth_requestAccounts' });
           provider = new ethers.providers.Web3Provider(window.ethereum);
           signer = provider.getSigner();
           userAddress = await signer.getAddress();
-          alert("Connected to ONCHAIN wallet: " + userAddress);
+          alert("Connected to MetaMask: " + userAddress);
         } catch (error) {
           console.error(error);
-          alert("Connection to ONCHAIN wallet failed.");
+          alert("Connection to MetaMask failed.");
         }
       } else {
-        alert("ONCHAIN wallet not found. Please install the MetaMask extension or your preferred ONCHAIN wallet.");
+        alert("MetaMask not found. Please install the MetaMask extension.");
       }
     }
 
-    // Connect using WalletConnect
+    // Connect using WalletConnect without triggering a QR code modal
     async function connectWalletConnect() {
       try {
-        // Create a WalletConnect Provider (replace YOUR_INFURA_PROJECT_ID with a valid RPC endpoint if needed)
+        // Initialize WalletConnect Provider with QR code modal disabled
         walletConnectProvider = new WalletConnectProvider.default({
           rpc: { 
             1: "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID" 
           },
-          chainId: 1
+          chainId: 1,
+          qrcode: false  // This disables the QR code modal
         });
-        // Enable session (triggers QR Code modal)
+        // Enable the session (if the wallet is already available, this should connect without QR scanning)
         await walletConnectProvider.enable();
         provider = new ethers.providers.Web3Provider(walletConnectProvider);
         signer = provider.getSigner();
