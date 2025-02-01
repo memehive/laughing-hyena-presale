@@ -219,5 +219,145 @@ async function connectMetaMask() {
         alert("Transaction Successful! You have purchased $LHyena tokens.");
     }
 </script>
+<script>
+async function connectMetaMask() {
+    const baseChainId = "0x2105";
+    const baseRpcUrl = "https://mainnet.base.org";
+
+    if (!window.ethereum) {
+        alert("MetaMask is not installed. Please install it to continue.");
+        return;
+    }
+
+    try {
+        const chainId = await window.ethereum.request({ method: "eth_chainId" });
+        if (chainId !== baseChainId) {
+            try {
+                await window.ethereum.request({
+                    method: "wallet_switchEthereumChain",
+                    params: [{ chainId: baseChainId }],
+                });
+            } catch (switchError) {
+                if (switchError.code === 4902) {
+                    await window.ethereum.request({
+                        method: "wallet_addEthereumChain",
+                        params: [{
+                            chainId: baseChainId,
+                            chainName: "Base Mainnet",
+                            nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+                            rpcUrls: [baseRpcUrl],
+                            blockExplorerUrls: ["https://basescan.org/"],
+                        }],
+                    });
+                } else {
+                    throw switchError;
+                }
+            }
+        }
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        const signer = provider.getSigner();
+        const userAddress = await signer.getAddress();
+        const walletAddressElement = document.getElementById("walletAddress");
+        if (walletAddressElement) {
+            walletAddressElement.innerText = "Connected: " + userAddress;
+        }
+        console.log("Connected to MetaMask on Base Chain:", userAddress);
+    } catch (error) {
+        console.error("MetaMask Connection Error:", error);
+        alert("Failed to connect MetaMask: " + error.message);
+    }
+}
+
+async function connectWalletConnect() {
+    try {
+        const walletConnectProvider = new WalletConnectProvider({
+            rpc: { 8453: "https://mainnet.base.org" }
+        });
+        await walletConnectProvider.enable();
+        const provider = new ethers.providers.Web3Provider(walletConnectProvider);
+        const signer = provider.getSigner();
+        const userAddress = await signer.getAddress();
+        const walletAddressElement = document.getElementById("walletAddress");
+        if (walletAddressElement) {
+            walletAddressElement.innerText = "Connected: " + userAddress;
+        }
+        console.log("Connected via WalletConnect:", userAddress);
+    } catch (error) {
+        console.error("WalletConnect Connection Error:", error);
+        alert("Failed to connect WalletConnect.");
+    }
+}
+</script>
+<script>
+async function connectMetaMask() {
+    const baseChainId = "0x2105";
+    const baseRpcUrl = "https://mainnet.base.org";
+
+    if (!window.ethereum) {
+        alert("MetaMask is not installed. Please install it to continue.");
+        return;
+    }
+
+    try {
+        const chainId = await window.ethereum.request({ method: "eth_chainId" });
+        if (chainId !== baseChainId) {
+            try {
+                await window.ethereum.request({
+                    method: "wallet_switchEthereumChain",
+                    params: [{ chainId: baseChainId }],
+                });
+            } catch (switchError) {
+                if (switchError.code === 4902) {
+                    await window.ethereum.request({
+                        method: "wallet_addEthereumChain",
+                        params: [{
+                            chainId: baseChainId,
+                            chainName: "Base Mainnet",
+                            nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+                            rpcUrls: [baseRpcUrl],
+                            blockExplorerUrls: ["https://basescan.org/"],
+                        }],
+                    });
+                } else {
+                    throw switchError;
+                }
+            }
+        }
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        const signer = provider.getSigner();
+        const userAddress = await signer.getAddress();
+        const walletAddressElement = document.getElementById("walletAddress");
+        if (walletAddressElement) {
+            walletAddressElement.innerText = "Connected: " + userAddress;
+        }
+        console.log("Connected to MetaMask on Base Chain:", userAddress);
+    } catch (error) {
+        console.error("MetaMask Connection Error:", error);
+        alert("Failed to connect MetaMask: " + error.message);
+    }
+}
+
+async function connectWalletConnect() {
+    try {
+        const walletConnectProvider = new WalletConnectProvider({
+            rpc: { 8453: "https://mainnet.base.org" }
+        });
+        await walletConnectProvider.enable();
+        const provider = new ethers.providers.Web3Provider(walletConnectProvider);
+        const signer = provider.getSigner();
+        const userAddress = await signer.getAddress();
+        const walletAddressElement = document.getElementById("walletAddress");
+        if (walletAddressElement) {
+            walletAddressElement.innerText = "Connected: " + userAddress;
+        }
+        console.log("Connected via WalletConnect:", userAddress);
+    } catch (error) {
+        console.error("WalletConnect Connection Error:", error);
+        alert("Failed to connect WalletConnect.");
+    }
+}
+</script>
 </body>
 </html>
