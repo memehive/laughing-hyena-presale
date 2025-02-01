@@ -126,6 +126,49 @@
     }
 
     async function connectMetaMask() {
+    const baseChainId = "0x2105"; // Base Chain ID
+    const baseRpcUrl = "https://mainnet.base.org";
+    
+    if (!window.ethereum) {
+        alert("MetaMask is not installed. Please install it to continue.");
+        return;
+    }
+    try {
+        const chainId = await window.ethereum.request({ method: "eth_chainId" });
+        if (chainId !== baseChainId) {
+            try {
+                await window.ethereum.request({
+                    method: "wallet_switchEthereumChain",
+                    params: [{ chainId: baseChainId }],
+                });
+            } catch (switchError) {
+                if (switchError.code === 4902) {
+                    await window.ethereum.request({
+                        method: "wallet_addEthereumChain",
+                        params: [{
+                            chainId: baseChainId,
+                            chainName: "Base Mainnet",
+                            nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+                            rpcUrls: [baseRpcUrl],
+                            blockExplorerUrls: ["https://basescan.org/"],
+                        }],
+                    });
+                } else {
+                    throw switchError;
+                }
+            }
+        }
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        signer = provider.getSigner();
+        userAddress = await signer.getAddress();
+        document.getElementById("walletAddress").innerText = "Connected: " + userAddress;
+        console.log("Connected to MetaMask on Base Chain:", userAddress);
+    } catch (error) {
+        console.error("MetaMask Connection Error:", error);
+        alert("Failed to connect MetaMask: " + error.message);
+    }
+}
         const baseChainId = '0x2105'; // Base Chain ID (8453 in decimal)
         const baseRpcUrl = 'https://mainnet.base.org'; // Base Mainnet RPC URL
         if (typeof window.ethereum === "undefined") {
@@ -210,6 +253,30 @@
         document.getElementById('ethRaised').innerText = ethRaised;
     }
     async function fetchPresaleProgress() {
+    if (!provider) {
+        console.error("Provider is not initialized. Cannot fetch presale progress.");
+        return;
+    }
+    try {
+        const contract = new ethers.Contract(
+            presaleContractAddress,
+            [{
+                "inputs": [],
+                "name": "getEthRaised",
+                "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                "stateMutability": "view",
+                "type": "function"
+            }],
+            provider
+        );
+        const ethRaised = await contract.getEthRaised();
+        console.log("Fetched ETH Raised:", ethRaised.toString());
+        updateProgressBar(ethers.utils.formatEther(ethRaised));
+    } catch (error) {
+        console.error("Error fetching presale progress:", error);
+        alert("Error fetching presale progress: " + error.message);
+    }
+}
         if (!provider) return;
         const contract = new ethers.Contract(presaleContractAddress, [{"inputs":[],"name":"getEthRaised","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}], provider);
         const ethRaised = await contract.getEthRaised();
@@ -238,6 +305,24 @@
     }
 
     async function buyTokens() {
+    if (!signer) {
+        alert("Please connect your wallet first!");
+        return;
+    }
+    let ethAmount = parseFloat(document.getElementById("ethAmount").value);
+    if (ethAmount < 0.1 || ethAmount > 5) {
+        alert("Contribution must be between 0.1 and 5 ETH.");
+        return;
+    }
+    const contract = new ethers.Contract(
+        presaleContractAddress,
+        [{ "inputs": [], "name": "buyTokens", "outputs": [], "stateMutability": "payable", "type": "function" }],
+        signer
+    );
+    let tx = await contract.buyTokens({ value: ethers.utils.parseEther(ethAmount.toString()) });
+    await tx.wait();
+    alert("Transaction Successful! You have purchased $LHyena tokens.");
+}
         if (!signer) {
             alert("Please connect your wallet first!");
             return;
