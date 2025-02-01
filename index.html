@@ -195,14 +195,14 @@
     // ---------------- Helper Functions ----------------
     async function ensureNetwork(currentProvider) {
       const network = await currentProvider.getNetwork();
+      console.log("Connected chainId:", network.chainId);
       if (network.chainId !== BASE_CHAIN_ID_DEC) {
-        // Attempt to switch network
         try {
           await window.ethereum.request({
             method: 'wallet_switchEthereumChain',
             params: [{ chainId: BASE_CHAIN_ID_HEX }]
           });
-          // Reinitialize provider after switching
+          // After switching, return the updated provider
           return new ethers.providers.Web3Provider(window.ethereum);
         } catch (error) {
           throw new Error("Failed to switch to Basechain. Please switch manually.");
@@ -212,7 +212,6 @@
     }
     
     // ---------------- Wallet Event Listeners ----------------
-    // For MetaMask, update status when accounts or chain changes.
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', (accounts) => {
         if (accounts.length > 0) {
@@ -224,7 +223,6 @@
         }
       });
       window.ethereum.on('chainChanged', (chainId) => {
-        // Reload the page or update the UI accordingly.
         window.location.reload();
       });
     }
@@ -234,20 +232,19 @@
     // Connect using MetaMask (ensuring Basechain connection)
     async function connectMetaMask() {
       if (window.ethereum) {
-        if (window.ethereum.isMetaMask) {
-          try {
-            await window.ethereum.request({ method: 'eth_requestAccounts' });
-            provider = new ethers.providers.Web3Provider(window.ethereum);
-            provider = await ensureNetwork(provider);
-            signer = provider.getSigner();
-            userAddress = await signer.getAddress();
-            updateStatus("Connected to MetaMask on Basechain: " + userAddress);
-          } catch (error) {
-            console.error(error);
-            updateStatus("MetaMask connection failed: " + error.message);
-          }
-        } else {
-          updateStatus("MetaMask not detected. Please use the MetaMask extension.");
+        try {
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          let tempProvider = new ethers.providers.Web3Provider(window.ethereum);
+          tempProvider = await ensureNetwork(tempProvider);
+          const tempSigner = tempProvider.getSigner();
+          const address = await tempSigner.getAddress();
+          updateStatus("Connected to MetaMask on Basechain: " + address);
+          provider = tempProvider;
+          signer = tempSigner;
+          userAddress = address;
+        } catch (error) {
+          console.error(error);
+          updateStatus("MetaMask connection failed: " + error.message);
         }
       } else {
         updateStatus("No Ethereum provider found. Please install MetaMask.");
@@ -262,12 +259,9 @@
             [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL 
           },
           chainId: BASE_CHAIN_ID_DEC,
-          // QR code modal is enabled by default
         });
-        // Trigger QR code modal for wallet selection
         await walletConnectProvider.enable();
         provider = new ethers.providers.Web3Provider(walletConnectProvider);
-        // Verify network is Basechain
         const network = await provider.getNetwork();
         if (network.chainId !== BASE_CHAIN_ID_DEC) {
           updateStatus("Please connect to Basechain using your WalletConnect wallet.");
@@ -282,8 +276,12 @@
       }
     }
     
-    // Disconnect the wallet
+    // Disconnect the wallet. If no wallet is connected, prompt the user.
     async function disconnectWallet() {
+      if (!provider || userAddress === "") {
+        alert("No wallet connected");
+        return;
+      }
       if (walletConnectProvider && walletConnectProvider.disconnect) {
         await walletConnectProvider.disconnect();
       }
