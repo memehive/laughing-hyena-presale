@@ -64,7 +64,11 @@
             background: linear-gradient(to bottom, #318a2a, #1e5e1d);
             transform: translateY(2px);
         }
-    </style>
+    
+window.onload = function () {
+    document.getElementById("connectMetaMask").onclick = connectMetaMask;
+};
+</style>
 </head>
 <body>
 <header>
@@ -113,6 +117,51 @@
     <p>&copy; 2025 Laughing Hyena. All Rights Reserved.</p>
 </footer>
 <script>
+async function connectMetaMask() {
+    const baseChainId = "0x2105"; // Base Chain ID
+    const baseRpcUrl = "https://mainnet.base.org";
+
+    if (!window.ethereum) {
+        alert("MetaMask is not installed. Please install it to continue.");
+        return;
+    }
+    try {
+        const chainId = await window.ethereum.request({ method: "eth_chainId" });
+        if (chainId !== baseChainId) {
+            try {
+                await window.ethereum.request({
+                    method: "wallet_switchEthereumChain",
+                    params: [{ chainId: baseChainId }],
+                });
+            } catch (switchError) {
+                if (switchError.code === 4902) {
+                    await window.ethereum.request({
+                        method: "wallet_addEthereumChain",
+                        params: [{
+                            chainId: baseChainId,
+                            chainName: "Base Mainnet",
+                            nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+                            rpcUrls: [baseRpcUrl],
+                            blockExplorerUrls: ["https://basescan.org/"],
+                        }],
+                    });
+                } else {
+                    throw switchError;
+                }
+            }
+        }
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        signer = provider.getSigner();
+        userAddress = await signer.getAddress();
+        document.getElementById("walletAddress").innerText = "Connected: " + userAddress;
+        console.log("Connected to MetaMask on Base Chain:", userAddress);
+    } catch (error) {
+        console.error("MetaMask Connection Error:", error);
+        alert("Failed to connect MetaMask: " + error.message);
+    }
+}
+
     function updateProgressBar(ethRaised) {
         const hardCap = 50;
         const progress = Math.min((ethRaised / hardCap) * 100, 100);
