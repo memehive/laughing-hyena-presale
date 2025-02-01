@@ -69,17 +69,23 @@
 <body>
   <header>
     <img src="https://gateway.pinata.cloud/ipfs/bafybeifvoit5z7zcwgqgkd5mf65gvktzstdsztbavsvm5x3alliyfugrwu" alt="Laughing Hyena Logo" />
-    <h1 style="text-shadow: 3px 3px 8px #ffd700; font-weight: bold; font-size: 2em; text-transform: uppercase;">Laughing Hyena - $LHyena Presale</h1>
+    <h1 style="text-shadow: 3px 3px 8px #ffd700; font-weight: bold; font-size: 2em; text-transform: uppercase;">
+      Laughing Hyena - $LHyena Presale
+    </h1>
   </header>
   <div class="hero">
     <h2>Presale Progress</h2>
     <div style="width: 80%; background-color: #333; border-radius: 10px; margin: auto; padding: 5px;">
-      <div id="progress-bar" style="width: 0%; height: 20px; background-color: #4CAF50; border-radius: 10px; text-align: center; color: white; line-height: 20px; font-weight: bold;">0%</div>
+      <div id="progress-bar" style="width: 0%; height: 20px; background-color: #4CAF50; border-radius: 10px; text-align: center; color: white; line-height: 20px; font-weight: bold;">
+        0%
+      </div>
     </div>
     <p style="margin-top: 10px;"><span id="ethRaised">0</span> ETH raised of 50 ETH</p>
     <p>Your Contribution: <span id="userContribution">0</span> ETH</p>
   
-    <h1 style="text-shadow: 3px 3px 8px #ffd700; font-size: 3em;">Join the $LHyena Presale Now!</h1>
+    <h1 style="text-shadow: 3px 3px 8px #ffd700; font-size: 3em;">
+      Join the $LHyena Presale Now!
+    </h1>
     <p>Hardcap: 50 ETH | Softcap: 25 ETH | Token Rate: 25,000,000 LHyena/ETH</p>
     <p>Vesting: 25% monthly for 4 months</p>
     <p>Presale Contract Address: 0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20</p>
@@ -101,7 +107,9 @@
       WalletConnect
     </button>
     
-    <button id="disconnectWallet" class="wallet-button" style="background: linear-gradient(to bottom, #d9534f, #a94442); border: 2px solid black;" onclick="disconnectWallet()">Disconnect Wallet</button>
+    <button id="disconnectWallet" class="wallet-button" style="background: linear-gradient(to bottom, #d9534f, #a94442); border: 2px solid black;" onclick="disconnectWallet()">
+      Disconnect Wallet
+    </button>
   </div>
   <div>
     <h2>Buy $LHyena Tokens</h2>
@@ -144,37 +152,39 @@
 
     // ----- Wallet Connection Functions -----
 
-    // Connect using MetaMask
+    // Connect using MetaMask with a check for MetaMask-specific provider
     async function connectMetaMask() {
       if (window.ethereum) {
-        try {
-          // Request account access from MetaMask
-          await window.ethereum.request({ method: 'eth_requestAccounts' });
-          provider = new ethers.providers.Web3Provider(window.ethereum);
-          signer = provider.getSigner();
-          userAddress = await signer.getAddress();
-          alert("Connected to MetaMask: " + userAddress);
-        } catch (error) {
-          console.error(error);
-          alert("Connection to MetaMask failed.");
+        // Check if the provider is MetaMask by verifying the isMetaMask flag
+        if (window.ethereum.isMetaMask) {
+          try {
+            await window.ethereum.request({ method: 'eth_requestAccounts' });
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            signer = provider.getSigner();
+            userAddress = await signer.getAddress();
+            alert("Connected to MetaMask: " + userAddress);
+          } catch (error) {
+            console.error(error);
+            alert("Connection to MetaMask failed.");
+          }
+        } else {
+          alert("MetaMask was not detected. Please ensure you are using MetaMask and not another wallet like Crypto.com Wallet.");
         }
       } else {
-        alert("MetaMask not found. Please install the MetaMask extension.");
+        alert("No Ethereum provider found. Please install the MetaMask extension.");
       }
     }
 
     // Connect using WalletConnect without triggering a QR code modal
     async function connectWalletConnect() {
       try {
-        // Initialize WalletConnect Provider with QR code modal disabled
         walletConnectProvider = new WalletConnectProvider.default({
           rpc: { 
             1: "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID" 
           },
           chainId: 1,
-          qrcode: false  // This disables the QR code modal
+          qrcode: false  // Disables the QR code modal
         });
-        // Enable the session (if the wallet is already available, this should connect without QR scanning)
         await walletConnectProvider.enable();
         provider = new ethers.providers.Web3Provider(walletConnectProvider);
         signer = provider.getSigner();
@@ -188,7 +198,6 @@
 
     // Disconnect the wallet
     async function disconnectWallet() {
-      // If using WalletConnect, disconnect its session.
       if (walletConnectProvider && walletConnectProvider.disconnect) {
         await walletConnectProvider.disconnect();
       }
