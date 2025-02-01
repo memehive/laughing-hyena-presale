@@ -369,6 +369,38 @@ async function connectWalletConnect() {
         alert("Failed to connect WalletConnect.");
     }
 }
+    <script>
+function disconnectWallet() {
+    try {
+        if (window.ethereum && window.ethereum.request) {
+            window.ethereum.request({ method: "eth_accounts" }).then((accounts) => {
+                if (accounts.length === 0) {
+                    console.log("No accounts connected");
+                } else {
+                    window.ethereum.request({ method: "wallet_revokePermissions", params: [{ eth_accounts: {} }] })
+                        .then(() => {
+                            console.log("Disconnected from MetaMask");
+                        })
+                        .catch((error) => {
+                            console.error("Failed to revoke MetaMask permissions: ", error);
+                        });
+                }
+            });
+        }
+        if (provider && provider.disconnect) {
+            provider.disconnect();
+            console.log("Disconnected WalletConnect");
+        }
+        provider = null;
+        signer = null;
+        userAddress = "";
+        document.getElementById("walletAddress").innerText = "Disconnected";
+        alert("Wallet disconnected successfully.");
+    } catch (error) {
+        console.error("Disconnect Wallet Error:", error);
+        alert("Failed to disconnect wallet: " + error.message);
+    }
+}
 </script>
 </body>
 </html>
