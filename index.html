@@ -6,6 +6,8 @@
   <title>Laughing Hyena Presale</title>
   <!-- Google Fonts: Montserrat for headings, Roboto for body text -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+  <!-- Web3Modal -->
+  <script src="https://unpkg.com/web3modal@1.9.8/dist/index.js"></script>
   <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
@@ -407,14 +409,24 @@
 
     async function connectWalletConnect() {
       try {
-        walletConnectProvider = new WalletConnectProvider.default({
-          rpc: { 
-            [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL 
-          },
-          chainId: BASE_CHAIN_ID_DEC,
+        // Initialize Web3Modal for WalletConnect with UI toggle
+        const providerOptions = {
+          walletconnect: {
+            package: WalletConnectProvider.default,
+            options: {
+              rpc: { 
+                [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL 
+              },
+              qrcode: false  // Disable the default QR code modal
+            }
+          }
+        };
+        const web3Modal = new window.Web3Modal.default({
+          cacheProvider: false,
+          providerOptions
         });
-        await walletConnectProvider.enable();
-        provider = new ethers.providers.Web3Provider(walletConnectProvider);
+        const instance = await web3Modal.connect();
+        provider = new ethers.providers.Web3Provider(instance);
         const network = await provider.getNetwork();
         if (network.chainId !== BASE_CHAIN_ID_DEC) {
           updateStatus("Please connect to Basechain using your WalletConnect wallet.");
