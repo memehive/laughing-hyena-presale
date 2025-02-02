@@ -13,44 +13,48 @@
   <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
   <style>
-    /* Container to ensure consistent width for key elements */
+    /* Global container for consistent width */
     .container {
       width: 60%;
       margin: 0 auto;
     }
     
-    /* New helper class to center flex items */
+    /* Helper class to center flex items */
     .center {
       justify-content: center !important;
     }
     
-    /* Responsive styles for mobile devices */
-    @media (max-width: 768px) {
+    /* Responsive adjustments for small screens */
+    @media (max-width: 480px) {
       .container {
         width: 90%;
       }
       header {
         flex-direction: column;
-        padding: 20px;
-        text-align: center;
+        padding: 10px;
       }
       header img {
-        max-width: 100px;
-        height: auto;
-        margin-bottom: 10px;
+        height: 100px;
+        margin: 0 0 10px 0;
       }
       header h1 {
-        font-size: 1.5em;
+        font-size: 1.2em;
       }
       .wallet-buttons-container {
         flex-direction: column;
       }
       .wallet-button {
+        width: 100%;
         margin: 5px 0;
-        width: 100px; /* Adjust for mobile if needed */
+        font-size: 16px;
+        padding: 10px 0;
       }
       .status, #progress-bar {
-        width: 90%;
+        width: 100%;
+      }
+      input[type="number"] {
+        width: 80%;
+        font-size: 16px;
       }
     }
     
@@ -59,7 +63,7 @@
       font-family: 'Roboto', sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #0D1B2A;  /* Dark Navy background */
+      background-color: #0D1B2A; /* Dark Navy */
       color: #FFFFFF;
       text-align: center;
     }
@@ -67,11 +71,11 @@
       font-family: 'Montserrat', sans-serif;
     }
     
-    /* Header Styling (Matches Footer Style) */
+    /* Header styling (matching footer style) */
     header {
-      background-color: #1B263B;  /* Deep blue matching footer */
+      background-color: #1B263B; /* Deep blue */
       width: 60%;
-      margin: 0 auto;
+      margin: 20px auto;
       padding: 20px;
       display: flex;
       align-items: center;
@@ -86,7 +90,7 @@
       margin: 0;
     }
     
-    /* Wallet Buttons Container */
+    /* Wallet buttons container */
     .wallet-buttons-container {
       display: flex;
       justify-content: space-between;
@@ -94,10 +98,10 @@
       width: 60%;
     }
     
-    /* Wallet Buttons with 3D effect, fixed width (170px), and black border */
+    /* Wallet buttons with fixed width (170px), 3D effect, and black border */
     .wallet-button {
-      background: linear-gradient(to bottom, #F0A500, #D9A300);  /* Gold gradient */
-      color: #0D1B2A;  /* Dark navy text */
+      background: linear-gradient(to bottom, #F0A500, #D9A300); /* Gold gradient */
+      color: #0D1B2A; /* Dark navy text */
       font-weight: bold;
       padding: 15px 0;
       font-size: 18px;
@@ -105,7 +109,7 @@
       cursor: pointer;
       border: 2px solid #000000;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 0 #000000;  /* 3D effect */
+      box-shadow: 0 4px 0 #000000;
       width: 170px;
       margin: 0 5px;
       display: flex;
@@ -121,10 +125,10 @@
       box-shadow: none;
     }
     
-    /* BUY Button - Override for Green Colour with Black text */
+    /* BUY Button override (green gradient with dark text) */
     .buy-button {
       background: linear-gradient(to bottom, #28a745, #218838); /* Green gradient */
-      color: #0D1B2A;  /* Dark navy text */
+      color: #0D1B2A; /* Dark navy (appears black-like) */
       border: 2px solid #000000;
       box-shadow: 0 4px 0 #000000;
     }
@@ -134,7 +138,7 @@
       box-shadow: none;
     }
     
-    /* Status Bar Styling */
+    /* Status bar styling */
     .status {
       margin: 20px auto;
       padding: 0 10px;
@@ -146,20 +150,20 @@
       line-height: 20px;
     }
     
-    /* Progress Bar Styling */
+    /* Progress bar styling */
     #progress-bar {
       width: 60%;
       height: 20px;
-      background-color: #F0A500;  /* Gold */
+      background-color: #F0A500;
       border-radius: 10px;
       text-align: center;
-      color: #0D1B2A;  /* Dark Navy text */
+      color: #0D1B2A;
       line-height: 20px;
       font-weight: bold;
       margin: 20px auto;
     }
     
-    /* Footer Styling */
+    /* Footer styling */
     footer {
       background-color: #1B263B;
       padding: 20px;
@@ -334,7 +338,7 @@
     // ---------------- Configuration Constants ----------------
     const BASE_CHAIN_ID_DEC = 8453;
     const BASE_CHAIN_ID_HEX = '0x2105';
-    // Use your provided Infura Base mainnet RPC endpoint:
+    // Provided Infura RPC endpoint for Base Mainnet
     const BASECHAIN_RPC_URL = "https://base-mainnet.infura.io/v3/e923b24ca7eb4da7aa7e827ccae39ef9";
     // Replace with your deployed presale contract address
     const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
@@ -355,7 +359,7 @@
             [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL 
           },
           bridge: "https://bridge.walletconnect.org",
-          qrcode: false // Disable default QR code modal; using UI toggle instead
+          qrcode: false // Disable default QR code modal
         }
       }
     };
@@ -428,7 +432,6 @@
 
     async function connectWalletConnect() {
       try {
-        // Use Web3Modal to open the wallet selection UI
         const instance = await web3Modal.connect();
         provider = new ethers.providers.Web3Provider(instance);
         const network = await provider.getNetwork();
@@ -462,7 +465,6 @@
 
     // ---------------- Modal Confirmation for Purchase ----------------
     function promptBuyTokens() {
-      // Check if wallet is connected before showing confirmation
       if (!signer) {
         alert("Please connect your wallet first!");
         updateStatus("Please connect your wallet first!");
