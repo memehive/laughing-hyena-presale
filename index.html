@@ -225,7 +225,7 @@
       50% { transform: scale(1.03); }
       100% { transform: scale(1); }
     }
-    /* New Text Colors */
+    /* New Text Colors for ETH Raised and Contribution */
     .total-raised {
       color: #28a745; /* Green */
     }
@@ -576,12 +576,12 @@
     
     // ---------------- Wallet Connection Functions ----------------
     async function connectMetaMask() {
+      // Ensure we're only connecting with MetaMask
       if (window.ethereum && window.ethereum.isMetaMask) {
         console.log("MetaMask detected:", window.ethereum);
         try {
           const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
           if (accounts.length === 0) {
-            console.error("No accounts found.");
             updateStatus("No accounts found.");
             return;
           }
@@ -613,8 +613,8 @@
           updateStatus("MetaMask connection failed: " + error.message);
         }
       } else {
-        console.error("MetaMask not detected. Please install MetaMask.");
-        updateStatus("MetaMask not detected. Please install MetaMask.");
+        console.error("MetaMask not detected or a different wallet is active.");
+        updateStatus("MetaMask not detected or a different wallet is active. Please install/enable MetaMask.");
       }
     }
     
