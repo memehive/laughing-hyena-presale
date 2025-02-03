@@ -287,7 +287,6 @@
       border: 2px solid #000;
       box-shadow: 0 4px 0 #000;
     }
-    /* Disconnect Button Override */
     #disconnectWallet {
       background: linear-gradient(to bottom, #d9534f, #c9302c);
       border: 2px solid #000;
@@ -296,36 +295,14 @@
       background: linear-gradient(to bottom, #c9302c, #d9534f);
     }
     @media (max-width: 480px) {
-      body {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        margin: 0;
-      }
-      .wrapper {
-        transform: scale(0.9);
-        transform-origin: top center;
-      }
-      .container {
-        width: 90%;
-      }
-      header {
-        flex-direction: column;
-        padding: 10px;
-      }
-      header .inner-header {
-        width: 90%;
-      }
-      header img {
-        height: 100px;
-        margin: 0 0 10px 0;
-      }
+      body { display: flex; flex-direction: column; min-height: 100vh; margin: 0; }
+      .wrapper { transform: scale(0.9); transform-origin: top center; }
+      .container { width: 90%; }
+      header { flex-direction: column; padding: 10px; }
+      header .inner-header { width: 90%; }
+      header img { height: 100px; margin: 0 0 10px 0; }
       header h1 { font-size: 1.2em; }
-      .wallet-buttons-container, .footer-buttons {
-        flex-direction: column;
-        align-items: center;
-        width: 90%;
-      }
+      .wallet-buttons-container, .footer-buttons { flex-direction: column; align-items: center; width: 90%; }
       #status, #progress-bar { width: 100%; }
       input[type="number"] { width: 80%; font-size: 16px; }
       footer { width: 60%; margin: 20px auto; text-align: center; }
@@ -449,7 +426,7 @@
       let isMetaMaskConnecting = false;
       
       // Web3Modal Setup for WalletConnect
-      // Remove Coinbase Wallet option by not including it in providerOptions.
+      // Coinbase Wallet option is removed so that a dropdown is shown.
       const providerOptions = {
         trustwallet: {
           package: WalletConnectProvider.default,
@@ -509,7 +486,7 @@
       const web3Modal = new window.Web3Modal.default({
         cacheProvider: false,
         providerOptions,
-        disableInjectedProvider: true
+        disableInjectedProvider: false
       });
       
       // UI Helper
