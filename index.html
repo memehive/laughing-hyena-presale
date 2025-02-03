@@ -46,17 +46,43 @@
     .token-receive {
       font-family: 'Roboto Mono', monospace;
       font-weight: bold;
-      color: #F0A500;  /* Yellow */
+      color: #F0A500;
       margin-top: 10px;
     }
-    /* Participation Box (Light Blue Informative, No Corner Fillet) */
+    /* Participation Box (Informative Light-Blue, No Rounded Corners) */
     .participation-box {
-      background-color: #d9edf7; /* Informative light-blue background */
-      color: #0D0D0D; /* Dark text for contrast */
+      background-color: #d9edf7;
+      color: #0D0D0D;
       padding: 20px;
       margin: 20px 0;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-      border-radius: 0; /* No rounded corners */
+      border-radius: 0;
+    }
+    /* Participation List Styling */
+    .participation-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .participation-list li {
+      margin: 12px 0;
+      font-size: 1.1em;
+      line-height: 1.4em;
+      display: flex;
+      align-items: center;
+      text-align: left;
+    }
+    .step-icon {
+      background: #F0A500;
+      color: #0D1B2A;
+      font-weight: bold;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
     }
     /* Basic wrapper and container */
     .wrapper {
@@ -83,7 +109,7 @@
     header .inner-header {
       width: 60%;
       display: flex;
-      flex-direction: column; /* Logo above heading */
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       margin: 0 auto;
@@ -92,10 +118,20 @@
       height: 150px;
       margin-bottom: 10px;
     }
-    header h1 {
-      text-transform: uppercase;
-      margin: 0;
-      font-size: 2rem;
+    /* Improved Header Title */
+    .header-title {
+      font-size: 2.5rem;
+      background: linear-gradient(to right, #F0A500, #FFD700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      letter-spacing: 2px;
+      animation: headerPulse 3s infinite;
+    }
+    @keyframes headerPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
     }
     /* Hero Section */
     .hero {
@@ -178,7 +214,22 @@
       transform: translateY(2px) scale(1.05);
       box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
-    /* Footer - Reverted to the previous style */
+    /* Improved "Buy Tokens" Heading */
+    .buy-tokens-heading {
+      font-size: 2rem;
+      background: linear-gradient(to right, #28a745, #218838);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+      letter-spacing: 1px;
+      animation: tokenPulse 3s infinite;
+    }
+    @keyframes tokenPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+    /* Footer */
     footer {
       background-color: #1B263B;
       width: 60%;
@@ -314,7 +365,7 @@
         width: 80%;
         font-size: 16px;
       }
-      /* Override footer width to remain at 60% */
+      /* Ensure footer remains at 60% width on small screens */
       footer {
         width: 60%;
         margin: 20px auto;
@@ -339,7 +390,7 @@
     <header class="container">
       <div class="inner-header">
         <img src="https://gateway.pinata.cloud/ipfs/bafybeifvoit5z7zcwgqgkd5mf65gvktzstdsztbavsvm5x3alliyfugrwu" alt="Laughing Hyena Logo" />
-        <h1>Laughing Hyena - $LHyena Presale</h1>
+        <h1 class="header-title">Laughing Hyena - $LHyena Presale</h1>
       </div>
     </header>
     
@@ -353,7 +404,6 @@
         <p>Total ETH raised: <span id="ethRaised">0</span> ETH</p>
         <p>Your Contribution: <span id="userContribution">0</span> ETH</p>
         
-        <h1 style="text-shadow: 3px 3px 8px #F0A500;">Join the $LHyena Presale Now!</h1>
         <p>Hardcap: 50 ETH | Softcap: 25 ETH | Token Rate: 20,000,000 LHyena/ETH</p>
         <p>Vesting: 25% monthly for 4 months</p>
         <p class="contract-address">
@@ -367,10 +417,19 @@
         <!-- Participation Box -->
         <div class="participation-box">
           <h2>How to Participate?</h2>
-          <ol style="text-align: center; list-style-position: inside;">
-            <li>Connect your wallet (MetaMask or WalletConnect).</li>
-            <li>Enter the amount of ETH you want to contribute (min 0.1 ETH, max 5 ETH).</li>
-            <li>Click "BUY" and confirm your transaction.</li>
+          <ol class="participation-list">
+            <li>
+              <span class="step-icon">1</span>
+              Connect your wallet (MetaMask or WalletConnect).
+            </li>
+            <li>
+              <span class="step-icon">2</span>
+              Enter the amount of ETH you want to contribute (min 0.1 ETH, max 5 ETH).
+            </li>
+            <li>
+              <span class="step-icon">3</span>
+              Click "BUY" and confirm your transaction.
+            </li>
           </ol>
         </div>
       </div>
@@ -393,7 +452,7 @@
       
       <!-- Token Purchase Section -->
       <div>
-        <h2>Buy $LHyena Tokens</h2>
+        <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
         <input type="number" id="ethAmount" style="width: 200px;" placeholder="ETH (Max 5ETH)" min="0.1" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
         <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
         <div class="wallet-buttons-container">
@@ -414,7 +473,7 @@
       </div>
     </div> <!-- End of container -->
     
-    <!-- Footer Section using the same container class as header -->
+    <!-- Footer Section using same container as header -->
     <footer class="container">
       <p>&copy; 2025 Laughing Hyena. All Rights Reserved.</p>
       <div class="footer-buttons">
