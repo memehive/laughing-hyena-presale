@@ -4,11 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Laughing Hyena Presale</title>
-  <!-- Lexend Giga for headings -->
-  <link href="https://fonts.googleapis.com/css2?family=Lexend+Giga&display=swap" rel="stylesheet">
-  <!-- Roboto for body text and buttons -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-  <!-- Roboto Mono for numeric clarity -->
+  <!-- Roboto Mono for all text -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
   <!-- Web3Modal (v1) -->
   <script src="https://unpkg.com/web3modal@1.9.8/dist/index.js"></script>
@@ -17,9 +13,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
   <style>
-    /* Global Styles */
+    /* Global Styles: All text now uses Roboto Mono */
     body {
-      font-family: 'Lexend Giga', sans-serif;
+      font-family: 'Roboto Mono', monospace;
       margin: 0;
       padding: 0;
       background-color: #0D1B2A;
@@ -29,13 +25,13 @@
       line-height: 1.6;
     }
     h1, h2, h3 {
-      font-family: 'Lexend Giga', sans-serif;
+      font-family: 'Roboto Mono', monospace;
     }
     input, .contract-address {
       font-family: 'Roboto Mono', monospace;
     }
     .wallet-button, .buy-button, .footer-button, .warning {
-      font-family: 'Roboto', sans-serif;
+      font-family: 'Roboto Mono', monospace;
     }
     .warning {
       font-size: 0.8em;
@@ -175,14 +171,14 @@
       background: linear-gradient(to bottom, #F0A500, #D9A300);
       color: #0D1B2A;
       font-weight: bold;
-      padding: 15px 0;
-      font-size: 18px;
-      border-radius: 30px;
+      padding: 10px 0;
+      font-size: 12px;
+      border-radius: 20px;
       cursor: pointer;
       border: 2px solid #000;
       transition: all 0.3s ease;
       box-shadow: 0 4px 0 #000;
-      width: 170px;
+      width: 150px;
       margin: 0 5px;
       display: flex;
       align-items: center;
@@ -202,10 +198,10 @@
       color: #0D1B2A;
       border: 2px solid #000;
       box-shadow: 0 4px 0 #000;
-      font-size: 18px;
-      padding: 15px 0;
-      width: 170px;
-      border-radius: 30px;
+      font-size: 20px;
+      padding: 10px 0;
+      width: 150px;
+      border-radius: 20px;
       cursor: pointer;
       transition: all 0.3s ease;
     }
@@ -228,6 +224,13 @@
       0% { transform: scale(1); }
       50% { transform: scale(1.03); }
       100% { transform: scale(1); }
+    }
+    /* New Text Colors for ETH Raised and Contribution */
+    .total-raised {
+      color: #28a745; /* Green */
+    }
+    .user-contribution {
+      color: #F0A500; /* Yellow */
     }
     /* Footer */
     footer {
@@ -255,7 +258,6 @@
       border-radius: 5px;
       text-decoration: none;
       font-size: 0.8em;
-      font-family: 'Roboto', sans-serif;
       transition: background 0.3s;
       border: 2px solid #000;
       box-shadow: 0 4px 0 #000;
@@ -319,6 +321,14 @@
       margin-left: 10px;
       border: 2px solid #000;
       box-shadow: 0 4px 0 #000;
+    }
+    /* Disconnect Button Override */
+    #disconnectWallet {
+      background: linear-gradient(to bottom, #d9534f, #c9302c);
+      border: 2px solid #000;
+    }
+    #disconnectWallet:hover {
+      background: linear-gradient(to bottom, #c9302c, #d9534f);
     }
     /* Media Query for Small Screens */
     @media (max-width: 480px) {
@@ -401,8 +411,8 @@
         <h2>Presale Progress</h2>
         <!-- Progress Bar -->
         <div id="progress-bar" class="bar">0%</div>
-        <p>Total ETH raised: <span id="ethRaised">0</span> ETH</p>
-        <p>Your Contribution: <span id="userContribution">0</span> ETH</p>
+        <p class="total-raised">Total ETH raised: <span id="ethRaised">0</span> ETH</p>
+        <p class="user-contribution">Your Contribution: <span id="userContribution">0</span> ETH</p>
         
         <p>Hardcap: 50 ETH | Softcap: 25 ETH | Token Rate: 20,000,000 LHyena/ETH</p>
         <p>Vesting: 25% monthly for 4 months</p>
@@ -453,7 +463,7 @@
       <!-- Token Purchase Section -->
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
-        <input type="number" id="ethAmount" style="width: 200px;" placeholder="ETH (Max 5ETH)" min="0.1" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
+        <input type="number" id="ethAmount" style="width: 150px;" placeholder="ETH (Max 5)" min="0.1" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
         <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
         <div class="wallet-buttons-container">
           <button id="buyTokensButton" class="wallet-button buy-button" onclick="promptBuyTokens()" aria-label="Buy Tokens">
