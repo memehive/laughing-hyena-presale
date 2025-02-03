@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Futuristic Airdrop Presale</title>
-  <!-- Orbitron for futuristic headings -->
+  <title>Laughing Hyena Presale</title>
+  <!-- Orbitron for headings -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-  <!-- Roboto for buttons and warning text -->
+  <!-- Roboto for buttons and general text -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <!-- Roboto Mono for numeric clarity -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -17,7 +17,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
   <style>
-    /* ---------- Global Settings and Fonts ---------- */
+    /* Global Styles */
     body {
       font-family: 'Orbitron', sans-serif;
       margin: 0;
@@ -26,15 +26,14 @@
       color: #FFFFFF;
       text-align: center;
       font-size: 16px;
+      line-height: 1.6;
     }
     h1, h2, h3 {
       font-family: 'Orbitron', sans-serif;
     }
-    /* Use Roboto Mono for numeric elements in inputs and contract address */
     input, .contract-address {
       font-family: 'Roboto Mono', monospace;
     }
-    /* Use Roboto for buttons and warning messages */
     .wallet-button, .buy-button, .footer-button, .warning {
       font-family: 'Roboto', sans-serif;
     }
@@ -43,34 +42,24 @@
       color: #ff5555;
       margin-top: 5px;
     }
-    /* ---------- "You will receive:" Text Style ---------- */
+    /* "You will receive:" text style */
     .token-receive {
       font-family: 'Roboto Mono', monospace;
       font-weight: bold;
-      color: #F0A500; /* Matches the yellow button colour */
+      color: #F0A500;  /* Yellow */
       margin-top: 10px;
     }
-    /* ---------- Animations ---------- */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-    /* ---------- Wrapper for Uniform Scaling ---------- */
+    /* Basic wrapper and container */
     .wrapper {
       transform: scale(1);
       transform-origin: top center;
       transition: transform 0.3s ease;
     }
-    /* ---------- Global Container ---------- */
     .container {
       width: 60%;
       margin: 0 auto;
     }
-    /* ---------- Header ---------- */
+    /* Header */
     header {
       background-color: #1B263B;
       width: 60%;
@@ -79,7 +68,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      animation: fadeIn 1s ease-out;
     }
     header img {
       height: 150px;
@@ -90,11 +78,11 @@
       margin: 0;
       font-size: 2rem;
     }
-    /* ---------- Hero Section (Main Body Content) ---------- */
+    /* Hero Section */
     .hero {
       margin-bottom: 20px;
     }
-    /* ---------- Progress Bar (Placed Immediately after "Presale Progress") ---------- */
+    /* Progress Bar */
     #progress-bar {
       height: 20px;
       line-height: 20px;
@@ -107,7 +95,7 @@
       color: #0D1B2A;
       font-weight: bold;
     }
-    /* ---------- Status Bar (Placed Below "How to Participate?") ---------- */
+    /* Status Bar */
     #status {
       height: 20px;
       line-height: 20px;
@@ -118,14 +106,14 @@
       font-size: 1em;
       background-color: #333333;
     }
-    /* ---------- Wallet Buttons Container ---------- */
+    /* Wallet Buttons Container */
     .wallet-buttons-container {
       display: flex;
       justify-content: center;
       margin: 20px auto;
       width: 60%;
     }
-    /* ---------- Wallet Buttons ---------- */
+    /* Wallet Buttons */
     .wallet-button {
       background: linear-gradient(to bottom, #F0A500, #D9A300);
       color: #0D1B2A;
@@ -134,9 +122,9 @@
       font-size: 18px;
       border-radius: 30px;
       cursor: pointer;
-      border: 2px solid #000000;
+      border: 2px solid #000;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 0 #000000;
+      box-shadow: 0 4px 0 #000;
       width: 170px;
       margin: 0 5px;
       display: flex;
@@ -151,12 +139,12 @@
       transform: translateY(2px) scale(1.05);
       box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
-    /* ---------- BUY Button ---------- */
+    /* BUY Button */
     .buy-button {
       background: linear-gradient(to bottom, #28a745, #218838);
       color: #0D1B2A;
-      border: 2px solid #000000;
-      box-shadow: 0 4px 0 #000000;
+      border: 2px solid #000;
+      box-shadow: 0 4px 0 #000;
       font-size: 18px;
       padding: 15px 0;
       width: 170px;
@@ -169,7 +157,7 @@
       transform: translateY(2px) scale(1.05);
       box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
-    /* ---------- Footer ---------- */
+    /* Footer */
     footer {
       background-color: #1B263B;
       padding: 20px;
@@ -193,8 +181,8 @@
       font-size: 0.8em;
       font-family: 'Roboto', sans-serif;
       transition: background 0.3s;
-      border: 2px solid #000000;
-      box-shadow: 0 4px 0 #000000;
+      border: 2px solid #000;
+      box-shadow: 0 4px 0 #000;
       align-items: center;
       justify-content: center;
     }
@@ -206,7 +194,7 @@
       height: 12px;
       margin-right: 4px;
     }
-    /* ---------- Presale Contract Address ---------- */
+    /* Presale Contract Address */
     .contract-address {
       text-align: center;
       font-family: 'Roboto Mono', monospace;
@@ -214,7 +202,7 @@
       margin: 10px 0;
       word-wrap: break-word;
     }
-    /* ---------- Modal ---------- */
+    /* Modal */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -246,17 +234,17 @@
     .confirm-btn {
       background: #F0A500;
       color: #0D1B2A;
-      border: 2px solid #000000;
-      box-shadow: 0 4px 0 #000000;
+      border: 2px solid #000;
+      box-shadow: 0 4px 0 #000;
     }
     .cancel-btn {
       background: #d9534f;
       color: white;
       margin-left: 10px;
-      border: 2px solid #000000;
-      box-shadow: 0 4px 0 #000000;
+      border: 2px solid #000;
+      box-shadow: 0 4px 0 #000;
     }
-    /* ---------- Media Query for Small Screens (max-width: 480px) ---------- */
+    /* Media Query for Small Screens */
     @media (max-width: 480px) {
       body {
         display: flex;
@@ -265,8 +253,7 @@
         margin: 0;
       }
       .wrapper {
-        /* Scale down the page to 80% */
-        transform: scale(0.8);
+        transform: scale(0.9);
         transform-origin: top center;
       }
       .container {
@@ -300,19 +287,10 @@
         font-size: 16px;
       }
     }
-    /* ---------- Optional Animations ---------- */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
   </style>
 </head>
 <body>
-  <!-- Wrapper for uniform scaling on small screens -->
+  <!-- Wrapper -->
   <div class="wrapper">
     <!-- Header Section -->
     <header class="container">
@@ -322,10 +300,10 @@
     
     <!-- Main Content Container -->
     <div class="container">
-      <!-- Hero Section: Main Presale Information -->
+      <!-- Hero Section: Presale Information -->
       <div class="hero">
         <h2>Presale Progress</h2>
-        <!-- Progress Bar Immediately after "Presale Progress" -->
+        <!-- Progress Bar -->
         <div id="progress-bar" class="bar">0%</div>
         <p>Total ETH raised: <span id="ethRaised">0</span> ETH</p>
         <p>Your Contribution: <span id="userContribution">0</span> ETH</p>
@@ -333,14 +311,12 @@
         <h1 style="text-shadow: 3px 3px 8px #F0A500;">Join the $LHyena Presale Now!</h1>
         <p>Hardcap: 50 ETH | Softcap: 25 ETH | Token Rate: 20,000,000 LHyena/ETH</p>
         <p>Vesting: 25% monthly for 4 months</p>
-        <!-- Contract Address with Copy Icon -->
         <p class="contract-address">
           Presale Contract Address: 0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20 
-          <button onclick="copyContractAddress()" style="border:none; background:none; cursor:pointer; margin-left:5px;">
+          <button onclick="copyContractAddress()" style="border:none; background:none; cursor:pointer; margin-left: 8px;">
             <img src="https://gateway.pinata.cloud/ipfs/bafkreichlpjusnouyhn4jgipntvamzt6pj33dlzqoeyk6ttifo6dpjiz7q" alt="Copy Icon" style="width:16px; height:16px;">
           </button>
         </p>
-        <!-- Warning Message -->
         <p class="warning">Warning: Do not send funds directly to the presale contract address.</p>
         <h2>How to Participate?</h2>
         <ol style="text-align: center; list-style-position: inside;">
@@ -350,18 +326,18 @@
         </ol>
       </div>
       
-      <!-- Status Bar Placed Below the "How to Participate?" Section -->
+      <!-- Status Bar -->
       <div id="status" class="bar">Not connected</div>
       
       <!-- Wallet Connection Buttons -->
       <div class="wallet-buttons-container">
-        <button id="connectMetaMask" class="wallet-button" onclick="connectMetaMask()">
+        <button id="connectMetaMask" class="wallet-button" onclick="connectMetaMask()" aria-label="Connect MetaMask Wallet">
           <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24">MetaMask
         </button>
-        <button id="connectWallet" class="wallet-button" onclick="connectWalletConnect()">
+        <button id="connectWallet" class="wallet-button" onclick="connectWalletConnect()" aria-label="Connect WalletConnect Wallet">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreica2kla4alapcinmznch47tssr2g26dpdtb3u6ltv3gzlwzmchl4a" alt="WalletConnect Logo" width="24" height="24">WalletConnect
         </button>
-        <button id="disconnectWallet" class="wallet-button" onclick="disconnectWallet()">
+        <button id="disconnectWallet" class="wallet-button" onclick="disconnectWallet()" aria-label="Disconnect Wallet">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreihrxilkswryoesmiwmwwlwvpcso3gtsenstcufxcwwdoq3m2yd7vm" alt="Disconnect Logo" width="24" height="24">Disconnect
         </button>
       </div>
@@ -370,11 +346,9 @@
       <div>
         <h2>Buy $LHyena Tokens</h2>
         <input type="number" id="ethAmount" style="width: 150px;" placeholder="Enter ETH (Max 5ETH)" min="0.1" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
-        <!-- "You will receive:" Section with updated style -->
         <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
-        <!-- BUY Button -->
-        <div class="wallet-buttons-container center">
-          <button id="buyTokensButton" class="wallet-button buy-button" onclick="promptBuyTokens()">
+        <div class="wallet-buttons-container">
+          <button id="buyTokensButton" class="wallet-button buy-button" onclick="promptBuyTokens()" aria-label="Buy Tokens">
             <img src="https://gateway.pinata.cloud/ipfs/bafkreid3b6ufuleuioz3zplwxnfvl5uu4o4oafbvmma3jfiok7d6btj7fi" alt="Buy Logo" width="24" height="24">BUY
           </button>
         </div>
@@ -390,20 +364,20 @@
         </div>
       </div>
       
-      <!-- Footer with Social Media Buttons -->
+      <!-- Footer -->
       <footer>
         <p>&copy; 2025 Laughing Hyena. All Rights Reserved.</p>
         <div class="footer-buttons">
-          <a class="footer-button" href="https://memehive.click/lhyena" target="_blank">
+          <a class="footer-button" href="https://memehive.click/lhyena" target="_blank" aria-label="Visit Website">
             <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreifbwyukqegxt7il3odigkndzchztr2t55hibnyry7mlz6lbbl55jq" alt="Website Logo">Website
           </a>
-          <a class="footer-button" href="https://x.com/Laughing_LHyena" target="_blank">
+          <a class="footer-button" href="https://x.com/Laughing_LHyena" target="_blank" aria-label="Visit Twitter">
             <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreiacaeohlzwepumuvisibrwojwysaraqupy6c7p2nqdqdnpuvrzkiu" alt="Twitter Logo">Twitter
           </a>
-          <a class="footer-button" href="https://t.me/Laughing_LHyena" target="_blank">
+          <a class="footer-button" href="https://t.me/Laughing_LHyena" target="_blank" aria-label="Join Telegram">
             <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreihu2e3j4xjpevv77kjjonnwro3fkak7ghrtfdttgkbjg76tqeuazm" alt="Telegram Logo">Telegram
           </a>
-          <a class="footer-button" href="https://www.facebook.com/share/15sZairCuW/?mibextid=wwXIfr" target="_blank">
+          <a class="footer-button" href="https://www.facebook.com/share/15sZairCuW/?mibextid=wwXIfr" target="_blank" aria-label="Visit Facebook">
             <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreieghdvsc2s43xfvbetosyezg3kaukny6motwti3fz6amtqw7tatyy" alt="Facebook Logo">Facebook
           </a>
         </div>
@@ -412,19 +386,19 @@
   </div> <!-- End of wrapper -->
   
   <script>
-    // ---------------- Configuration Constants ----------------
+    // Configuration Constants
     const BASE_CHAIN_ID_DEC = 8453;
     const BASE_CHAIN_ID_HEX = '0x2105';
     const BASECHAIN_RPC_URL = "https://base-mainnet.infura.io/v3/e923b24ca7eb4da7aa7e827ccae39ef9";
     const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
     const TOKEN_RATE = 20000000;
     
-    // ---------------- Global Variables ----------------
+    // Global Variables
     let provider, signer;
     let walletConnectProvider;
     let userAddress = "";
     
-    // ---------------- Web3Modal Setup for WalletConnect ----------------
+    // Web3Modal Setup for WalletConnect
     const providerOptions = {
       walletconnect: {
         package: WalletConnectProvider.default,
@@ -443,12 +417,12 @@
       providerOptions
     });
     
-    // ---------------- UI Helper ----------------
+    // UI Helper
     function updateStatus(message) {
       document.getElementById("status").innerText = message;
     }
     
-    // ---------------- Helper Functions ----------------
+    // Helper Functions
     async function ensureNetwork(currentProvider) {
       const network = await currentProvider.getNetwork();
       console.log("Connected chainId:", network.chainId);
@@ -466,7 +440,7 @@
       return currentProvider;
     }
     
-    // ---------------- Wallet Event Listeners ----------------
+    // Wallet Event Listeners
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', (accounts) => {
         if (accounts.length > 0) {
@@ -482,7 +456,7 @@
       });
     }
     
-    // ---------------- Wallet Connection Functions ----------------
+    // Wallet Connection Functions
     async function connectMetaMask() {
       if (window.ethereum && window.ethereum.isMetaMask) {
         try {
@@ -663,7 +637,7 @@
     
     setInterval(fetchPresaleProgress, 5000);
     
-    // ---------- Copy Function for Contract Address ----------
+    // Copy Function for Contract Address
     function copyContractAddress() {
       const addressText = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
       if (navigator.clipboard) {
