@@ -49,7 +49,7 @@
       color: #F0A500;
       margin-top: 10px;
     }
-    /* Participation Box (Informative Light-Blue, No Rounded Corners) */
+    /* Participation Box */
     .participation-box {
       background-color: #d9edf7;
       color: #0D0D0D;
@@ -84,7 +84,7 @@
       justify-content: center;
       margin-right: 12px;
     }
-    /* Basic wrapper and container */
+    /* Wrapper and Container */
     .wrapper {
       transform: scale(1);
       transform-origin: top center;
@@ -118,7 +118,6 @@
       height: 150px;
       margin-bottom: 10px;
     }
-    /* Improved Header Title */
     .header-title {
       font-size: 2.5rem;
       background: linear-gradient(to right, #F0A500, #FFD700);
@@ -145,8 +144,6 @@
       width: 60%;
       margin: 10px auto;
       border-radius: 10px;
-      font-family: 'Roboto Mono', monospace;
-      font-size: 1em;
       background-color: #F0A500;
       color: #0D1B2A;
       font-weight: bold;
@@ -158,11 +155,9 @@
       width: 60%;
       margin: 20px auto;
       border-radius: 10px;
-      font-family: 'Roboto Mono', monospace;
-      font-size: 1em;
       background-color: #333333;
     }
-    /* Wallet Buttons Container */
+    /* Wallet Buttons */
     .wallet-buttons-container {
       display: flex;
       justify-content: center;
@@ -170,7 +165,6 @@
       width: 60%;
       gap: 8px;
     }
-    /* Wallet Buttons */
     .wallet-button {
       background: linear-gradient(to bottom, #F0A500, #D9A300);
       color: #0D1B2A;
@@ -214,7 +208,6 @@
       transform: translateY(2px) scale(1.05);
       box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
-    /* Improved "Buy Tokens" Heading */
     .buy-tokens-heading {
       font-size: 2rem;
       background: linear-gradient(to right, #28a745, #218838);
@@ -229,13 +222,8 @@
       50% { transform: scale(1.03); }
       100% { transform: scale(1); }
     }
-    /* New Text Colors */
-    .total-raised {
-      color: #28a745; /* Green */
-    }
-    .user-contribution {
-      color: #F0A500; /* Yellow */
-    }
+    .total-raised { color: #28a745; }
+    .user-contribution { color: #F0A500; }
     /* Footer */
     footer {
       background-color: #1B263B;
@@ -255,7 +243,6 @@
       display: flex;
       width: 100px;
       height: 25px;
-      box-sizing: border-box;
       background: #F0A500;
       color: #0D1B2A;
       margin: 5px;
@@ -268,23 +255,15 @@
       align-items: center;
       justify-content: center;
     }
-    .footer-button:hover {
-      background: #D9A300;
-      box-shadow: none;
-    }
-    .footer-logo {
-      height: 12px;
-      margin-right: 4px;
-    }
-    /* Presale Contract Address */
+    .footer-button:hover { background: #D9A300; }
+    .footer-logo { height: 12px; margin-right: 4px; }
     .contract-address {
       text-align: center;
-      font-family: 'Roboto Mono', monospace;
       font-size: 1em;
       margin: 10px 0;
       word-wrap: break-word;
     }
-    /* Modal */
+    /* Modal Styles */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -326,7 +305,6 @@
       border: 2px solid #000;
       box-shadow: 0 4px 0 #000;
     }
-    /* Disconnect Button Override */
     #disconnectWallet {
       background: linear-gradient(to bottom, #d9534f, #c9302c);
       border: 2px solid #000;
@@ -334,71 +312,23 @@
     #disconnectWallet:hover {
       background: linear-gradient(to bottom, #c9302c, #d9534f);
     }
-    /* Media Query for Small Screens */
+    /* Responsive Styles */
     @media (max-width: 480px) {
-      body {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        margin: 0;
-      }
-      .wrapper {
-        transform: scale(0.9);
-        transform-origin: top center;
-      }
-      .container {
-        width: 90%;
-      }
-      header {
-        flex-direction: column;
-        padding: 10px;
-      }
-      header .inner-header {
-        width: 90%;
-      }
-      header img {
-        height: 100px;
-        margin: 0 0 10px 0;
-      }
-      header h1 {
-        font-size: 1.2em;
-      }
-      .wallet-buttons-container {
-        flex-direction: column;
-        align-items: center;
-        width: 90%;
-      }
-      .footer-buttons {
-        flex-direction: column;
-        align-items: center;
-      }
-      #status, #progress-bar {
-        width: 100%;
-      }
-      input[type="number"] {
-        width: 80%;
-        font-size: 16px;
-      }
-      /* Ensure footer remains at 60% width on small screens */
-      footer {
-        width: 60%;
-        margin: 20px auto;
-        text-align: center;
-      }
-    }
-    /* Optional Animations */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
+      body { flex-direction: column; min-height: 100vh; }
+      .wrapper { transform: scale(0.9); transform-origin: top center; }
+      .container { width: 90%; }
+      header { flex-direction: column; padding: 10px; }
+      header .inner-header { width: 90%; }
+      header img { height: 100px; margin-bottom: 10px; }
+      header h1 { font-size: 1.2em; }
+      .wallet-buttons-container, .footer-buttons { flex-direction: column; align-items: center; width: 90%; }
+      #status, #progress-bar { width: 100%; }
+      input[type="number"] { width: 80%; font-size: 16px; }
+      footer { width: 60%; margin: 20px auto; }
     }
   </style>
 </head>
 <body>
-  <!-- Wrapper -->
   <div class="wrapper">
     <!-- Header Section -->
     <header class="container">
@@ -408,16 +338,13 @@
       </div>
     </header>
     
-    <!-- Main Content Container -->
+    <!-- Main Content -->
     <div class="container">
-      <!-- Hero Section: Presale Information -->
       <div class="hero">
         <h2>Presale Progress</h2>
-        <!-- Progress Bar -->
         <div id="progress-bar" class="bar">0%</div>
         <p class="total-raised">Total ETH raised: <span id="ethRaised">0</span> ETH</p>
         <p class="user-contribution">Your Contribution: <span id="userContribution">0</span> ETH</p>
-        
         <p>Hardcap: 50 ETH | Softcap: 25 ETH | Token Rate: 20,000,000 LHyena/ETH</p>
         <p>Vesting: 25% monthly for 4 months</p>
         <p class="contract-address">
@@ -428,30 +355,18 @@
         </p>
         <p class="warning">Warning: Do not send funds directly to the presale contract address.</p>
         
-        <!-- Participation Box -->
         <div class="participation-box">
           <h2>How to Participate?</h2>
           <ol class="participation-list">
-            <li>
-              <span class="step-icon">1</span>
-              Connect your wallet (MetaMask or WalletConnect).
-            </li>
-            <li>
-              <span class="step-icon">2</span>
-              Enter the amount of ETH you want to contribute (min 0.1 ETH, max 5 ETH).
-            </li>
-            <li>
-              <span class="step-icon">3</span>
-              Click "BUY" and confirm your transaction.
-            </li>
+            <li><span class="step-icon">1</span>Connect your wallet (MetaMask or WalletConnect).</li>
+            <li><span class="step-icon">2</span>Enter the amount of ETH you want to contribute (min 0.1 ETH, max 5 ETH).</li>
+            <li><span class="step-icon">3</span>Click "BUY" and confirm your transaction.</li>
           </ol>
         </div>
       </div>
       
-      <!-- Status Bar -->
       <div id="status" class="bar">Not connected</div>
       
-      <!-- Wallet Connection Buttons -->
       <div class="wallet-buttons-container">
         <button id="connectMetaMask" class="wallet-button" onclick="connectMetaMask()" aria-label="Connect MetaMask Wallet">
           <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24">MetaMask
@@ -464,7 +379,6 @@
         </button>
       </div>
       
-      <!-- Token Purchase Section -->
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
         <input type="number" id="ethAmount" style="width: 150px;" placeholder="ETH (Max 5)" min="0.1" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
@@ -476,7 +390,6 @@
         </div>
       </div>
       
-      <!-- Modal Confirmation Dialog -->
       <div id="confirmationModal" class="modal-overlay">
         <div class="modal">
           <h3>Confirm Your Transaction</h3>
@@ -485,9 +398,8 @@
           <button class="cancel-btn" onclick="closeModal()">Cancel</button>
         </div>
       </div>
-    </div> <!-- End of container -->
+    </div>
     
-    <!-- Footer Section using same container as header -->
     <footer class="container">
       <p>&copy; 2025 Laughing Hyena. All Rights Reserved.</p>
       <div class="footer-buttons">
@@ -505,10 +417,9 @@
         </a>
       </div>
     </footer>
-  </div> <!-- End of wrapper -->
+  </div>
   
   <script>
-    // Wrap our code in a DOMContentLoaded listener to ensure ethers is defined
     document.addEventListener("DOMContentLoaded", function () {
       // Use the UMD build's ethers from the window object
       const ethers = window.ethers;
@@ -525,16 +436,14 @@
       let walletConnectProvider;
       let userAddress = "";
       
-      // ---------------- Web3Modal Setup for WalletConnect ----------------
+      // ---------------- WalletConnect Setup ----------------
       const providerOptions = {
         walletconnect: {
           package: WalletConnectProvider.default,
           options: {
-            rpc: { 
-              [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL 
-            },
+            rpc: { [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL },
             bridge: "https://bridge.walletconnect.org",
-            qrcode: false
+            qrcode: true  // Changed to true to display the QR code (can help with debugging)
           }
         }
       };
@@ -547,24 +456,6 @@
       // ---------------- UI Helper ----------------
       function updateStatus(message) {
         document.getElementById("status").innerText = message;
-      }
-      
-      // ---------------- Helper Functions ----------------
-      async function ensureNetwork(currentProvider) {
-        const network = await currentProvider.getNetwork();
-        console.log("Connected chainId:", network.chainId);
-        if (network.chainId !== BASE_CHAIN_ID_DEC) {
-          try {
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: BASE_CHAIN_ID_HEX }]
-            });
-            return new ethers.providers.Web3Provider(window.ethereum);
-          } catch (error) {
-            throw new Error("Failed to switch to Basechain. Please switch manually.");
-          }
-        }
-        return currentProvider;
       }
       
       // ---------------- Wallet Event Listeners ----------------
@@ -586,11 +477,9 @@
       // ---------------- Wallet Connection Functions ----------------
       async function connectMetaMask() {
         if (window.ethereum && window.ethereum.isMetaMask) {
-          console.log("MetaMask detected:", window.ethereum);
           try {
             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
             if (accounts.length === 0) {
-              console.error("No accounts found.");
               updateStatus("No accounts found.");
               return;
             }
@@ -603,12 +492,7 @@
                   params: [{ chainId: BASE_CHAIN_ID_HEX }],
                 });
                 tempProvider = new ethers.providers.Web3Provider(window.ethereum);
-                const updatedNetwork = await tempProvider.getNetwork();
-                if (updatedNetwork.chainId !== BASE_CHAIN_ID_DEC) {
-                  throw new Error("Failed to switch to the Base network.");
-                }
               } catch (switchError) {
-                console.error("Network switch error:", switchError);
                 updateStatus("Please switch your MetaMask to the Base network.");
                 return;
               }
@@ -618,11 +502,9 @@
             userAddress = accounts[0];
             updateStatus("Connected to MetaMask on Base network: " + userAddress);
           } catch (error) {
-            console.error("Error during MetaMask connection:", error);
             updateStatus("MetaMask connection failed: " + error.message);
           }
         } else {
-          console.error("MetaMask not detected. Please install MetaMask.");
           updateStatus("MetaMask not detected. Please install MetaMask.");
         }
       }
@@ -640,7 +522,6 @@
           userAddress = await signer.getAddress();
           updateStatus("Connected with WalletConnect on Basechain: " + userAddress);
         } catch (error) {
-          console.error(error);
           updateStatus("WalletConnect connection failed: " + error.message);
         }
       }
@@ -704,15 +585,13 @@
         }
         const contract = new ethers.Contract(
           PRESALE_CONTRACT_ADDRESS,
-          [
-            {
-              "inputs": [],
-              "name": "buyTokens",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
-            }
-          ],
+          [{
+            "inputs": [],
+            "name": "buyTokens",
+            "outputs": [],
+            "stateMutability": "payable",
+            "type": "function"
+          }],
           signer
         );
         try {
@@ -721,7 +600,6 @@
           await tx.wait(3);
           updateStatus("Transaction Successful! You have purchased $LHyena tokens.");
         } catch (error) {
-          console.error(error);
           updateStatus("Transaction failed: " + error.message);
         }
       }
@@ -756,15 +634,13 @@
         try {
           const contract = new ethers.Contract(
             PRESALE_CONTRACT_ADDRESS,
-            [
-              {
-                "inputs": [],
-                "name": "totalRaised",
-                "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-                "stateMutability": "view",
-                "type": "function"
-              }
-            ],
+            [{
+              "inputs": [],
+              "name": "totalRaised",
+              "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+              "stateMutability": "view",
+              "type": "function"
+            }],
             provider
           );
           const ethRaised = await contract.totalRaised();
@@ -786,13 +662,13 @@
       
       setInterval(fetchPresaleProgress, 5000);
       
-      // Copy Function for Contract Address
+      // Copy function for the contract address
       function copyContractAddress() {
         const addressText = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
         if (navigator.clipboard) {
           navigator.clipboard.writeText(addressText).then(() => {
             alert("Contract address copied to clipboard!");
-          }).catch(err => {
+          }).catch(() => {
             alert("Failed to copy contract address. Please try again.");
           });
         } else {
@@ -810,7 +686,7 @@
         }
       }
       
-      // Expose connection functions to global scope for button clicks
+      // Expose functions for button clicks
       window.connectMetaMask = connectMetaMask;
       window.connectWalletConnect = connectWalletConnect;
       window.disconnectWallet = disconnectWallet;
