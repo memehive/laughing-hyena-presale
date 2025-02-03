@@ -30,28 +30,20 @@
       font-size: 16px;
       line-height: 1.6;
     }
-    h1, h2, h3 {
-      font-family: 'Roboto Mono', monospace;
-    }
-    input, .contract-address {
-      font-family: 'Roboto Mono', monospace;
-    }
-    .wallet-button, .buy-button, .footer-button, .warning {
-      font-family: 'Roboto Mono', monospace;
-    }
+    h1, h2, h3 { font-family: 'Roboto Mono', monospace; }
+    input, .contract-address { font-family: 'Roboto Mono', monospace; }
+    .wallet-button, .buy-button, .footer-button, .warning { font-family: 'Roboto Mono', monospace; }
     .warning {
       font-size: 0.8em;
       color: #ff5555;
       margin-top: 5px;
     }
-    /* "You will receive:" text style */
     .token-receive {
       font-family: 'Roboto Mono', monospace;
       font-weight: bold;
       color: #F0A500;
       margin-top: 10px;
     }
-    /* Participation Box */
     .participation-box {
       background-color: #d9edf7;
       color: #0D0D0D;
@@ -60,7 +52,6 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
       border-radius: 0;
     }
-    /* Participation List Styling */
     .participation-list {
       list-style: none;
       padding: 0;
@@ -86,7 +77,6 @@
       justify-content: center;
       margin-right: 12px;
     }
-    /* Wrapper and Container */
     .wrapper {
       transform: scale(1);
       transform-origin: top center;
@@ -100,7 +90,6 @@
       flex-direction: column;
       align-items: center;
     }
-    /* Header */
     header {
       background-color: #1B263B;
       width: 100%;
@@ -134,12 +123,10 @@
       50% { transform: scale(1.03); }
       100% { transform: scale(1); }
     }
-    /* Hero Section */
     .hero {
       margin-bottom: 20px;
       width: 100%;
     }
-    /* Progress Bar */
     #progress-bar {
       height: 20px;
       line-height: 20px;
@@ -150,7 +137,6 @@
       color: #0D1B2A;
       font-weight: bold;
     }
-    /* Status Bar */
     #status {
       height: 20px;
       line-height: 20px;
@@ -159,7 +145,6 @@
       border-radius: 10px;
       background-color: #333333;
     }
-    /* Wallet Buttons */
     .wallet-buttons-container {
       display: flex;
       justify-content: center;
@@ -184,15 +169,12 @@
       align-items: center;
       justify-content: center;
     }
-    .wallet-button img {
-      margin-right: 8px;
-    }
+    .wallet-button img { margin-right: 8px; }
     .wallet-button:hover {
       background: linear-gradient(to bottom, #D9A300, #F0A500);
       transform: translateY(2px) scale(1.05);
       box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
-    /* BUY Button */
     .buy-button {
       background: linear-gradient(to bottom, #28a745, #218838);
       color: #0D1B2A;
@@ -226,7 +208,6 @@
     }
     .total-raised { color: #28a745; }
     .user-contribution { color: #F0A500; }
-    /* Footer */
     footer {
       background-color: #1B263B;
       width: 60%;
@@ -265,7 +246,6 @@
       margin: 10px 0;
       word-wrap: break-word;
     }
-    /* Modal Styles */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -314,19 +294,26 @@
     #disconnectWallet:hover {
       background: linear-gradient(to bottom, #c9302c, #d9534f);
     }
-    /* Responsive Styles */
     @media (max-width: 480px) {
-      body { flex-direction: column; min-height: 100vh; }
+      body { display: flex; flex-direction: column; min-height: 100vh; }
       .wrapper { transform: scale(0.9); transform-origin: top center; }
       .container { width: 90%; }
       header { flex-direction: column; padding: 10px; }
       header .inner-header { width: 90%; }
-      header img { height: 100px; margin-bottom: 10px; }
+      header img { height: 100px; margin: 0 0 10px 0; }
       header h1 { font-size: 1.2em; }
       .wallet-buttons-container, .footer-buttons { flex-direction: column; align-items: center; width: 90%; }
       #status, #progress-bar { width: 100%; }
       input[type="number"] { width: 80%; font-size: 16px; }
       footer { width: 60%; margin: 20px auto; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
   </style>
 </head>
@@ -340,7 +327,7 @@
       </div>
     </header>
     
-    <!-- Main Content -->
+    <!-- Main Content Container -->
     <div class="container">
       <div class="hero">
         <h2>Presale Progress</h2>
@@ -356,7 +343,6 @@
           </button>
         </p>
         <p class="warning">Warning: Do not send funds directly to the presale contract address.</p>
-        
         <div class="participation-box">
           <h2>How to Participate?</h2>
           <ol class="participation-list">
@@ -370,14 +356,15 @@
       <div id="status" class="bar">Not connected</div>
       
       <div class="wallet-buttons-container">
-        <!-- Dedicated MetaMask Button -->
+        <!-- MetaMask Button with connection function assigned -->
         <button id="connectMetaMask" class="wallet-button" onclick="connectMetaMask()" aria-label="Connect MetaMask Wallet">
           <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24">MetaMask
         </button>
-        <!-- Web3Modal Button (with WalletConnect & Coinbase Wallet options) -->
-        <button id="connectWallet" class="wallet-button" onclick="connectWalletConnect()" aria-label="Connect WalletConnect">
+        <!-- WalletConnect Button with connection removed -->
+        <button id="connectWallet" class="wallet-button" aria-label="Connect via WalletConnect">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreica2kla4alapcinmznch47tssr2g26dpdtb3u6ltv3gzlwzmchl4a" alt="WalletConnect Logo" width="24" height="24">WalletConnect
         </button>
+        <!-- Disconnect Button -->
         <button id="disconnectWallet" class="wallet-button" onclick="disconnectWallet()" aria-label="Disconnect Wallet">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreihrxilkswryoesmiwmwwlwvpcso3gtsenstcufxcwwdoq3m2yd7vm" alt="Disconnect Logo" width="24" height="24">Disconnect
         </button>
@@ -385,7 +372,6 @@
       
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
-        <!-- Display Wallet ETH Balance Above the Input Field -->
         <p id="walletBalance">Wallet Balance: 0 ETH</p>
         <input type="number" id="ethAmount" style="width: 150px;" placeholder="ETH (Max 5)" min="0.1" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
         <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
@@ -427,23 +413,22 @@
   
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      // Use the UMD build's ethers from the window object
+      // Use the ethers library from the window object (UMD build)
       const ethers = window.ethers;
       
-      // ---------------- Configuration Constants ----------------
+      // Configuration Constants
       const BASE_CHAIN_ID_DEC = 8453;
       const BASE_CHAIN_ID_HEX = '0x2105';
       const BASECHAIN_RPC_URL = "https://base-mainnet.infura.io/v3/e923b24ca7eb4da7aa7e827ccae39ef9";
       const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
       const TOKEN_RATE = 20000000;
       
-      // ---------------- Global Variables ----------------
+      // Global Variables
       let provider, signer;
       let walletConnectProvider;
       let userAddress = "";
       
-      // ---------------- Web3Modal Setup ----------------
-      // Adding both WalletConnect and Coinbase Wallet as provider options
+      // Web3Modal Setup for WalletConnect and Coinbase Wallet
       const providerOptions = {
         walletconnect: {
           package: WalletConnectProvider.default,
@@ -469,12 +454,12 @@
         providerOptions
       });
       
-      // ---------------- UI Helper ----------------
+      // UI Helper
       function updateStatus(message) {
         document.getElementById("status").innerText = message;
       }
       
-      // ---------------- Wallet Event Listeners ----------------
+      // Wallet Event Listeners
       if (window.ethereum) {
         window.ethereum.on('accountsChanged', (accounts) => {
           if (accounts.length > 0) {
@@ -492,7 +477,7 @@
         });
       }
       
-      // ---------------- Wallet Connection Functions ----------------
+      // MetaMask Connection Function (still defined, but not assigned to a button)
       async function connectMetaMask() {
         if (window.ethereum && window.ethereum.isMetaMask) {
           try {
@@ -528,6 +513,7 @@
         }
       }
       
+      // WalletConnect Connection Function
       async function connectWalletConnect() {
         try {
           const instance = await web3Modal.connect();
@@ -561,7 +547,7 @@
         document.getElementById("walletBalance").innerText = "Wallet Balance: 0 ETH";
       }
       
-      // ---------------- Helper to Fetch Wallet ETH Balance ----------------
+      // Helper to Fetch Wallet ETH Balance
       async function fetchWalletBalance() {
         if (!provider || !userAddress) return;
         try {
@@ -573,7 +559,6 @@
         }
       }
       
-      // Optionally, update the wallet balance every 10 seconds
       setInterval(fetchWalletBalance, 10000);
       
       function promptBuyTokens() {
