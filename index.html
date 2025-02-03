@@ -385,6 +385,8 @@
       
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
+        <!-- Display Wallet ETH Balance Above the Input Field -->
+        <p id="walletBalance">Wallet Balance: 0 ETH</p>
         <input type="number" id="ethAmount" style="width: 150px;" placeholder="ETH (Max 5)" min="0.1" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
         <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
         <div class="wallet-buttons-container">
@@ -478,9 +480,11 @@
           if (accounts.length > 0) {
             userAddress = accounts[0];
             updateStatus("Connected: " + userAddress);
+            fetchWalletBalance();
           } else {
             userAddress = "";
             updateStatus("Not connected");
+            document.getElementById("walletBalance").innerText = "Wallet Balance: 0 ETH";
           }
         });
         window.ethereum.on('chainChanged', (chainId) => {
@@ -515,6 +519,7 @@
             signer = provider.getSigner();
             userAddress = accounts[0];
             updateStatus("Connected to MetaMask on Base network: " + userAddress);
+            fetchWalletBalance();
           } catch (error) {
             updateStatus("MetaMask connection failed: " + error.message);
           }
@@ -535,6 +540,7 @@
           signer = provider.getSigner();
           userAddress = await signer.getAddress();
           updateStatus("Connected with wallet on Basechain: " + userAddress);
+          fetchWalletBalance();
         } catch (error) {
           updateStatus("Wallet connection failed: " + error.message);
         }
@@ -552,7 +558,23 @@
         signer = null;
         userAddress = "";
         updateStatus("Not connected");
+        document.getElementById("walletBalance").innerText = "Wallet Balance: 0 ETH";
       }
+      
+      // ---------------- Helper to Fetch Wallet ETH Balance ----------------
+      async function fetchWalletBalance() {
+        if (!provider || !userAddress) return;
+        try {
+          const balance = await provider.getBalance(userAddress);
+          const balanceFormatted = ethers.utils.formatEther(balance);
+          document.getElementById("walletBalance").innerText = "Wallet Balance: " + balanceFormatted + " ETH";
+        } catch (err) {
+          console.error("Error fetching wallet balance:", err);
+        }
+      }
+      
+      // Optionally, update the wallet balance every 10 seconds
+      setInterval(fetchWalletBalance, 10000);
       
       function promptBuyTokens() {
         if (!signer) {
