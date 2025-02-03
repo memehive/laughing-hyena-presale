@@ -423,7 +423,7 @@
       let isMetaMaskConnecting = false;
       
       // Web3Modal Setup for WalletConnect – disable injected providers so MetaMask doesn’t show in the modal.
-      // The providerOptions below include multiple WalletConnect options for Base network–supported wallets.
+      // The providerOptions include multiple WalletConnect options.
       const providerOptions = {
         trustwallet: {
           package: WalletConnectProvider.default,
@@ -574,6 +574,8 @@
       // WalletConnect Connection Function
       async function connectWalletConnect() {
         try {
+          // Clear cached provider to force the dropdown to appear
+          web3Modal.clearCachedProvider();
           const instance = await web3Modal.connect();
           provider = new ethers.providers.Web3Provider(instance);
           const network = await provider.getNetwork();
