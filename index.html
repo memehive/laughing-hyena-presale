@@ -6,14 +6,16 @@
   <title>Laughing Hyena Presale</title>
   <!-- Roboto Mono for all text -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- ethers.js Library (UMD build) -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <!-- Web3Modal (v1) -->
   <script src="https://unpkg.com/web3modal@1.9.8/dist/index.js"></script>
-  <!-- ethers.js Library (must be loaded before custom scripts) -->
-  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
   <!-- WalletConnect Provider -->
   <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
   <!-- web3 Library -->
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+  
   <style>
     /* Global Styles: All text now uses Roboto Mono */
     body {
@@ -508,6 +510,9 @@
   <script>
     // Wrap our code in a DOMContentLoaded listener to ensure ethers is defined
     document.addEventListener("DOMContentLoaded", function () {
+      // Use the UMD build's ethers from the window object
+      const ethers = window.ethers;
+      
       // ---------------- Configuration Constants ----------------
       const BASE_CHAIN_ID_DEC = 8453;
       const BASE_CHAIN_ID_HEX = '0x2105';
@@ -591,15 +596,15 @@
             }
             let tempProvider = new ethers.providers.Web3Provider(window.ethereum);
             const network = await tempProvider.getNetwork();
-            if (network.chainId !== 8453) {
+            if (network.chainId !== BASE_CHAIN_ID_DEC) {
               try {
                 await window.ethereum.request({
                   method: 'wallet_switchEthereumChain',
-                  params: [{ chainId: '0x2105' }],
+                  params: [{ chainId: BASE_CHAIN_ID_HEX }],
                 });
                 tempProvider = new ethers.providers.Web3Provider(window.ethereum);
                 const updatedNetwork = await tempProvider.getNetwork();
-                if (updatedNetwork.chainId !== 8453) {
+                if (updatedNetwork.chainId !== BASE_CHAIN_ID_DEC) {
                   throw new Error("Failed to switch to the Base network.");
                 }
               } catch (switchError) {
@@ -812,6 +817,9 @@
       window.promptBuyTokens = promptBuyTokens;
       window.closeModal = closeModal;
       window.confirmedBuyTokens = confirmedBuyTokens;
+      window.validateEthAmount = validateEthAmount;
+      window.calculateTokens = calculateTokens;
+      window.copyContractAddress = copyContractAddress;
     });
   </script>
 </body>
