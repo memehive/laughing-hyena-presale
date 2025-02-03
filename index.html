@@ -9,7 +9,7 @@
   
   <!-- ethers.js Library (UMD build) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <!-- Coinbase Wallet SDK -->
+  <!-- Coinbase Wallet SDK (if needed in WalletConnect modal) -->
   <script src="https://unpkg.com/@coinbase/wallet-sdk/dist/wallet-sdk.umd.min.js"></script>
   <!-- Web3Modal (v1) -->
   <script src="https://unpkg.com/web3modal@1.9.8/dist/index.js"></script>
@@ -347,7 +347,7 @@
         <div class="participation-box">
           <h2>How to Participate?</h2>
           <ol class="participation-list">
-            <li><span class="step-icon">1</span>Connect your wallet (choose one of the options below; MetaMask will appear if installed).</li>
+            <li><span class="step-icon">1</span>Connect your wallet using one of the options below.</li>
             <li><span class="step-icon">2</span>Enter the amount of ETH you want to contribute (min 0.1 ETH, max 5 ETH).</li>
             <li><span class="step-icon">3</span>Click "BUY" and confirm your transaction.</li>
           </ol>
@@ -357,9 +357,13 @@
       <div id="status" class="bar">Not connected</div>
       
       <div class="wallet-buttons-container">
-        <!-- The Web3Modal dialog will now include the injected provider (MetaMask) along with the options below -->
-        <button id="connectWallet" class="wallet-button" onclick="connectWalletConnect()" aria-label="Connect Wallet">
-          <img src="https://gateway.pinata.cloud/ipfs/bafkreica2kla4alapcinmznch47tssr2g26dpdtb3u6ltv3gzlwzmchl4a" alt="Wallet Icon" width="24" height="24">Wallet Options
+        <!-- Dedicated MetaMask Button -->
+        <button id="connectMetaMask" class="wallet-button" onclick="connectMetaMask()" aria-label="Connect MetaMask Wallet">
+          <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24">MetaMask
+        </button>
+        <!-- Dedicated WalletConnect Button -->
+        <button id="connectWallet" class="wallet-button" onclick="connectWalletConnect()" aria-label="Connect via WalletConnect">
+          <img src="https://gateway.pinata.cloud/ipfs/bafkreica2kla4alapcinmznch47tssr2g26dpdtb3u6ltv3gzlwzmchl4a" alt="WalletConnect Logo" width="24" height="24">WalletConnect
         </button>
         <!-- Dedicated Disconnect Button -->
         <button id="disconnectWallet" class="wallet-button" onclick="disconnectWallet()" aria-label="Disconnect Wallet">
@@ -426,46 +430,23 @@
       let walletConnectProvider;
       let userAddress = "";
       
-      // ---------------- Web3Modal Setup ----------------
-      // Provide options for:
-      // - Injected provider (MetaMask) will be auto‑detected.
-      // - WalletConnect with specific mobileLinks for Trust Wallet and imToken.
-      // - Coinbase Wallet via the Coinbase Wallet SDK.
+      // ---------------- Web3Modal Setup for WalletConnect ----------------
+      // Here we disable injected providers so that MetaMask doesn't appear in this modal.
       const providerOptions = {
-        trustwallet: {
+        walletconnect: {
           package: WalletConnectProvider.default,
           options: {
             rpc: { [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL },
             bridge: "https://bridge.walletconnect.org",
-            qrcode: true,
-            mobileLinks: ["trust"]
-          }
-        },
-        imtoken: {
-          package: WalletConnectProvider.default,
-          options: {
-            rpc: { [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL },
-            bridge: "https://bridge.walletconnect.org",
-            qrcode: true,
-            mobileLinks: ["imtoken"]
-          }
-        },
-        coinbasewallet: {
-          package: CoinbaseWalletSDK,
-          options: {
-            appName: "Laughing Hyena Presale",
-            rpc: BASECHAIN_RPC_URL,
-            chainId: BASE_CHAIN_ID_DEC,
-            darkMode: false
+            qrcode: true
           }
         }
       };
       
       const web3Modal = new window.Web3Modal.default({
         cacheProvider: false,
-        providerOptions
-        // Note: We are not disabling the injected provider,
-        // so MetaMask (or other injected wallets) will also appear.
+        providerOptions,
+        disableInjectedProvider: true
       });
       
       // ---------------- UI Helper ----------------
@@ -491,7 +472,43 @@
         });
       }
       
-      // ---------------- Wallet Connection Functions ----------------
+      // ---------------- MetaMask Connection Function ----------------
+      async function connectMetaMask() {
+        if (window.ethereum && window.ethereum.isMetaMask) {
+          try {
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            if (accounts.length === 0) {
+              updateStatus("No accounts found.");
+              return;
+            }
+            let tempProvider = new ethers.providers.Web3Provider(window.ethereum);
+            const network = await tempProvider.getNetwork();
+            if (network.chainId !== BASE_CHAIN_ID_DEC) {
+              try {
+                await window.ethereum.request({
+                  method: 'wallet_switchEthereumChain',
+                  params: [{ chainId: BASE_CHAIN_ID_HEX }],
+                });
+                tempProvider = new ethers.providers.Web3Provider(window.ethereum);
+              } catch (switchError) {
+                updateStatus("Please switch your MetaMask to the Base network.");
+                return;
+              }
+            }
+            provider = tempProvider;
+            signer = provider.getSigner();
+            userAddress = accounts[0];
+            updateStatus("Connected to MetaMask on Base network: " + userAddress);
+            fetchWalletBalance();
+          } catch (error) {
+            updateStatus("MetaMask connection failed: " + error.message);
+          }
+        } else {
+          updateStatus("MetaMask not detected. Please install MetaMask.");
+        }
+      }
+      
+      // ---------------- WalletConnect Connection Function ----------------
       async function connectWalletConnect() {
         try {
           const instance = await web3Modal.connect();
@@ -503,10 +520,10 @@
           }
           signer = provider.getSigner();
           userAddress = await signer.getAddress();
-          updateStatus("Connected with wallet on Basechain: " + userAddress);
+          updateStatus("Connected with WalletConnect on Basechain: " + userAddress);
           fetchWalletBalance();
         } catch (error) {
-          updateStatus("Wallet connection failed: " + error.message);
+          updateStatus("WalletConnect connection failed: " + error.message);
         }
       }
       
@@ -687,6 +704,7 @@
       }
       
       // Expose functions for button clicks
+      window.connectMetaMask = connectMetaMask;
       window.connectWalletConnect = connectWalletConnect;
       window.disconnectWallet = disconnectWallet;
       window.promptBuyTokens = promptBuyTokens;
