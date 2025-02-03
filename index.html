@@ -19,7 +19,7 @@
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
   
   <style>
-    /* Global Styles */
+    /* Global Styles: All text now uses Roboto Mono */
     body {
       font-family: 'Roboto Mono', monospace;
       margin: 0;
@@ -287,6 +287,7 @@
       border: 2px solid #000;
       box-shadow: 0 4px 0 #000;
     }
+    /* Disconnect Button Override */
     #disconnectWallet {
       background: linear-gradient(to bottom, #d9534f, #c9302c);
       border: 2px solid #000;
@@ -295,17 +296,47 @@
       background: linear-gradient(to bottom, #c9302c, #d9534f);
     }
     @media (max-width: 480px) {
-      body { flex-direction: column; min-height: 100vh; }
-      .wrapper { transform: scale(0.9); transform-origin: top center; }
-      .container { width: 90%; }
-      header { flex-direction: column; padding: 10px; }
-      header .inner-header { width: 90%; }
-      header img { height: 100px; margin-bottom: 10px; }
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        margin: 0;
+      }
+      .wrapper {
+        transform: scale(0.9);
+        transform-origin: top center;
+      }
+      .container {
+        width: 90%;
+      }
+      header {
+        flex-direction: column;
+        padding: 10px;
+      }
+      header .inner-header {
+        width: 90%;
+      }
+      header img {
+        height: 100px;
+        margin: 0 0 10px 0;
+      }
       header h1 { font-size: 1.2em; }
-      .wallet-buttons-container, .footer-buttons { flex-direction: column; align-items: center; width: 90%; }
+      .wallet-buttons-container, .footer-buttons {
+        flex-direction: column;
+        align-items: center;
+        width: 90%;
+      }
       #status, #progress-bar { width: 100%; }
       input[type="number"] { width: 80%; font-size: 16px; }
-      footer { width: 60%; margin: 20px auto; }
+      footer { width: 60%; margin: 20px auto; text-align: center; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
   </style>
 </head>
@@ -319,7 +350,7 @@
       </div>
     </header>
     
-    <!-- Main Content -->
+    <!-- Main Content Container -->
     <div class="container">
       <div class="hero">
         <h2>Presale Progress</h2>
@@ -335,7 +366,6 @@
           </button>
         </p>
         <p class="warning">Warning: Do not send funds directly to the presale contract address.</p>
-        
         <div class="participation-box">
           <h2>How to Participate?</h2>
           <ol class="participation-list">
@@ -349,15 +379,12 @@
       <div id="status" class="bar">Not connected</div>
       
       <div class="wallet-buttons-container">
-        <!-- Dedicated MetaMask Button -->
         <button id="connectMetaMask" class="wallet-button" onclick="connectMetaMask()" aria-label="Connect MetaMask Wallet">
           <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24">MetaMask
         </button>
-        <!-- Dedicated WalletConnect Button -->
         <button id="connectWallet" class="wallet-button" onclick="connectWalletConnect()" aria-label="Connect via WalletConnect">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreica2kla4alapcinmznch47tssr2g26dpdtb3u6ltv3gzlwzmchl4a" alt="WalletConnect Logo" width="24" height="24">WalletConnect
         </button>
-        <!-- Dedicated Disconnect Button -->
         <button id="disconnectWallet" class="wallet-button" onclick="disconnectWallet()" aria-label="Disconnect Wallet">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreihrxilkswryoesmiwmwwlwvpcso3gtsenstcufxcwwdoq3m2yd7vm" alt="Disconnect Logo" width="24" height="24">Disconnect
         </button>
@@ -365,7 +392,6 @@
       
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
-        <!-- Display Wallet ETH Balance Above the Input Field -->
         <p id="walletBalance">Wallet Balance: 0 ETH</p>
         <input type="number" id="ethAmount" style="width: 150px;" placeholder="ETH (Max 5)" min="0.1" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
         <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
@@ -422,8 +448,8 @@
       let userAddress = "";
       let isMetaMaskConnecting = false;
       
-      // Web3Modal Setup for WalletConnect – disable injected providers so MetaMask doesn’t show in the modal.
-      // The providerOptions include multiple WalletConnect options.
+      // Web3Modal Setup for WalletConnect
+      // Remove Coinbase Wallet option by not including it in providerOptions.
       const providerOptions = {
         trustwallet: {
           package: WalletConnectProvider.default,
@@ -477,15 +503,6 @@
             bridge: "https://bridge.walletconnect.org",
             qrcode: true
           }
-        },
-        coinbasewallet: {
-          package: CoinbaseWalletSDK,
-          options: {
-            appName: "Laughing Hyena Presale",
-            rpc: BASECHAIN_RPC_URL,
-            chainId: BASE_CHAIN_ID_DEC,
-            darkMode: false
-          }
         }
       };
       
@@ -527,7 +544,7 @@
         isMetaMaskConnecting = true;
         
         if (window.ethereum && window.ethereum.isMetaMask) {
-          // Optional: Check if the provider appears to be from Exodus
+          // Check for Exodus if necessary
           if (window.ethereum.isExodus) {
             alert("It appears that Exodus is installed. For a MetaMask connection, please disable Exodus or install MetaMask.");
             isMetaMaskConnecting = false;
@@ -574,7 +591,6 @@
       // WalletConnect Connection Function
       async function connectWalletConnect() {
         try {
-          // Clear cached provider to force the dropdown to appear
           web3Modal.clearCachedProvider();
           const instance = await web3Modal.connect();
           provider = new ethers.providers.Web3Provider(instance);
