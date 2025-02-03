@@ -9,7 +9,7 @@
   
   <!-- ethers.js Library (UMD build) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <!-- Coinbase Wallet SDK (if needed in WalletConnect modal) -->
+  <!-- Coinbase Wallet SDK -->
   <script src="https://unpkg.com/@coinbase/wallet-sdk/dist/wallet-sdk.umd.min.js"></script>
   <!-- Web3Modal (v1) -->
   <script src="https://unpkg.com/web3modal@1.9.8/dist/index.js"></script>
@@ -429,16 +429,45 @@
       let provider, signer;
       let walletConnectProvider;
       let userAddress = "";
+      let isMetaMaskConnecting = false; // Flag to prevent multiple MetaMask requests
       
       // ---------------- Web3Modal Setup for WalletConnect ----------------
-      // Here we disable injected providers so that MetaMask doesn't appear in this modal.
+      // Here we disable injected providers so that MetaMask does not appear in this modal.
+      // We now include multiple WalletConnect provider options so that the modal shows a toggle.
       const providerOptions = {
+        trustwallet: {
+          package: WalletConnectProvider.default,
+          options: {
+            rpc: { [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL },
+            bridge: "https://bridge.walletconnect.org",
+            qrcode: true,
+            mobileLinks: ["trust"]
+          }
+        },
+        imtoken: {
+          package: WalletConnectProvider.default,
+          options: {
+            rpc: { [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL },
+            bridge: "https://bridge.walletconnect.org",
+            qrcode: true,
+            mobileLinks: ["imtoken"]
+          }
+        },
         walletconnect: {
           package: WalletConnectProvider.default,
           options: {
             rpc: { [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL },
             bridge: "https://bridge.walletconnect.org",
             qrcode: true
+          }
+        },
+        coinbasewallet: {
+          package: CoinbaseWalletSDK,
+          options: {
+            appName: "Laughing Hyena Presale",
+            rpc: BASECHAIN_RPC_URL,
+            chainId: BASE_CHAIN_ID_DEC,
+            darkMode: false
           }
         }
       };
@@ -474,11 +503,18 @@
       
       // ---------------- MetaMask Connection Function ----------------
       async function connectMetaMask() {
+        if (isMetaMaskConnecting) {
+          alert("A connection request is already pending. Please wait.");
+          return;
+        }
+        isMetaMaskConnecting = true;
+        
         if (window.ethereum && window.ethereum.isMetaMask) {
           try {
             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
             if (accounts.length === 0) {
               updateStatus("No accounts found.");
+              isMetaMaskConnecting = false;
               return;
             }
             let tempProvider = new ethers.providers.Web3Provider(window.ethereum);
@@ -492,6 +528,7 @@
                 tempProvider = new ethers.providers.Web3Provider(window.ethereum);
               } catch (switchError) {
                 updateStatus("Please switch your MetaMask to the Base network.");
+                isMetaMaskConnecting = false;
                 return;
               }
             }
@@ -502,9 +539,12 @@
             fetchWalletBalance();
           } catch (error) {
             updateStatus("MetaMask connection failed: " + error.message);
+          } finally {
+            isMetaMaskConnecting = false;
           }
         } else {
           updateStatus("MetaMask not detected. Please install MetaMask.");
+          isMetaMaskConnecting = false;
         }
       }
       
