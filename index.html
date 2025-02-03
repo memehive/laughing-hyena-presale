@@ -19,7 +19,7 @@
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
   
   <style>
-    /* Global Styles: All text now uses Roboto Mono */
+    /* Global Styles */
     body {
       font-family: 'Roboto Mono', monospace;
       margin: 0;
@@ -44,14 +44,12 @@
       color: #ff5555;
       margin-top: 5px;
     }
-    /* "You will receive:" text style */
     .token-receive {
       font-family: 'Roboto Mono', monospace;
       font-weight: bold;
       color: #F0A500;
       margin-top: 10px;
     }
-    /* Participation Box */
     .participation-box {
       background-color: #d9edf7;
       color: #0D0D0D;
@@ -60,7 +58,6 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
       border-radius: 0;
     }
-    /* Participation List Styling */
     .participation-list {
       list-style: none;
       padding: 0;
@@ -86,7 +83,6 @@
       justify-content: center;
       margin-right: 12px;
     }
-    /* Wrapper and Container */
     .wrapper {
       transform: scale(1);
       transform-origin: top center;
@@ -100,7 +96,6 @@
       flex-direction: column;
       align-items: center;
     }
-    /* Header */
     header {
       background-color: #1B263B;
       width: 100%;
@@ -134,12 +129,10 @@
       50% { transform: scale(1.03); }
       100% { transform: scale(1); }
     }
-    /* Hero Section */
     .hero {
       margin-bottom: 20px;
       width: 100%;
     }
-    /* Progress Bar */
     #progress-bar {
       height: 20px;
       line-height: 20px;
@@ -150,7 +143,6 @@
       color: #0D1B2A;
       font-weight: bold;
     }
-    /* Status Bar */
     #status {
       height: 20px;
       line-height: 20px;
@@ -159,7 +151,6 @@
       border-radius: 10px;
       background-color: #333333;
     }
-    /* Wallet Buttons */
     .wallet-buttons-container {
       display: flex;
       justify-content: center;
@@ -192,7 +183,6 @@
       transform: translateY(2px) scale(1.05);
       box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
-    /* BUY Button */
     .buy-button {
       background: linear-gradient(to bottom, #28a745, #218838);
       color: #0D1B2A;
@@ -226,7 +216,6 @@
     }
     .total-raised { color: #28a745; }
     .user-contribution { color: #F0A500; }
-    /* Footer */
     footer {
       background-color: #1B263B;
       width: 60%;
@@ -265,7 +254,6 @@
       margin: 10px 0;
       word-wrap: break-word;
     }
-    /* Modal Styles */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -314,7 +302,6 @@
     #disconnectWallet:hover {
       background: linear-gradient(to bottom, #c9302c, #d9534f);
     }
-    /* Responsive Styles */
     @media (max-width: 480px) {
       body { flex-direction: column; min-height: 100vh; }
       .wrapper { transform: scale(0.9); transform-origin: top center; }
@@ -360,7 +347,7 @@
         <div class="participation-box">
           <h2>How to Participate?</h2>
           <ol class="participation-list">
-            <li><span class="step-icon">1</span>Connect your wallet (choose one of the options below).</li>
+            <li><span class="step-icon">1</span>Connect your wallet (choose one of the options below; MetaMask will appear if installed).</li>
             <li><span class="step-icon">2</span>Enter the amount of ETH you want to contribute (min 0.1 ETH, max 5 ETH).</li>
             <li><span class="step-icon">3</span>Click "BUY" and confirm your transaction.</li>
           </ol>
@@ -370,9 +357,8 @@
       <div id="status" class="bar">Not connected</div>
       
       <div class="wallet-buttons-container">
-        <!-- (Injected providers such as MetaMask are disabled via Web3Modal config.) -->
-        <!-- Option 1: Trust Wallet -->
-        <button id="connectWallet" class="wallet-button" onclick="connectWalletConnect()" aria-label="Connect Trust Wallet / imToken / Coinbase">
+        <!-- The Web3Modal dialog will now include the injected provider (MetaMask) along with the options below -->
+        <button id="connectWallet" class="wallet-button" onclick="connectWalletConnect()" aria-label="Connect Wallet">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreica2kla4alapcinmznch47tssr2g26dpdtb3u6ltv3gzlwzmchl4a" alt="Wallet Icon" width="24" height="24">Wallet Options
         </button>
         <!-- Dedicated Disconnect Button -->
@@ -425,7 +411,7 @@
   
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      // Use the UMD build's ethers from the window object
+      // Use ethers from the window object
       const ethers = window.ethers;
       
       // ---------------- Configuration Constants ----------------
@@ -441,10 +427,10 @@
       let userAddress = "";
       
       // ---------------- Web3Modal Setup ----------------
-      // Configure only the desired providers:
-      // 1. trustwallet (using WalletConnect with mobileLinks set to "trust")
-      // 2. imtoken (using WalletConnect with mobileLinks set to "imtoken")
-      // 3. coinbasewallet (using Coinbase Wallet SDK)
+      // Provide options for:
+      // - Injected provider (MetaMask) will be auto‑detected.
+      // - WalletConnect with specific mobileLinks for Trust Wallet and imToken.
+      // - Coinbase Wallet via the Coinbase Wallet SDK.
       const providerOptions = {
         trustwallet: {
           package: WalletConnectProvider.default,
@@ -477,8 +463,9 @@
       
       const web3Modal = new window.Web3Modal.default({
         cacheProvider: false,
-        providerOptions,
-        disableInjectedProvider: true  // Disable injected providers (e.g. MetaMask)
+        providerOptions
+        // Note: We are not disabling the injected provider,
+        // so MetaMask (or other injected wallets) will also appear.
       });
       
       // ---------------- UI Helper ----------------
@@ -550,7 +537,7 @@
         }
       }
       
-      // Optionally, update the wallet balance every 10 seconds
+      // Update the wallet balance every 10 seconds
       setInterval(fetchWalletBalance, 10000);
       
       function promptBuyTokens() {
