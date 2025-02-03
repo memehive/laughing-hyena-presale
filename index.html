@@ -506,302 +506,313 @@
   </div> <!-- End of wrapper -->
   
   <script>
-    // ---------------- Configuration Constants ----------------
-    const BASE_CHAIN_ID_DEC = 8453;
-    const BASE_CHAIN_ID_HEX = '0x2105';
-    const BASECHAIN_RPC_URL = "https://base-mainnet.infura.io/v3/e923b24ca7eb4da7aa7e827ccae39ef9";
-    const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
-    const TOKEN_RATE = 20000000;
-    
-    // ---------------- Global Variables ----------------
-    let provider, signer;
-    let walletConnectProvider;
-    let userAddress = "";
-    
-    // ---------------- Web3Modal Setup for WalletConnect ----------------
-    const providerOptions = {
-      walletconnect: {
-        package: WalletConnectProvider.default,
-        options: {
-          rpc: { 
-            [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL 
-          },
-          bridge: "https://bridge.walletconnect.org",
-          qrcode: false
-        }
-      }
-    };
-    
-    const web3Modal = new window.Web3Modal.default({
-      cacheProvider: false,
-      providerOptions
-    });
-    
-    // ---------------- UI Helper ----------------
-    function updateStatus(message) {
-      document.getElementById("status").innerText = message;
-    }
-    
-    // ---------------- Helper Functions ----------------
-    async function ensureNetwork(currentProvider) {
-      const network = await currentProvider.getNetwork();
-      console.log("Connected chainId:", network.chainId);
-      if (network.chainId !== BASE_CHAIN_ID_DEC) {
-        try {
-          await window.ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: BASE_CHAIN_ID_HEX }]
-          });
-          return new ethers.providers.Web3Provider(window.ethereum);
-        } catch (error) {
-          throw new Error("Failed to switch to Basechain. Please switch manually.");
-        }
-      }
-      return currentProvider;
-    }
-    
-    // ---------------- Wallet Event Listeners ----------------
-    if (window.ethereum) {
-      window.ethereum.on('accountsChanged', (accounts) => {
-        if (accounts.length > 0) {
-          userAddress = accounts[0];
-          updateStatus("Connected: " + userAddress);
-        } else {
-          userAddress = "";
-          updateStatus("Not connected");
-        }
-      });
-      window.ethereum.on('chainChanged', (chainId) => {
-        window.location.reload();
-      });
-    }
-    
-    // ---------------- Wallet Connection Functions ----------------
-    async function connectMetaMask() {
-      if (window.ethereum && window.ethereum.isMetaMask) {
-        console.log("MetaMask detected:", window.ethereum);
-        try {
-          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-          if (accounts.length === 0) {
-            console.error("No accounts found.");
-            updateStatus("No accounts found.");
-            return;
+    // Wrap our code in a DOMContentLoaded listener to ensure ethers is defined
+    document.addEventListener("DOMContentLoaded", function () {
+      // ---------------- Configuration Constants ----------------
+      const BASE_CHAIN_ID_DEC = 8453;
+      const BASE_CHAIN_ID_HEX = '0x2105';
+      const BASECHAIN_RPC_URL = "https://base-mainnet.infura.io/v3/e923b24ca7eb4da7aa7e827ccae39ef9";
+      const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
+      const TOKEN_RATE = 20000000;
+      
+      // ---------------- Global Variables ----------------
+      let provider, signer;
+      let walletConnectProvider;
+      let userAddress = "";
+      
+      // ---------------- Web3Modal Setup for WalletConnect ----------------
+      const providerOptions = {
+        walletconnect: {
+          package: WalletConnectProvider.default,
+          options: {
+            rpc: { 
+              [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL 
+            },
+            bridge: "https://bridge.walletconnect.org",
+            qrcode: false
           }
-          let tempProvider = new ethers.providers.Web3Provider(window.ethereum);
-          const network = await tempProvider.getNetwork();
-          if (network.chainId !== 8453) {
-            try {
-              await window.ethereum.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: '0x2105' }],
-              });
-              tempProvider = new ethers.providers.Web3Provider(window.ethereum);
-              const updatedNetwork = await tempProvider.getNetwork();
-              if (updatedNetwork.chainId !== 8453) {
-                throw new Error("Failed to switch to the Base network.");
-              }
-            } catch (switchError) {
-              console.error("Network switch error:", switchError);
-              updateStatus("Please switch your MetaMask to the Base network.");
+        }
+      };
+      
+      const web3Modal = new window.Web3Modal.default({
+        cacheProvider: false,
+        providerOptions
+      });
+      
+      // ---------------- UI Helper ----------------
+      function updateStatus(message) {
+        document.getElementById("status").innerText = message;
+      }
+      
+      // ---------------- Helper Functions ----------------
+      async function ensureNetwork(currentProvider) {
+        const network = await currentProvider.getNetwork();
+        console.log("Connected chainId:", network.chainId);
+        if (network.chainId !== BASE_CHAIN_ID_DEC) {
+          try {
+            await window.ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: BASE_CHAIN_ID_HEX }]
+            });
+            return new ethers.providers.Web3Provider(window.ethereum);
+          } catch (error) {
+            throw new Error("Failed to switch to Basechain. Please switch manually.");
+          }
+        }
+        return currentProvider;
+      }
+      
+      // ---------------- Wallet Event Listeners ----------------
+      if (window.ethereum) {
+        window.ethereum.on('accountsChanged', (accounts) => {
+          if (accounts.length > 0) {
+            userAddress = accounts[0];
+            updateStatus("Connected: " + userAddress);
+          } else {
+            userAddress = "";
+            updateStatus("Not connected");
+          }
+        });
+        window.ethereum.on('chainChanged', (chainId) => {
+          window.location.reload();
+        });
+      }
+      
+      // ---------------- Wallet Connection Functions ----------------
+      async function connectMetaMask() {
+        if (window.ethereum && window.ethereum.isMetaMask) {
+          console.log("MetaMask detected:", window.ethereum);
+          try {
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            if (accounts.length === 0) {
+              console.error("No accounts found.");
+              updateStatus("No accounts found.");
               return;
             }
+            let tempProvider = new ethers.providers.Web3Provider(window.ethereum);
+            const network = await tempProvider.getNetwork();
+            if (network.chainId !== 8453) {
+              try {
+                await window.ethereum.request({
+                  method: 'wallet_switchEthereumChain',
+                  params: [{ chainId: '0x2105' }],
+                });
+                tempProvider = new ethers.providers.Web3Provider(window.ethereum);
+                const updatedNetwork = await tempProvider.getNetwork();
+                if (updatedNetwork.chainId !== 8453) {
+                  throw new Error("Failed to switch to the Base network.");
+                }
+              } catch (switchError) {
+                console.error("Network switch error:", switchError);
+                updateStatus("Please switch your MetaMask to the Base network.");
+                return;
+              }
+            }
+            provider = tempProvider;
+            signer = provider.getSigner();
+            userAddress = accounts[0];
+            updateStatus("Connected to MetaMask on Base network: " + userAddress);
+          } catch (error) {
+            console.error("Error during MetaMask connection:", error);
+            updateStatus("MetaMask connection failed: " + error.message);
           }
-          provider = tempProvider;
-          signer = provider.getSigner();
-          userAddress = accounts[0];
-          updateStatus("Connected to MetaMask on Base network: " + userAddress);
-        } catch (error) {
-          console.error("Error during MetaMask connection:", error);
-          updateStatus("MetaMask connection failed: " + error.message);
+        } else {
+          console.error("MetaMask not detected. Please install MetaMask.");
+          updateStatus("MetaMask not detected. Please install MetaMask.");
         }
-      } else {
-        console.error("MetaMask not detected. Please install MetaMask.");
-        updateStatus("MetaMask not detected. Please install MetaMask.");
       }
-    }
-    
-    async function connectWalletConnect() {
-      try {
-        const instance = await web3Modal.connect();
-        provider = new ethers.providers.Web3Provider(instance);
-        const network = await provider.getNetwork();
-        if (network.chainId !== BASE_CHAIN_ID_DEC) {
-          updateStatus("Please connect to Basechain using your WalletConnect wallet.");
+      
+      async function connectWalletConnect() {
+        try {
+          const instance = await web3Modal.connect();
+          provider = new ethers.providers.Web3Provider(instance);
+          const network = await provider.getNetwork();
+          if (network.chainId !== BASE_CHAIN_ID_DEC) {
+            updateStatus("Please connect to Basechain using your WalletConnect wallet.");
+            return;
+          }
+          signer = provider.getSigner();
+          userAddress = await signer.getAddress();
+          updateStatus("Connected with WalletConnect on Basechain: " + userAddress);
+        } catch (error) {
+          console.error(error);
+          updateStatus("WalletConnect connection failed: " + error.message);
+        }
+      }
+      
+      async function disconnectWallet() {
+        if (!provider || userAddress === "") {
+          alert("No wallet connected");
           return;
         }
-        signer = provider.getSigner();
-        userAddress = await signer.getAddress();
-        updateStatus("Connected with WalletConnect on Basechain: " + userAddress);
-      } catch (error) {
-        console.error(error);
-        updateStatus("WalletConnect connection failed: " + error.message);
+        if (walletConnectProvider && walletConnectProvider.disconnect) {
+          await walletConnectProvider.disconnect();
+        }
+        provider = null;
+        signer = null;
+        userAddress = "";
+        updateStatus("Not connected");
       }
-    }
-    
-    async function disconnectWallet() {
-      if (!provider || userAddress === "") {
-        alert("No wallet connected");
-        return;
+      
+      function promptBuyTokens() {
+        if (!signer) {
+          alert("Please connect your wallet first!");
+          updateStatus("Please connect your wallet first!");
+          return;
+        }
+        validateEthAmount();
+        const ethAmount = parseFloat(document.getElementById("ethAmount").value);
+        if (!ethAmount || ethAmount < 0.1 || ethAmount > 5) {
+          updateStatus("Contribution must be between 0.1 and 5 ETH.");
+          return;
+        }
+        const tokenAmount = (ethAmount * TOKEN_RATE).toLocaleString();
+        document.getElementById("transactionSummary").innerText =
+          `You are about to contribute ${ethAmount} ETH to receive ${tokenAmount} LHyena tokens.`;
+        document.getElementById("confirmationModal").style.display = "flex";
       }
-      if (walletConnectProvider && walletConnectProvider.disconnect) {
-        await walletConnectProvider.disconnect();
+      
+      function closeModal() {
+        document.getElementById("confirmationModal").style.display = "none";
       }
-      provider = null;
-      signer = null;
-      userAddress = "";
-      updateStatus("Not connected");
-    }
-    
-    function promptBuyTokens() {
-      if (!signer) {
-        alert("Please connect your wallet first!");
-        updateStatus("Please connect your wallet first!");
-        return;
+      
+      async function confirmedBuyTokens() {
+        closeModal();
+        const network = await provider.getNetwork();
+        if (network.chainId !== BASE_CHAIN_ID_DEC) {
+          updateStatus("Incorrect network. Please switch to Basechain.");
+          return;
+        }
+        buyTokens();
       }
-      validateEthAmount();
-      const ethAmount = parseFloat(document.getElementById("ethAmount").value);
-      if (!ethAmount || ethAmount < 0.1 || ethAmount > 5) {
-        updateStatus("Contribution must be between 0.1 and 5 ETH.");
-        return;
-      }
-      const tokenAmount = (ethAmount * TOKEN_RATE).toLocaleString();
-      document.getElementById("transactionSummary").innerText =
-        `You are about to contribute ${ethAmount} ETH to receive ${tokenAmount} LHyena tokens.`;
-      document.getElementById("confirmationModal").style.display = "flex";
-    }
-    
-    function closeModal() {
-      document.getElementById("confirmationModal").style.display = "none";
-    }
-    
-    async function confirmedBuyTokens() {
-      closeModal();
-      const network = await provider.getNetwork();
-      if (network.chainId !== BASE_CHAIN_ID_DEC) {
-        updateStatus("Incorrect network. Please switch to Basechain.");
-        return;
-      }
-      buyTokens();
-    }
-    
-    async function buyTokens() {
-      if (!signer) {
-        alert("Please connect your wallet first!");
-        updateStatus("Please connect your wallet first!");
-        return;
-      }
-      let ethAmount = parseFloat(document.getElementById("ethAmount").value);
-      if (ethAmount < 0.1 || ethAmount > 5) {
-        updateStatus("Contribution must be between 0.1 and 5 ETH.");
-        return;
-      }
-      const contract = new ethers.Contract(
-        PRESALE_CONTRACT_ADDRESS,
-        [
-          {
-            "inputs": [],
-            "name": "buyTokens",
-            "outputs": [],
-            "stateMutability": "payable",
-            "type": "function"
-          }
-        ],
-        signer
-      );
-      try {
-        const tx = await contract.buyTokens({ value: ethers.utils.parseEther(ethAmount.toString()) });
-        updateStatus("Transaction submitted. Waiting for 3 confirmations...");
-        await tx.wait(3);
-        updateStatus("Transaction Successful! You have purchased $LHyena tokens.");
-      } catch (error) {
-        console.error(error);
-        updateStatus("Transaction failed: " + error.message);
-      }
-    }
-    
-    function validateEthAmount() {
-      const ethInput = document.getElementById("ethAmount");
-      let ethAmount = parseFloat(ethInput.value);
-      if (isNaN(ethAmount)) {
-        updateStatus("Please enter a valid ETH amount.");
-        return;
-      }
-      if (ethAmount > 5) {
-        alert("Maximum contribution per wallet is 5 ETH");
-        ethInput.value = 5;
-        updateStatus("Maximum contribution per wallet is 5 ETH");
-      } else if (ethAmount < 0.1 && ethInput.value !== "") {
-        alert("Minimum contribution is 0.1 ETH");
-        ethInput.value = 0.1;
-        updateStatus("Minimum contribution is 0.1 ETH");
-      } else {
-        updateStatus("");
-      }
-    }
-    
-    function calculateTokens() {
-      let ethAmount = parseFloat(document.getElementById("ethAmount").value) || 0;
-      document.getElementById("tokenAmount").innerText = (ethAmount * TOKEN_RATE).toLocaleString();
-    }
-    
-    async function fetchPresaleProgress() {
-      if (!provider) return;
-      try {
+      
+      async function buyTokens() {
+        if (!signer) {
+          alert("Please connect your wallet first!");
+          updateStatus("Please connect your wallet first!");
+          return;
+        }
+        let ethAmount = parseFloat(document.getElementById("ethAmount").value);
+        if (ethAmount < 0.1 || ethAmount > 5) {
+          updateStatus("Contribution must be between 0.1 and 5 ETH.");
+          return;
+        }
         const contract = new ethers.Contract(
           PRESALE_CONTRACT_ADDRESS,
           [
             {
               "inputs": [],
-              "name": "totalRaised",
-              "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-              "stateMutability": "view",
+              "name": "buyTokens",
+              "outputs": [],
+              "stateMutability": "payable",
               "type": "function"
             }
           ],
-          provider
+          signer
         );
-        const ethRaised = await contract.totalRaised();
-        const ethRaisedFormatted = ethers.utils.formatEther(ethRaised);
-        updateProgressBar(ethRaisedFormatted);
-        document.getElementById("ethRaised").innerText = ethRaisedFormatted;
-      } catch (error) {
-        console.error("Error fetching presale progress:", error);
-      }
-    }
-    
-    function updateProgressBar(ethRaised) {
-      const hardCap = 50;
-      const progress = Math.min((ethRaised / hardCap) * 100, 100);
-      const progressBar = document.getElementById("progress-bar");
-      progressBar.style.width = progress + '%';
-      progressBar.innerText = Math.round(progress) + '%';
-    }
-    
-    setInterval(fetchPresaleProgress, 5000);
-    
-    // Copy Function for Contract Address
-    function copyContractAddress() {
-      const addressText = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(addressText).then(() => {
-          alert("Contract address copied to clipboard!");
-        }).catch(err => {
-          alert("Failed to copy contract address. Please try again.");
-        });
-      } else {
-        const textArea = document.createElement("textarea");
-        textArea.value = addressText;
-        document.body.appendChild(textArea);
-        textArea.select();
         try {
-          document.execCommand("copy");
-          alert("Contract address copied to clipboard!");
-        } catch (err) {
-          alert("Failed to copy contract address. Please try again.");
+          const tx = await contract.buyTokens({ value: ethers.utils.parseEther(ethAmount.toString()) });
+          updateStatus("Transaction submitted. Waiting for 3 confirmations...");
+          await tx.wait(3);
+          updateStatus("Transaction Successful! You have purchased $LHyena tokens.");
+        } catch (error) {
+          console.error(error);
+          updateStatus("Transaction failed: " + error.message);
         }
-        document.body.removeChild(textArea);
       }
-    }
+      
+      function validateEthAmount() {
+        const ethInput = document.getElementById("ethAmount");
+        let ethAmount = parseFloat(ethInput.value);
+        if (isNaN(ethAmount)) {
+          updateStatus("Please enter a valid ETH amount.");
+          return;
+        }
+        if (ethAmount > 5) {
+          alert("Maximum contribution per wallet is 5 ETH");
+          ethInput.value = 5;
+          updateStatus("Maximum contribution per wallet is 5 ETH");
+        } else if (ethAmount < 0.1 && ethInput.value !== "") {
+          alert("Minimum contribution is 0.1 ETH");
+          ethInput.value = 0.1;
+          updateStatus("Minimum contribution is 0.1 ETH");
+        } else {
+          updateStatus("");
+        }
+      }
+      
+      function calculateTokens() {
+        let ethAmount = parseFloat(document.getElementById("ethAmount").value) || 0;
+        document.getElementById("tokenAmount").innerText = (ethAmount * TOKEN_RATE).toLocaleString();
+      }
+      
+      async function fetchPresaleProgress() {
+        if (!provider) return;
+        try {
+          const contract = new ethers.Contract(
+            PRESALE_CONTRACT_ADDRESS,
+            [
+              {
+                "inputs": [],
+                "name": "totalRaised",
+                "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                "stateMutability": "view",
+                "type": "function"
+              }
+            ],
+            provider
+          );
+          const ethRaised = await contract.totalRaised();
+          const ethRaisedFormatted = ethers.utils.formatEther(ethRaised);
+          updateProgressBar(ethRaisedFormatted);
+          document.getElementById("ethRaised").innerText = ethRaisedFormatted;
+        } catch (error) {
+          console.error("Error fetching presale progress:", error);
+        }
+      }
+      
+      function updateProgressBar(ethRaised) {
+        const hardCap = 50;
+        const progress = Math.min((ethRaised / hardCap) * 100, 100);
+        const progressBar = document.getElementById("progress-bar");
+        progressBar.style.width = progress + '%';
+        progressBar.innerText = Math.round(progress) + '%';
+      }
+      
+      setInterval(fetchPresaleProgress, 5000);
+      
+      // Copy Function for Contract Address
+      function copyContractAddress() {
+        const addressText = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(addressText).then(() => {
+            alert("Contract address copied to clipboard!");
+          }).catch(err => {
+            alert("Failed to copy contract address. Please try again.");
+          });
+        } else {
+          const textArea = document.createElement("textarea");
+          textArea.value = addressText;
+          document.body.appendChild(textArea);
+          textArea.select();
+          try {
+            document.execCommand("copy");
+            alert("Contract address copied to clipboard!");
+          } catch (err) {
+            alert("Failed to copy contract address. Please try again.");
+          }
+          document.body.removeChild(textArea);
+        }
+      }
+      
+      // Expose connection functions to global scope for button clicks
+      window.connectMetaMask = connectMetaMask;
+      window.connectWalletConnect = connectWalletConnect;
+      window.disconnectWallet = disconnectWallet;
+      window.promptBuyTokens = promptBuyTokens;
+      window.closeModal = closeModal;
+      window.confirmedBuyTokens = confirmedBuyTokens;
+    });
   </script>
 </body>
 </html>
