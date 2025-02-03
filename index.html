@@ -47,10 +47,9 @@
     .token-receive {
       font-family: 'Roboto Mono', monospace;
       font-weight: bold;
-      color: #F0A500; /* Set to yellow to match button colour */
+      color: #F0A500; /* Matches the yellow button colour */
       margin-top: 10px;
     }
-    
     /* ---------- Animations ---------- */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
@@ -60,20 +59,17 @@
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.05); }
     }
-    
     /* ---------- Wrapper for Uniform Scaling ---------- */
     .wrapper {
       transform: scale(1);
       transform-origin: top center;
       transition: transform 0.3s ease;
     }
-    
     /* ---------- Global Container ---------- */
     .container {
       width: 60%;
       margin: 0 auto;
     }
-    
     /* ---------- Header ---------- */
     header {
       background-color: #1B263B;
@@ -94,13 +90,11 @@
       margin: 0;
       font-size: 2rem;
     }
-    
     /* ---------- Hero Section (Main Body Content) ---------- */
     .hero {
       margin-bottom: 20px;
     }
-    
-    /* ---------- Progress Bar (Immediately after "Presale Progress") ---------- */
+    /* ---------- Progress Bar (Placed Immediately after "Presale Progress") ---------- */
     #progress-bar {
       height: 20px;
       line-height: 20px;
@@ -113,8 +107,7 @@
       color: #0D1B2A;
       font-weight: bold;
     }
-    
-    /* ---------- Status Bar (Placed below "How to Participate?") ---------- */
+    /* ---------- Status Bar (Placed Below "How to Participate?") ---------- */
     #status {
       height: 20px;
       line-height: 20px;
@@ -125,7 +118,6 @@
       font-size: 1em;
       background-color: #333333;
     }
-    
     /* ---------- Wallet Buttons Container ---------- */
     .wallet-buttons-container {
       display: flex;
@@ -133,7 +125,6 @@
       margin: 20px auto;
       width: 60%;
     }
-    
     /* ---------- Wallet Buttons ---------- */
     .wallet-button {
       background: linear-gradient(to bottom, #F0A500, #D9A300);
@@ -160,7 +151,6 @@
       transform: translateY(2px) scale(1.05);
       box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
-    
     /* ---------- BUY Button ---------- */
     .buy-button {
       background: linear-gradient(to bottom, #28a745, #218838);
@@ -179,7 +169,6 @@
       transform: translateY(2px) scale(1.05);
       box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
-    
     /* ---------- Footer ---------- */
     footer {
       background-color: #1B263B;
@@ -217,7 +206,6 @@
       height: 12px;
       margin-right: 4px;
     }
-    
     /* ---------- Presale Contract Address ---------- */
     .contract-address {
       text-align: center;
@@ -226,7 +214,6 @@
       margin: 10px 0;
       word-wrap: break-word;
     }
-    
     /* ---------- Modal ---------- */
     .modal-overlay {
       position: fixed;
@@ -269,7 +256,6 @@
       border: 2px solid #000000;
       box-shadow: 0 4px 0 #000000;
     }
-    
     /* ---------- Media Query for Small Screens (max-width: 480px) ---------- */
     @media (max-width: 480px) {
       body {
@@ -279,7 +265,9 @@
         margin: 0;
       }
       .wrapper {
-        flex: 1;
+        /* Scale down the page to 80% */
+        transform: scale(0.8);
+        transform-origin: top center;
       }
       .container {
         width: 90%;
@@ -312,7 +300,6 @@
         font-size: 16px;
       }
     }
-    
     /* ---------- Optional Animations ---------- */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
@@ -363,7 +350,7 @@
         </ol>
       </div>
       
-      <!-- Status Bar Placed Below the Main Body Content -->
+      <!-- Status Bar Placed Below the "How to Participate?" Section -->
       <div id="status" class="bar">Not connected</div>
       
       <!-- Wallet Connection Buttons -->
