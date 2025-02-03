@@ -225,7 +225,7 @@
       50% { transform: scale(1.03); }
       100% { transform: scale(1); }
     }
-    /* New Text Colors for ETH Raised and Contribution */
+    /* New Text Colors */
     .total-raised {
       color: #28a745; /* Green */
     }
@@ -577,21 +577,43 @@
     // ---------------- Wallet Connection Functions ----------------
     async function connectMetaMask() {
       if (window.ethereum && window.ethereum.isMetaMask) {
+        console.log("MetaMask detected:", window.ethereum);
         try {
-          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          if (accounts.length === 0) {
+            console.error("No accounts found.");
+            updateStatus("No accounts found.");
+            return;
+          }
           let tempProvider = new ethers.providers.Web3Provider(window.ethereum);
-          tempProvider = await ensureNetwork(tempProvider);
-          const tempSigner = tempProvider.getSigner();
-          const address = await tempSigner.getAddress();
-          updateStatus("Connected to MetaMask on Basechain: " + address);
+          const network = await tempProvider.getNetwork();
+          if (network.chainId !== 8453) {
+            try {
+              await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: '0x2105' }],
+              });
+              tempProvider = new ethers.providers.Web3Provider(window.ethereum);
+              const updatedNetwork = await tempProvider.getNetwork();
+              if (updatedNetwork.chainId !== 8453) {
+                throw new Error("Failed to switch to the Base network.");
+              }
+            } catch (switchError) {
+              console.error("Network switch error:", switchError);
+              updateStatus("Please switch your MetaMask to the Base network.");
+              return;
+            }
+          }
           provider = tempProvider;
-          signer = tempSigner;
-          userAddress = address;
+          signer = provider.getSigner();
+          userAddress = accounts[0];
+          updateStatus("Connected to MetaMask on Base network: " + userAddress);
         } catch (error) {
-          console.error(error);
+          console.error("Error during MetaMask connection:", error);
           updateStatus("MetaMask connection failed: " + error.message);
         }
       } else {
+        console.error("MetaMask not detected. Please install MetaMask.");
         updateStatus("MetaMask not detected. Please install MetaMask.");
       }
     }
