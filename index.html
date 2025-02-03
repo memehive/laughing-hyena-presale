@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Laughing Hyena Presale</title>
-  <!-- Lexend Giga for headings (as previously updated) -->
+  <!-- Lexend Giga for headings -->
   <link href="https://fonts.googleapis.com/css2?family=Lexend+Giga&display=swap" rel="stylesheet">
   <!-- Roboto for body text and buttons -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
@@ -49,14 +49,14 @@
       color: #F0A500;  /* Yellow */
       margin-top: 10px;
     }
-    /* Participation Box (Updated Informative Style) */
+    /* Participation Box (Light Blue Informative, No Corner Fillet) */
     .participation-box {
       background-color: #d9edf7; /* Informative light-blue background */
       color: #0D0D0D; /* Dark text for contrast */
       padding: 20px;
       margin: 20px 0;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-      border-radius: 0; /* Remove corner fillet */
+      border-radius: 0; /* No rounded corners */
     }
     /* Basic wrapper and container */
     .wrapper {
@@ -178,7 +178,7 @@
       transform: translateY(2px) scale(1.05);
       box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
-    /* Footer */
+    /* Footer - Reverted to the previous style */
     footer {
       background-color: #1B263B;
       width: 60%;
@@ -314,8 +314,9 @@
         width: 80%;
         font-size: 16px;
       }
+      /* Override footer width to remain at 60% */
       footer {
-        width: 90%;
+        width: 60%;
         margin: 20px auto;
         text-align: center;
       }
@@ -413,8 +414,8 @@
       </div>
     </div> <!-- End of container -->
     
-    <!-- Footer Section -->
-    <footer style="width: 60%; margin: 20px auto; text-align: center;">
+    <!-- Footer Section using the same container class as header -->
+    <footer class="container">
       <p>&copy; 2025 Laughing Hyena. All Rights Reserved.</p>
       <div class="footer-buttons">
         <a class="footer-button" href="https://memehive.click/lhyena" target="_blank" aria-label="Visit Website">
