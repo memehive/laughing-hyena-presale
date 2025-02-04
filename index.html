@@ -481,7 +481,7 @@
       if (window.ethereum) {
         console.log("Ethereum provider detected:", window.ethereum);
       } else {
-        console.warn("No Ethereum provider detected. Please install a wallet such as MetaMask, Trust Wallet, or Coinbase Wallet.");
+        console.warn("No Ethereum provider detected. Please install MetaMask or another wallet.");
       }
       
       // Listen for account and chain changes
@@ -508,7 +508,8 @@
       async function connectMetaMask() {
         console.log("Attempting to connect with MetaMask...");
         if (!window.ethereum) {
-          updateStatus("No wallet found. Please install a wallet such as MetaMask, Trust Wallet, or Coinbase Wallet.");
+          updateStatus("MetaMask not detected. Please install MetaMask or another compatible wallet.");
+          alert("No wallet detected. Please install MetaMask, Trust Wallet, or Coinbase Wallet.");
           return;
         }
         try {
@@ -549,11 +550,14 @@
         }
       }
       
-      // Trust Wallet connection function:
-      // If a native Trust Wallet provider is available (e.g. in Trust Wallet's DApp browser), use it.
-      // Otherwise, fallback to WalletConnect with a toggled QR code.
+      // Trust Wallet connection function
       async function connectTrustWallet() {
         console.log("Attempting to connect with Trust Wallet...");
+        if (!window.ethereum) {
+          updateStatus("No wallet provider detected. Please install a wallet such as MetaMask, Trust Wallet, or Coinbase Wallet.");
+          alert("No wallet detected. Please install a wallet such as MetaMask, Trust Wallet, or Coinbase Wallet.");
+          return;
+        }
         if (window.ethereum && window.ethereum.isTrust) {
           try {
             const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
@@ -580,19 +584,13 @@
         } else {
           console.log("Native Trust Wallet provider not detected; attempting WalletConnect...");
           try {
-            // Connect using WalletConnect
             const instance = await web3Modal.connectTo("walletconnect");
-            if (!instance) {
-              updateStatus("No wallet found. Please install a wallet such as MetaMask, Trust Wallet, or Coinbase Wallet.");
-              return;
-            }
             provider = new ethers.providers.Web3Provider(instance);
             
             // Listen for the display_uri event to capture the connection URI
             instance.connector.on("display_uri", (uri) => {
               console.log("WalletConnect URI:", uri);
               walletConnectUri = uri;
-              // Show the toggle button for QR code
               document.getElementById("toggleQRCode").style.display = "block";
             });
             
@@ -614,13 +612,14 @@
       
       // Coinbase Wallet connection function
       async function connectCoinbaseWallet() {
+        console.log("Connecting with Coinbase Wallet...");
+        if (!window.ethereum) {
+          updateStatus("No wallet provider detected. Please install a wallet such as MetaMask, Trust Wallet, or Coinbase Wallet.");
+          alert("No wallet detected. Please install MetaMask, Trust Wallet, or Coinbase Wallet.");
+          return;
+        }
         try {
-          console.log("Connecting with Coinbase Wallet...");
           const instance = await web3Modal.connectTo("coinbasewallet");
-          if (!instance) {
-            updateStatus("No wallet found. Please install a wallet such as MetaMask, Trust Wallet, or Coinbase Wallet.");
-            return;
-          }
           provider = new ethers.providers.Web3Provider(instance);
           await provider.send("eth_requestAccounts", []);
           const { chainId } = await provider.getNetwork();
@@ -638,10 +637,30 @@
         }
       }
       
-      // Disconnect wallet function with an alert if no wallet is connected
+      // Generic WalletConnect connection function (if needed)
+      async function connectWalletConnect() {
+        try {
+          const instance = await web3Modal.connect();
+          provider = new ethers.providers.Web3Provider(instance);
+          const { chainId } = await provider.getNetwork();
+          if (chainId !== BASE_CHAIN_ID_DEC) {
+            updateStatus("Please connect to Basechain using your selected wallet.");
+            return;
+          }
+          signer = provider.getSigner();
+          userAddress = await signer.getAddress();
+          updateStatus(`Connected with wallet on Basechain: ${userAddress}`);
+          fetchWalletBalance();
+        } catch (error) {
+          console.error("WalletConnect error:", error);
+          updateStatus(`Wallet connection failed: ${error.message}`);
+        }
+      }
+      
+      // Disconnect Wallet function with alert if no wallet is connected
       async function disconnectWallet() {
         if (!provider || userAddress === "") {
-          alert("No wallet connected");
+          alert("No wallet connected. Please connect a wallet before trying to disconnect.");
           return;
         }
         if (walletConnectProvider && walletConnectProvider.disconnect) {
@@ -667,10 +686,10 @@
       
       setInterval(fetchWalletBalance, 10000);
       
-      // If the Buy button is pressed without a connected wallet, alert the user.
+      // Prompt Buy Tokens function with alert if no wallet is connected
       function promptBuyTokens() {
         if (!signer) {
-          alert("Please connect your wallet first!");
+          alert("No wallet connected. Please connect your wallet before buying tokens.");
           updateStatus("Please connect your wallet first!");
           return;
         }
@@ -702,7 +721,7 @@
       
       async function buyTokens() {
         if (!signer) {
-          alert("Please connect your wallet first!");
+          alert("No wallet connected. Please connect your wallet before buying tokens.");
           updateStatus("Please connect your wallet first!");
           return;
         }
@@ -733,23 +752,29 @@
         }
       }
       
-      // Updated validateEthAmount function: alerts and resets the field if the value exceeds the max (or is below the min)
+      // Validate ETH amount: Alert and reset if it exceeds max (or below min)
       function validateEthAmount() {
         const ethInput = document.getElementById("ethAmount");
         let ethAmount = parseFloat(ethInput.value);
+        
         if (isNaN(ethAmount)) {
           updateStatus("Please enter a valid ETH amount.");
           showWarning("Please enter a valid ETH amount.");
           return;
         }
+        
         if (ethAmount > 5) {
-          alert("Maximum contribution per wallet is 5 ETH. Resetting to 5 ETH.");
+          alert("Maximum contribution per wallet is 5 ETH. Resetting value to 5 ETH.");
           ethInput.value = 5;
+          ethAmount = 5;
           updateStatus("Maximum contribution per wallet is 5 ETH");
-        } else if (ethAmount < 0.1 && ethInput.value !== "") {
-          alert("Minimum contribution is 0.1 ETH. Resetting to 0.1 ETH.");
+          showWarning("Maximum contribution per wallet is 5 ETH");
+        } else if (ethAmount < 0.1) {
+          alert("Minimum contribution is 0.1 ETH. Resetting value to 0.1 ETH.");
           ethInput.value = 0.1;
+          ethAmount = 0.1;
           updateStatus("Minimum contribution is 0.1 ETH");
+          showWarning("Minimum contribution is 0.1 ETH");
         } else {
           clearWarning();
           updateStatus("");
@@ -823,7 +848,7 @@
         const container = document.getElementById("qrCodeContainer");
         if (container.style.display === "none" || container.style.display === "") {
           container.style.display = "block";
-          container.innerHTML = ""; // Clear any previous QR code
+          container.innerHTML = "";
           if (walletConnectUri) {
             new QRCode(container, {
               text: walletConnectUri,
