@@ -38,12 +38,14 @@
       color: #ff5555;
       margin-top: 5px;
     }
+    /* "You will receive:" text style */
     .token-receive {
       font-family: 'Roboto Mono', monospace;
       font-weight: bold;
       color: #F0A500;
       margin-top: 10px;
     }
+    /* Participation Box */
     .participation-box {
       background-color: #d9edf7;
       color: #0D0D0D;
@@ -52,6 +54,7 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
       border-radius: 0;
     }
+    /* Participation List Styling */
     .participation-list {
       list-style: none;
       padding: 0;
@@ -77,6 +80,7 @@
       justify-content: center;
       margin-right: 12px;
     }
+    /* Wrapper and Container */
     .wrapper {
       transform: scale(1);
       transform-origin: top center;
@@ -90,6 +94,7 @@
       flex-direction: column;
       align-items: center;
     }
+    /* Header */
     header {
       background-color: #1B263B;
       width: 100%;
@@ -123,10 +128,12 @@
       50% { transform: scale(1.03); }
       100% { transform: scale(1); }
     }
+    /* Hero Section */
     .hero {
       margin-bottom: 20px;
       width: 100%;
     }
+    /* Progress Bar */
     #progress-bar {
       height: 20px;
       line-height: 20px;
@@ -137,6 +144,7 @@
       color: #0D1B2A;
       font-weight: bold;
     }
+    /* Status Bar */
     #status {
       height: 20px;
       line-height: 20px;
@@ -145,6 +153,7 @@
       border-radius: 10px;
       background-color: #333333;
     }
+    /* Wallet Buttons Container */
     .wallet-buttons-container {
       display: flex;
       justify-content: center;
@@ -152,7 +161,8 @@
       width: 60%;
       gap: 8px;
     }
-    .wallet-button {
+    /* Wallet Buttons (including BUY button) */
+    .wallet-button, .buy-button {
       background: linear-gradient(to bottom, #F0A500, #D9A300);
       color: #0D1B2A;
       font-weight: bold;
@@ -169,26 +179,16 @@
       align-items: center;
       justify-content: center;
     }
-    .wallet-button img { margin-right: 8px; }
-    .wallet-button:hover {
-      background: linear-gradient(to bottom, #D9A300, #F0A500);
-      transform: translateY(2px) scale(1.05);
-      box-shadow: 0 6px 10px rgba(0,0,0,0.2);
-    }
     .buy-button {
+      /* Override the background for the BUY button */
       background: linear-gradient(to bottom, #28a745, #218838);
-      color: #0D1B2A;
-      border: 2px solid #000;
-      box-shadow: 0 4px 0 #000;
       font-size: 20px;
-      padding: 10px 0;
-      width: 150px;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: all 0.3s ease;
     }
-    .buy-button:hover {
-      background: linear-gradient(to bottom, #218838, #28a745);
+    .wallet-button img, .buy-button img {
+      margin-right: 8px;
+    }
+    .wallet-button:hover, .buy-button:hover {
+      background: linear-gradient(to bottom, #D9A300, #F0A500);
       transform: translateY(2px) scale(1.05);
       box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
@@ -208,6 +208,7 @@
     }
     .total-raised { color: #28a745; }
     .user-contribution { color: #F0A500; }
+    /* Footer */
     footer {
       background-color: #1B263B;
       width: 60%;
@@ -246,6 +247,7 @@
       margin: 10px 0;
       word-wrap: break-word;
     }
+    /* Modal Styles */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -346,7 +348,7 @@
         <div class="participation-box">
           <h2>How to Participate?</h2>
           <ol class="participation-list">
-            <li><span class="step-icon">1</span>Connect your wallet (MetaMask or select an option below).</li>
+            <li><span class="step-icon">1</span>Connect your wallet (MetaMask, Trust, or Coinbase).</li>
             <li><span class="step-icon">2</span>Enter the amount of ETH you want to contribute (min 0.1 ETH, max 5 ETH).</li>
             <li><span class="step-icon">3</span>Click "BUY" and confirm your transaction.</li>
           </ol>
@@ -356,28 +358,37 @@
       <div id="status" class="bar">Not connected</div>
       
       <div class="wallet-buttons-container">
-        <!-- MetaMask Button with connection function assigned -->
+        <!-- MetaMask Button -->
         <button id="connectMetaMask" class="wallet-button" onclick="connectMetaMask()" aria-label="Connect MetaMask Wallet">
-          <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24">MetaMask
+          <img src="https://gateway.pinata.cloud/ipfs/bafkreifje5ej3p2l354xe3ql773mlrgignsffzs5uq6fbvoks2zsh765fm" alt="MetaMask Logo" width="24" height="24">
+          <span>MetaMask</span>
         </button>
-        <!-- WalletConnect Button with connection removed -->
-        <button id="connectWallet" class="wallet-button" aria-label="Connect via WalletConnect">
-          <img src="https://gateway.pinata.cloud/ipfs/bafkreica2kla4alapcinmznch47tssr2g26dpdtb3u6ltv3gzlwzmchl4a" alt="WalletConnect Logo" width="24" height="24">WalletConnect
+        <!-- Trust Wallet Button -->
+        <button id="connectTrustWallet" class="wallet-button" onclick="connectTrustWallet()" aria-label="Connect Trust Wallet">
+          <img src="https://gateway.pinata.cloud/ipfs/bafkreigpv2by5d3wp6mofa2xedx6o54fjaaqw3ln33xvlfidfs57al7o5m" alt="Trust Wallet Logo" width="24" height="24">
+          <span>Trust</span>
+        </button>
+        <!-- Coinbase Wallet Button -->
+        <button id="connectCoinbaseWallet" class="wallet-button" onclick="connectCoinbaseWallet()" aria-label="Connect Coinbase Wallet">
+          <img src="https://gateway.pinata.cloud/ipfs/bafkreigpbedcletldnqi5ue2vgh4klft5ovlltl4q47uy5qkfthxo6wfuq" alt="Coinbase Wallet Logo" width="24" height="24">
+          <span>Coinbase</span>
         </button>
         <!-- Disconnect Button -->
         <button id="disconnectWallet" class="wallet-button" onclick="disconnectWallet()" aria-label="Disconnect Wallet">
-          <img src="https://gateway.pinata.cloud/ipfs/bafkreihrxilkswryoesmiwmwwlwvpcso3gtsenstcufxcwwdoq3m2yd7vm" alt="Disconnect Logo" width="24" height="24">Disconnect
+          <img src="https://gateway.pinata.cloud/ipfs/bafkreihrxilkswryoesmiwmwwlwvpcso3gtsenstcufxcwwdoq3m2yd7vm" alt="Disconnect Logo" width="24" height="24">
+          <span>Disconnect</span>
         </button>
       </div>
       
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
         <p id="walletBalance">Wallet Balance: 0 ETH</p>
-        <input type="number" id="ethAmount" style="width: 150px;" placeholder="ETH (Max 5)" min="0.1" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
+        <input type="number" id="ethAmount" style="width: 130px;" placeholder="ETH (Max 5)" min="0.1" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
         <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
         <div class="wallet-buttons-container">
-          <button id="buyTokensButton" class="wallet-button buy-button" onclick="promptBuyTokens()" aria-label="Buy Tokens">
-            <img src="https://gateway.pinata.cloud/ipfs/bafkreid3b6ufuleuioz3zplwxnfvl5uu4o4oafbvmma3jfiok7d6btj7fi" alt="Buy Logo" width="24" height="24">BUY
+          <button id="buyTokensButton" class="buy-button" onclick="promptBuyTokens()" aria-label="Buy Tokens">
+            <img src="https://gateway.pinata.cloud/ipfs/bafkreid3b6ufuleuioz3zplwxnfvl5uu4o4oafbvmma3jfiok7d6btj7fi" alt="Buy Logo" width="24" height="24">
+            <span>BUY</span>
           </button>
         </div>
       </div>
@@ -428,7 +439,7 @@
       let walletConnectProvider;
       let userAddress = "";
       
-      // Web3Modal Setup for WalletConnect and Coinbase Wallet
+      // Web3Modal Setup for WalletConnect, Coinbase Wallet, and Trust Wallet
       const providerOptions = {
         walletconnect: {
           package: WalletConnectProvider.default,
@@ -445,6 +456,15 @@
             rpc: BASECHAIN_RPC_URL,
             chainId: BASE_CHAIN_ID_DEC,
             darkMode: false
+          }
+        },
+        trustwallet: {
+          package: WalletConnectProvider.default,
+          options: {
+            rpc: { [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL },
+            bridge: "https://bridge.walletconnect.org",
+            qrcode: true,
+            mobileLinks: ["trust"]
           }
         }
       };
@@ -477,7 +497,7 @@
         });
       }
       
-      // MetaMask Connection Function (still defined, but not assigned to a button)
+      // MetaMask Connection Function
       async function connectMetaMask() {
         if (window.ethereum && window.ethereum.isMetaMask) {
           try {
@@ -513,7 +533,45 @@
         }
       }
       
-      // WalletConnect Connection Function
+      // Trust Wallet Connection Function
+      async function connectTrustWallet() {
+        try {
+          const instance = await web3Modal.connectTo("trustwallet");
+          provider = new ethers.providers.Web3Provider(instance);
+          const network = await provider.getNetwork();
+          if (network.chainId !== BASE_CHAIN_ID_DEC) {
+            updateStatus("Please connect to Basechain using Trust Wallet.");
+            return;
+          }
+          signer = provider.getSigner();
+          userAddress = await signer.getAddress();
+          updateStatus("Connected with Trust Wallet on Basechain: " + userAddress);
+          fetchWalletBalance();
+        } catch (error) {
+          updateStatus("Trust Wallet connection failed: " + error.message);
+        }
+      }
+      
+      // Coinbase Wallet Connection Function
+      async function connectCoinbaseWallet() {
+        try {
+          const instance = await web3Modal.connectTo("coinbasewallet");
+          provider = new ethers.providers.Web3Provider(instance);
+          const network = await provider.getNetwork();
+          if (network.chainId !== BASE_CHAIN_ID_DEC) {
+            updateStatus("Please connect to Basechain using Coinbase Wallet.");
+            return;
+          }
+          signer = provider.getSigner();
+          userAddress = await signer.getAddress();
+          updateStatus("Connected with Coinbase Wallet on Basechain: " + userAddress);
+          fetchWalletBalance();
+        } catch (error) {
+          updateStatus("Coinbase Wallet connection failed: " + error.message);
+        }
+      }
+      
+      // WalletConnect Connection Function (still defined, but not used)
       async function connectWalletConnect() {
         try {
           const instance = await web3Modal.connect();
@@ -710,6 +768,8 @@
       // Expose functions for button clicks
       window.connectMetaMask = connectMetaMask;
       window.connectWalletConnect = connectWalletConnect;
+      window.connectTrustWallet = connectTrustWallet;
+      window.connectCoinbaseWallet = connectCoinbaseWallet;
       window.disconnectWallet = disconnectWallet;
       window.promptBuyTokens = promptBuyTokens;
       window.closeModal = closeModal;
