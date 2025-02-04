@@ -320,7 +320,8 @@
       
       <div class="wallet-buttons-container">
         <button id="connectMetaMask" class="wallet-button" onclick="connectMetaMask()" aria-label="Connect MetaMask Wallet">
-          <img src="https://gateway.pinata.cloud/ipfs/bafkreifje5ej3p2l354xe3ql773mlrgignsffzs5uq6fbvoks2zsh765fm" alt="MetaMask Logo" width="24" height="24">
+          <!-- Replaced MetaMask logo -->
+          <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24">
           <span>MetaMask</span>
         </button>
         <button id="connectTrustWallet" class="wallet-button" onclick="connectTrustWallet()" aria-label="Connect Trust Wallet">
@@ -367,7 +368,7 @@
           <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreifbwyukqegxt7il3odigkndzchztr2t55hibnyry7mlz6lbbl55jq" alt="Website Logo">Website
         </a>
         <a class="footer-button" href="https://x.com/Laughing_LHyena" target="_blank" aria-label="Visit Twitter">
-          <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreifacaeohlzwepumuvisibrwojwysaraqupy6c7p2nqdqdnpuvrzkiu" alt="Twitter Logo">Twitter
+          <img class="footer-logo" src="https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg" alt="Twitter Logo">Twitter
         </a>
         <a class="footer-button" href="https://t.me/Laughing_LHyena" target="_blank" aria-label="Join Telegram">
           <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreihu2e3j4xjpevv77kjjonnwro3fkak7ghrtfdttgkbjg76tqeuazm" alt="Telegram Logo">Telegram
@@ -395,7 +396,7 @@
       let walletConnectProvider;
       let userAddress = "";
       
-      // Updated providerOptions for WalletConnect, Coinbase Wallet, and Trust Wallet
+      // Provider options for WalletConnect, Coinbase Wallet, and Trust Wallet
       const providerOptions = {
         walletconnect: {
           package: WalletConnectProvider.default,
@@ -430,6 +431,7 @@
         providerOptions
       });
       
+      // Helper functions for status and warning messages
       function updateStatus(message) {
         document.getElementById("status").innerText = message;
       }
@@ -442,6 +444,7 @@
         document.getElementById("warningMessage").innerText = "";
       }
       
+      // Listen for account and chain changes (if available)
       if (window.ethereum) {
         window.ethereum.on('accountsChanged', (accounts) => {
           if (accounts.length > 0) {
@@ -459,101 +462,113 @@
         });
       }
       
+      // Revised MetaMask connection function
       async function connectMetaMask() {
-        if (window.ethereum) {
-          try {
-            console.log("MetaMask detected:", window.ethereum);
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            if (!accounts || accounts.length === 0) {
-              updateStatus("No accounts found.");
+        if (!window.ethereum) {
+          updateStatus("MetaMask not detected. Please install MetaMask.");
+          return;
+        }
+        try {
+          console.log("MetaMask detected:", window.ethereum);
+          const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+          if (!accounts || accounts.length === 0) {
+            updateStatus("No accounts found in MetaMask.");
+            return;
+          }
+          
+          // Create an ethers provider using MetaMask's provider
+          let web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+          const { chainId } = await web3Provider.getNetwork();
+          console.log("Current network chainId:", chainId);
+          
+          // If the user is not on the desired Base network, attempt to switch networks
+          if (chainId !== BASE_CHAIN_ID_DEC) {
+            try {
+              console.log("Switching network to Basechain...");
+              await window.ethereum.request({
+                method: "wallet_switchEthereumChain",
+                params: [{ chainId: BASE_CHAIN_ID_HEX }],
+              });
+              // Reinitialize the provider after switching networks
+              web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+            } catch (switchError) {
+              console.error("Network switch error:", switchError);
+              updateStatus("Please switch your MetaMask to the Base network.");
               return;
             }
-            let tempProvider = new ethers.providers.Web3Provider(window.ethereum);
-            const network = await tempProvider.getNetwork();
-            console.log("Current network chainId:", network.chainId);
-            if (network.chainId !== BASE_CHAIN_ID_DEC) {
-              try {
-                console.log("Attempting network switch...");
-                await window.ethereum.request({
-                  method: 'wallet_switchEthereumChain',
-                  params: [{ chainId: BASE_CHAIN_ID_HEX }],
-                });
-                tempProvider = new ethers.providers.Web3Provider(window.ethereum);
-              } catch (switchError) {
-                console.error("Network switch error:", switchError);
-                updateStatus("Please switch your MetaMask to the Base network.");
-                return;
-              }
-            }
-            provider = tempProvider;
-            signer = provider.getSigner();
-            userAddress = accounts[0];
-            console.log("Connected account:", userAddress);
-            updateStatus("Connected to MetaMask on Base network: " + userAddress);
-            fetchWalletBalance();
-          } catch (error) {
-            console.error("MetaMask connection error:", error);
-            updateStatus("MetaMask connection failed: " + error.message);
           }
-        } else {
-          updateStatus("MetaMask not detected. Please install MetaMask.");
+          
+          // Save provider, signer, and user address globally
+          provider = web3Provider;
+          signer = provider.getSigner();
+          userAddress = accounts[0];
+          updateStatus(`Connected to MetaMask on Base network: ${userAddress}`);
+          fetchWalletBalance();
+        } catch (error) {
+          console.error("MetaMask connection error:", error);
+          updateStatus(`MetaMask connection failed: ${error.message}`);
         }
       }
       
+      // Revised Trust Wallet connection function
       async function connectTrustWallet() {
         try {
           console.log("Connecting with Trust Wallet...");
+          // Use web3Modal to connect via the Trust Wallet option
           const instance = await web3Modal.connectTo("trustwallet");
           provider = new ethers.providers.Web3Provider(instance);
-          const network = await provider.getNetwork();
-          if (network.chainId !== BASE_CHAIN_ID_DEC) {
-            updateStatus("Please connect to Basechain using Trust Wallet.");
+          const { chainId } = await provider.getNetwork();
+          if (chainId !== BASE_CHAIN_ID_DEC) {
+            updateStatus("Please connect to the Basechain using Trust Wallet.");
             return;
           }
           signer = provider.getSigner();
           userAddress = await signer.getAddress();
-          updateStatus("Connected with Trust Wallet on Basechain: " + userAddress);
+          updateStatus(`Connected with Trust Wallet on Basechain: ${userAddress}`);
           fetchWalletBalance();
         } catch (error) {
-          updateStatus("Trust Wallet connection failed: " + error.message);
+          console.error("Trust Wallet connection error:", error);
+          updateStatus(`Trust Wallet connection failed: ${error.message}`);
         }
       }
       
+      // Coinbase Wallet connection function remains as before
       async function connectCoinbaseWallet() {
         try {
           console.log("Connecting with Coinbase Wallet...");
           const instance = await web3Modal.connectTo("coinbasewallet");
           provider = new ethers.providers.Web3Provider(instance);
           await provider.send("eth_requestAccounts", []);
-          const network = await provider.getNetwork();
-          if (network.chainId !== BASE_CHAIN_ID_DEC) {
+          const { chainId } = await provider.getNetwork();
+          if (chainId !== BASE_CHAIN_ID_DEC) {
             updateStatus("Please connect to Basechain using Coinbase Wallet.");
             return;
           }
           signer = provider.getSigner();
           userAddress = await signer.getAddress();
-          updateStatus("Connected with Coinbase Wallet on Basechain: " + userAddress);
+          updateStatus(`Connected with Coinbase Wallet on Basechain: ${userAddress}`);
           fetchWalletBalance();
         } catch (error) {
-          updateStatus("Coinbase Wallet connection failed: " + error.message);
+          updateStatus(`Coinbase Wallet connection failed: ${error.message}`);
         }
       }
       
+      // WalletConnect connection function (if needed)
       async function connectWalletConnect() {
         try {
           const instance = await web3Modal.connect();
           provider = new ethers.providers.Web3Provider(instance);
-          const network = await provider.getNetwork();
-          if (network.chainId !== BASE_CHAIN_ID_DEC) {
+          const { chainId } = await provider.getNetwork();
+          if (chainId !== BASE_CHAIN_ID_DEC) {
             updateStatus("Please connect to Basechain using your selected wallet.");
             return;
           }
           signer = provider.getSigner();
           userAddress = await signer.getAddress();
-          updateStatus("Connected with wallet on Basechain: " + userAddress);
+          updateStatus(`Connected with wallet on Basechain: ${userAddress}`);
           fetchWalletBalance();
         } catch (error) {
-          updateStatus("Wallet connection failed: " + error.message);
+          updateStatus(`Wallet connection failed: ${error.message}`);
         }
       }
       
@@ -609,8 +624,8 @@
       
       async function confirmedBuyTokens() {
         closeModal();
-        const network = await provider.getNetwork();
-        if (network.chainId !== BASE_CHAIN_ID_DEC) {
+        const { chainId } = await provider.getNetwork();
+        if (chainId !== BASE_CHAIN_ID_DEC) {
           updateStatus("Incorrect network. Please switch to Basechain.");
           return;
         }
@@ -711,7 +726,7 @@
       
       // Copy Contract Address Function
       function copyContractAddress() {
-        const addressText = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
+        const addressText = PRESALE_CONTRACT_ADDRESS;
         if (navigator.clipboard) {
           navigator.clipboard.writeText(addressText).then(() => {
             alert("Contract address copied to clipboard!");
@@ -745,23 +760,6 @@
       window.validateEthAmount = validateEthAmount;
       window.calculateTokens = calculateTokens;
       window.copyContractAddress = copyContractAddress;
-      
-      // Optional: A simple test function to verify MetaMask detection
-      async function testMetaMaskConnection() {
-        if (window.ethereum) {
-          console.log("MetaMask provider is available:", window.ethereum);
-          try {
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            console.log("Test connection accounts:", accounts);
-          } catch (error) {
-            console.error("Error during test connection:", error);
-          }
-        } else {
-          console.error("MetaMask provider not found.");
-        }
-      }
-      // Uncomment the next line to run the test on page load:
-      // testMetaMaskConnection();
     });
   </script>
 </body>
