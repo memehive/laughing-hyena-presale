@@ -337,8 +337,8 @@
         <div class="participation-box">
           <h2>How to Participate?</h2>
           <ol class="participation-list">
-            <li><span class="step-icon">1</span>Connect your wallet (MetaMask, Trust, or Coinbase).</li>
-            <li><span class="step-icon">2</span>Enter the amount of ETH you want to contribute (min 0.1 ETH, max 5 ETH).</li>
+            <li><span class="step-icon">1</span>Connect your wallet (Coinbase Wallet, WalletConnect).</li>
+            <li><span class="step-icon">2</span>Enter the amount of ETH you want to contribute (min 0.01 ETH, max 5 ETH).</li>
             <li><span class="step-icon">3</span>Click "BUY" and confirm your transaction.</li>
           </ol>
         </div>
@@ -347,18 +347,15 @@
       <div id="status">Not connected</div>
       
       <div class="wallet-buttons-container">
-        <button id="connectMetaMask" class="wallet-button" onclick="connectMetaMask()" aria-label="Connect MetaMask Wallet">
-          <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24">
-          <span>MetaMask</span>
-        </button>
-        <!-- Trust Wallet button now leverages native provider if available or WalletConnect as fallback -->
-        <button id="connectTrustWallet" class="wallet-button" onclick="connectTrustWallet()" aria-label="Connect Trust Wallet">
-          <img src="https://gateway.pinata.cloud/ipfs/bafkreigpv2by5d3wp6mofa2xedx6o54fjaaqw3ln33xvlfidfs57al7o5m" alt="Trust Wallet Logo" width="24" height="24">
-          <span>Trust</span>
-        </button>
+        <!-- Coinbase Wallet button -->
         <button id="connectCoinbaseWallet" class="wallet-button" onclick="connectCoinbaseWallet()" aria-label="Connect Coinbase Wallet">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreigpbedcletldnqi5ue2vgh4klft5ovlltl4q47uy5qkfthxo6wfuq" alt="Coinbase Wallet Logo" width="24" height="24">
           <span>Coinbase</span>
+        </button>
+        <!-- WalletConnect button with attached logo -->
+        <button id="connectWalletConnect" class="wallet-button" onclick="connectWalletConnect()" aria-label="Connect WalletConnect">
+          <img src="https://gateway.pinata.cloud/ipfs/bafkreica2kla4alapcinmznch47tssr2g26dpdtb3u6ltv3gzlwzmchl4a" alt="WalletConnect Logo" width="24" height="24">
+          <span>WalletConnect</span>
         </button>
         <button id="disconnectWallet" class="wallet-button" onclick="disconnectWallet()" aria-label="Disconnect Wallet">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreihrxilkswryoesmiwmwwlwvpcso3gtsenstcufxcwwdoq3m2yd7vm" alt="Disconnect Logo" width="24" height="24">
@@ -373,7 +370,8 @@
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
         <p id="walletBalance">Wallet Balance: 0 ETH</p>
-        <input type="number" id="ethAmount" style="width: 130px;" placeholder="ETH (Max 5)" min="0.1" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
+        <!-- Updated min attribute to 0.01 -->
+        <input type="number" id="ethAmount" style="width: 130px;" placeholder="ETH (Max 5)" min="0.01" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
         <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
         <div class="wallet-buttons-container">
           <button id="buyTokensButton" class="buy-button" onclick="promptBuyTokens()" aria-label="Buy Tokens">
@@ -421,7 +419,7 @@
       console.warn("Your dApp is not served over HTTPS. Some wallets may refuse to connect.");
     }
     
-    // MetaMask and Wallet Connection Code
+    // Coinbase Wallet, WalletConnect, and Wallet Connection Code
     document.addEventListener("DOMContentLoaded", function () {
       const ethers = window.ethers;
       
@@ -438,7 +436,6 @@
       let userAddress = "";
       
       // Provider options for WalletConnect and Coinbase Wallet
-      // (Trust Wallet fallback will use WalletConnect if native provider is unavailable)
       const providerOptions = {
         walletconnect: {
           package: WalletConnectProvider.default,
@@ -481,7 +478,7 @@
       if (window.ethereum) {
         console.log("Ethereum provider detected:", window.ethereum);
       } else {
-        console.warn("No Ethereum provider detected. Please install MetaMask or another wallet.");
+        console.warn("No Ethereum provider detected. Please install a compatible wallet.");
       }
       
       // Listen for account and chain changes
@@ -504,118 +501,12 @@
         });
       }
       
-      // MetaMask connection function
-      async function connectMetaMask() {
-        console.log("Attempting to connect with MetaMask...");
-        if (!window.ethereum) {
-          updateStatus("MetaMask not detected. Please install MetaMask or another compatible wallet.");
-          alert("No wallet detected. Please install MetaMask, Trust Wallet, or Coinbase Wallet.");
-          return;
-        }
-        try {
-          const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-          console.log("Accounts returned:", accounts);
-          if (!accounts || accounts.length === 0) {
-            updateStatus("No accounts found in MetaMask. Ensure your wallet is unlocked.");
-            return;
-          }
-          let web3Provider = new ethers.providers.Web3Provider(window.ethereum);
-          const { chainId } = await web3Provider.getNetwork();
-          console.log("Current network chainId:", chainId);
-          
-          if (chainId !== BASE_CHAIN_ID_DEC) {
-            try {
-              console.log("Attempting network switch to Basechain...");
-              await window.ethereum.request({
-                method: "wallet_switchEthereumChain",
-                params: [{ chainId: BASE_CHAIN_ID_HEX }],
-              });
-              web3Provider = new ethers.providers.Web3Provider(window.ethereum);
-              console.log("Network switched successfully.");
-            } catch (switchError) {
-              console.error("Error switching network:", switchError);
-              updateStatus("Please switch your MetaMask to the Base network. If a pop-up is not appearing, check your browser's pop-up blocker.");
-              return;
-            }
-          }
-          
-          provider = web3Provider;
-          signer = provider.getSigner();
-          userAddress = accounts[0];
-          updateStatus(`Connected to MetaMask on Base network: ${userAddress}`);
-          fetchWalletBalance();
-        } catch (error) {
-          console.error("MetaMask connection error:", error);
-          updateStatus(`MetaMask connection failed: ${error.message}. Check console for details.`);
-        }
-      }
-      
-      // Trust Wallet connection function
-      async function connectTrustWallet() {
-        console.log("Attempting to connect with Trust Wallet...");
-        if (!window.ethereum) {
-          updateStatus("No wallet provider detected. Please install a wallet such as MetaMask, Trust Wallet, or Coinbase Wallet.");
-          alert("No wallet detected. Please install a wallet such as MetaMask, Trust Wallet, or Coinbase Wallet.");
-          return;
-        }
-        if (window.ethereum && window.ethereum.isTrust) {
-          try {
-            const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-            console.log("Native Trust Wallet accounts returned:", accounts);
-            if (!accounts || accounts.length === 0) {
-              updateStatus("No accounts found in Trust Wallet. Ensure your wallet is unlocked.");
-              return;
-            }
-            let web3Provider = new ethers.providers.Web3Provider(window.ethereum);
-            const { chainId } = await web3Provider.getNetwork();
-            if (chainId !== BASE_CHAIN_ID_DEC) {
-              updateStatus("Please switch Trust Wallet to the Base network.");
-              return;
-            }
-            provider = web3Provider;
-            signer = provider.getSigner();
-            userAddress = accounts[0];
-            updateStatus(`Connected with Trust Wallet (native) on Base network: ${userAddress}`);
-            fetchWalletBalance();
-          } catch (error) {
-            console.error("Native Trust Wallet connection error:", error);
-            updateStatus("Native Trust Wallet connection error: " + error.message);
-          }
-        } else {
-          console.log("Native Trust Wallet provider not detected; attempting WalletConnect...");
-          try {
-            const instance = await web3Modal.connectTo("walletconnect");
-            provider = new ethers.providers.Web3Provider(instance);
-            
-            // Listen for the display_uri event to capture the connection URI
-            instance.connector.on("display_uri", (uri) => {
-              console.log("WalletConnect URI:", uri);
-              walletConnectUri = uri;
-              document.getElementById("toggleQRCode").style.display = "block";
-            });
-            
-            const { chainId } = await provider.getNetwork();
-            if (chainId !== BASE_CHAIN_ID_DEC) {
-              updateStatus("Please connect to Basechain using WalletConnect.");
-              return;
-            }
-            signer = provider.getSigner();
-            userAddress = await signer.getAddress();
-            updateStatus(`Connected with Trust Wallet via WalletConnect on Base network: ${userAddress}`);
-            fetchWalletBalance();
-          } catch (error) {
-            console.error("Trust Wallet connection error via WalletConnect:", error);
-            updateStatus("Trust Wallet connection error via WalletConnect: " + error.message);
-          }
-        }
-      }
-      
       // Coinbase Wallet connection function
       async function connectCoinbaseWallet() {
         console.log("Connecting with Coinbase Wallet...");
         if (!window.ethereum) {
-          updateStatus("No wallet provider detected. Please install a wallet such as MetaMask, Trust Wallet, or Coinbase Wallet.");
-          alert("No wallet detected. Please install MetaMask, Trust Wallet, or Coinbase Wallet.");
+          updateStatus("Coinbase Wallet not detected. Please install Coinbase Wallet.");
+          alert("No wallet detected. Please install Coinbase Wallet.");
           return;
         }
         try {
@@ -637,23 +528,25 @@
         }
       }
       
-      // Generic WalletConnect connection function (if needed)
+      // WalletConnect connection function
       async function connectWalletConnect() {
+        console.log("Connecting with WalletConnect...");
         try {
-          const instance = await web3Modal.connect();
+          const instance = await web3Modal.connectTo("walletconnect");
           provider = new ethers.providers.Web3Provider(instance);
+          await provider.send("eth_requestAccounts", []);
           const { chainId } = await provider.getNetwork();
           if (chainId !== BASE_CHAIN_ID_DEC) {
-            updateStatus("Please connect to Basechain using your selected wallet.");
+            updateStatus("Please connect to Basechain using WalletConnect.");
             return;
           }
           signer = provider.getSigner();
           userAddress = await signer.getAddress();
-          updateStatus(`Connected with wallet on Basechain: ${userAddress}`);
+          updateStatus(`Connected with WalletConnect on Basechain: ${userAddress}`);
           fetchWalletBalance();
         } catch (error) {
-          console.error("WalletConnect error:", error);
-          updateStatus(`Wallet connection failed: ${error.message}`);
+          console.error("WalletConnect connection error:", error);
+          updateStatus(`WalletConnect connection failed: ${error.message}`);
         }
       }
       
@@ -695,8 +588,8 @@
         }
         validateEthAmount();
         const ethAmount = parseFloat(document.getElementById("ethAmount").value);
-        if (!ethAmount || ethAmount < 0.1 || ethAmount > 5) {
-          updateStatus("Contribution must be between 0.1 and 5 ETH.");
+        if (!ethAmount || ethAmount < 0.01 || ethAmount > 5) {
+          updateStatus("Contribution must be between 0.01 and 5 ETH.");
           return;
         }
         const tokenAmount = (ethAmount * TOKEN_RATE).toLocaleString();
@@ -726,8 +619,8 @@
           return;
         }
         let ethAmount = parseFloat(document.getElementById("ethAmount").value);
-        if (ethAmount < 0.1 || ethAmount > 5) {
-          updateStatus("Contribution must be between 0.1 and 5 ETH.");
+        if (ethAmount < 0.01 || ethAmount > 5) {
+          updateStatus("Contribution must be between 0.01 and 5 ETH.");
           return;
         }
         const contract = new ethers.Contract(
@@ -769,12 +662,12 @@
           ethAmount = 5;
           updateStatus("Maximum contribution per wallet is 5 ETH");
           showWarning("Maximum contribution per wallet is 5 ETH");
-        } else if (ethAmount < 0.1) {
-          alert("Minimum contribution is 0.1 ETH. Resetting value to 0.1 ETH.");
-          ethInput.value = 0.1;
-          ethAmount = 0.1;
-          updateStatus("Minimum contribution is 0.1 ETH");
-          showWarning("Minimum contribution is 0.1 ETH");
+        } else if (ethAmount < 0.01) {
+          alert("Minimum contribution is 0.01 ETH. Resetting value to 0.01 ETH.");
+          ethInput.value = 0.01;
+          ethAmount = 0.01;
+          updateStatus("Minimum contribution is 0.01 ETH");
+          showWarning("Minimum contribution is 0.01 ETH");
         } else {
           clearWarning();
           updateStatus("");
@@ -864,10 +757,8 @@
       }
       
       // Expose functions for button clicks
-      window.connectMetaMask = connectMetaMask;
-      window.connectWalletConnect = connectWalletConnect;
-      window.connectTrustWallet = connectTrustWallet;
       window.connectCoinbaseWallet = connectCoinbaseWallet;
+      window.connectWalletConnect = connectWalletConnect;
       window.disconnectWallet = disconnectWallet;
       window.promptBuyTokens = promptBuyTokens;
       window.closeModal = closeModal;
