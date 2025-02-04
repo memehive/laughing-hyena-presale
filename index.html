@@ -423,7 +423,7 @@
           <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreifbwyukqegxt7il3odigkndzchztr2t55hibnyry7mlz6lbbl55jq" alt="Website Logo">Website
         </a>
         <a class="footer-button" href="https://x.com/Laughing_LHyena" target="_blank" aria-label="Visit Twitter">
-          <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreiacaeohlzwepumuvisibrwojwysaraqupy6c7p2nqdqdnpuvrzkiu" alt="Twitter Logo">Twitter
+          <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreifacaeohlzwepumuvisibrwojwysaraqupy6c7p2nqdqdnpuvrzkiu" alt="Twitter Logo">Twitter
         </a>
         <a class="footer-button" href="https://t.me/Laughing_LHyena" target="_blank" aria-label="Join Telegram">
           <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreihu2e3j4xjpevv77kjjonnwro3fkak7ghrtfdttgkbjg76tqeuazm" alt="Telegram Logo">Telegram
@@ -520,7 +520,7 @@
         });
       }
       
-      // Updated MetaMask Connection Function
+      // MetaMask Connection Function
       async function connectMetaMask() {
         if (window.ethereum) {
           try {
@@ -585,12 +585,14 @@
         }
       }
       
-      // Coinbase Wallet Connection Function
+      // Updated Coinbase Wallet Connection Function
       async function connectCoinbaseWallet() {
         try {
           console.log("Connecting with Coinbase Wallet...");
           const instance = await web3Modal.connectTo("coinbasewallet");
           provider = new ethers.providers.Web3Provider(instance);
+          // Explicitly request accounts for Coinbase Wallet
+          await provider.send("eth_requestAccounts", []);
           const network = await provider.getNetwork();
           if (network.chainId !== BASE_CHAIN_ID_DEC) {
             updateStatus("Please connect to Basechain using Coinbase Wallet.");
