@@ -19,7 +19,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
   <!-- web3 Library -->
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
-  <!-- QRCode.js Library for generating QR codes -->
+  <!-- QRCode.js Library for generating QR codes (optional) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
   <style>
@@ -123,6 +123,7 @@
       font-weight: bold;
       line-height: 20px;
     }
+    /* Status Bar Styling */
     #status {
       height: 20px;
       width: 60%;
@@ -130,6 +131,12 @@
       border-radius: 10px;
       background-color: #333333;
       line-height: 20px;
+    }
+    .status-positive {
+      color: #28a745; /* green */
+    }
+    .status-negative {
+      color: #ff5555; /* red */
     }
     #warningMessage {
       color: #ff5555;
@@ -267,7 +274,7 @@
     #disconnectWallet:hover {
       background: linear-gradient(to bottom, #c9302c, #d9534f);
     }
-    /* Styles for the QR Code toggle elements */
+    /* Styles for the QR Code toggle elements (optional) */
     #toggleQRCode {
       margin-top: 20px;
       padding: 8px 16px;
@@ -282,6 +289,22 @@
     #qrCodeContainer {
       margin-top: 10px;
       display: none; /* Hidden by default */
+    }
+    /* Instruction Styling for Adding Token */
+    .token-instructions {
+      font-size: 0.9em;
+      margin: 15px 0;
+      color: #F0A500;
+    }
+    .copy-button {
+      border: none;
+      background: none;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+    .copy-button img {
+      width: 16px;
+      height: 16px;
     }
     
     /* Media Query for Smaller Screens */
@@ -328,8 +351,8 @@
         <p>Vesting: 25% monthly for 4 months</p>
         <p class="contract-address">
           Presale Contract Address: 0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20 
-          <button onclick="copyContractAddress()" style="border:none; background:none; cursor:pointer;" aria-label="Copy Contract Address">
-            <img src="https://gateway.pinata.cloud/ipfs/bafkreichlpjusnouyhn4jgipntvamzt6pj33dlzqoeyk6ttifo6dpjiz7q" alt="Copy Icon" style="width:16px; height:16px;">
+          <button onclick="copyContractAddress()" class="copy-button" aria-label="Copy Presale Contract Address">
+            <img src="https://gateway.pinata.cloud/ipfs/bafkreichlpjusnouyhn4jgipntvamzt6pj33dlzqoeyk6ttifo6dpjiz7q" alt="Copy Icon">
           </button>
         </p>
         <p class="warning">Warning: Do not send funds directly to the presale contract address.</p>
@@ -344,7 +367,7 @@
         </div>
       </div>
       
-      <div id="status">Not connected</div>
+      <div id="status" class="status-neutral">Not connected</div>
       
       <div class="wallet-buttons-container">
         <!-- Coinbase Wallet button -->
@@ -363,7 +386,7 @@
         </button>
       </div>
       
-      <!-- Toggle QR Code Button and Container (initially hidden) -->
+      <!-- Toggle QR Code Button and Container (optional) -->
       <button id="toggleQRCode" onclick="toggleQRCode()">Toggle QR Code</button>
       <div id="qrCodeContainer"></div>
       
@@ -379,6 +402,14 @@
             <span>BUY</span>
           </button>
         </div>
+        <!-- New instruction to add token to Coinbase Wallet with copy button -->
+        <p class="token-instructions">
+          To add $LHyena to your Coinbase Wallet, copy the token contract address: 
+          <strong>0x8aaA69666D6de35561D948f6670F262F6cAC7392</strong>
+          <button onclick="copyTokenAddress()" class="copy-button" aria-label="Copy Token Contract Address">
+            <img src="https://gateway.pinata.cloud/ipfs/bafkreichlpjusnouyhn4jgipntvamzt6pj33dlzqoeyk6ttifo6dpjiz7q" alt="Copy Icon">
+          </button>
+        </p>
       </div>
       
       <div id="confirmationModal" class="modal-overlay">
@@ -411,7 +442,7 @@
   </div>
   
   <script>
-    // Global variable to hold the WalletConnect URI
+    // Global variable to hold the WalletConnect URI (if you wish to use custom QR code display)
     let walletConnectUri = "";
     
     // Troubleshooting: Warn if not using HTTPS (except on localhost)
@@ -442,7 +473,7 @@
           options: {
             rpc: { [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL },
             bridge: "https://bridge.walletconnect.org",
-            qrcode: false  // Disable auto QR code modal
+            qrcode: true  // Enable QR code modal automatically
           }
         },
         coinbasewallet: {
@@ -462,8 +493,15 @@
       });
       
       // Helper functions for status and warning messages
-      function updateStatus(message) {
-        document.getElementById("status").innerText = message;
+      function updateStatus(message, type) {
+        const statusEl = document.getElementById("status");
+        statusEl.innerText = message;
+        statusEl.classList.remove("status-positive", "status-negative");
+        if (type === "positive") {
+          statusEl.classList.add("status-positive");
+        } else if (type === "negative") {
+          statusEl.classList.add("status-negative");
+        }
       }
       
       function showWarning(message) {
@@ -487,11 +525,11 @@
           console.log("Accounts changed:", accounts);
           if (accounts.length > 0) {
             userAddress = accounts[0];
-            updateStatus("Connected: " + userAddress);
+            updateStatus("Connected: " + userAddress, "positive");
             fetchWalletBalance();
           } else {
             userAddress = "";
-            updateStatus("Not connected");
+            updateStatus("Not connected", "negative");
             document.getElementById("walletBalance").innerText = "Wallet Balance: 0 ETH";
           }
         });
@@ -505,7 +543,7 @@
       async function connectCoinbaseWallet() {
         console.log("Connecting with Coinbase Wallet...");
         if (!window.ethereum) {
-          updateStatus("Coinbase Wallet not detected. Please install Coinbase Wallet.");
+          updateStatus("Coinbase Wallet not detected. Please install Coinbase Wallet.", "negative");
           alert("No wallet detected. Please install Coinbase Wallet.");
           return;
         }
@@ -515,20 +553,20 @@
           await provider.send("eth_requestAccounts", []);
           const { chainId } = await provider.getNetwork();
           if (chainId !== BASE_CHAIN_ID_DEC) {
-            updateStatus("Please connect to Basechain using Coinbase Wallet.");
+            updateStatus("Please connect to Basechain using Coinbase Wallet.", "negative");
             return;
           }
           signer = provider.getSigner();
           userAddress = await signer.getAddress();
-          updateStatus(`Connected with Coinbase Wallet on Basechain: ${userAddress}`);
+          updateStatus(`Connected with Coinbase Wallet on Basechain: ${userAddress}`, "positive");
           fetchWalletBalance();
         } catch (error) {
           console.error("Coinbase Wallet connection error:", error);
-          updateStatus(`Coinbase Wallet connection failed: ${error.message}`);
+          updateStatus(`Coinbase Wallet connection failed: ${error.message}`, "negative");
         }
       }
       
-      // WalletConnect connection function
+      // WalletConnect connection function with QR code modal
       async function connectWalletConnect() {
         console.log("Connecting with WalletConnect...");
         try {
@@ -537,16 +575,16 @@
           await provider.send("eth_requestAccounts", []);
           const { chainId } = await provider.getNetwork();
           if (chainId !== BASE_CHAIN_ID_DEC) {
-            updateStatus("Please connect to Basechain using WalletConnect.");
+            updateStatus("Please connect to Basechain using WalletConnect.", "negative");
             return;
           }
           signer = provider.getSigner();
           userAddress = await signer.getAddress();
-          updateStatus(`Connected with WalletConnect on Basechain: ${userAddress}`);
+          updateStatus(`Connected with WalletConnect on Basechain: ${userAddress}`, "positive");
           fetchWalletBalance();
         } catch (error) {
           console.error("WalletConnect connection error:", error);
-          updateStatus(`WalletConnect connection failed: ${error.message}`);
+          updateStatus(`WalletConnect connection failed: ${error.message}`, "negative");
         }
       }
       
@@ -562,7 +600,7 @@
         provider = null;
         signer = null;
         userAddress = "";
-        updateStatus("Not connected");
+        updateStatus("Not connected", "negative");
         document.getElementById("walletBalance").innerText = "Wallet Balance: 0 ETH";
       }
       
@@ -583,13 +621,13 @@
       function promptBuyTokens() {
         if (!signer) {
           alert("No wallet connected. Please connect your wallet before buying tokens.");
-          updateStatus("Please connect your wallet first!");
+          updateStatus("Please connect your wallet first!", "negative");
           return;
         }
         validateEthAmount();
         const ethAmount = parseFloat(document.getElementById("ethAmount").value);
         if (!ethAmount || ethAmount < 0.01 || ethAmount > 5) {
-          updateStatus("Contribution must be between 0.01 and 5 ETH.");
+          updateStatus("Contribution must be between 0.01 and 5 ETH.", "negative");
           return;
         }
         const tokenAmount = (ethAmount * TOKEN_RATE).toLocaleString();
@@ -606,7 +644,7 @@
         closeModal();
         const { chainId } = await provider.getNetwork();
         if (chainId !== BASE_CHAIN_ID_DEC) {
-          updateStatus("Incorrect network. Please switch to Basechain.");
+          updateStatus("Incorrect network. Please switch to Basechain.", "negative");
           return;
         }
         buyTokens();
@@ -615,12 +653,12 @@
       async function buyTokens() {
         if (!signer) {
           alert("No wallet connected. Please connect your wallet before buying tokens.");
-          updateStatus("Please connect your wallet first!");
+          updateStatus("Please connect your wallet first!", "negative");
           return;
         }
         let ethAmount = parseFloat(document.getElementById("ethAmount").value);
         if (ethAmount < 0.01 || ethAmount > 5) {
-          updateStatus("Contribution must be between 0.01 and 5 ETH.");
+          updateStatus("Contribution must be between 0.01 and 5 ETH.", "negative");
           return;
         }
         const contract = new ethers.Contract(
@@ -636,12 +674,12 @@
         );
         try {
           const tx = await contract.buyTokens({ value: ethers.utils.parseEther(ethAmount.toString()) });
-          updateStatus("Transaction submitted. Waiting for 3 confirmations...");
+          updateStatus("Transaction submitted. Waiting for 3 confirmations...", "positive");
           await tx.wait(3);
-          updateStatus("Transaction Successful! You have purchased $LHyena tokens.");
+          updateStatus("Transaction Successful! You have purchased $LHyena tokens.", "positive");
         } catch (error) {
           console.error("Buy tokens error:", error);
-          updateStatus("Transaction failed: " + error.message);
+          updateStatus("Transaction failed: " + error.message, "negative");
         }
       }
       
@@ -651,7 +689,7 @@
         let ethAmount = parseFloat(ethInput.value);
         
         if (isNaN(ethAmount)) {
-          updateStatus("Please enter a valid ETH amount.");
+          updateStatus("Please enter a valid ETH amount.", "negative");
           showWarning("Please enter a valid ETH amount.");
           return;
         }
@@ -660,17 +698,17 @@
           alert("Maximum contribution per wallet is 5 ETH. Resetting value to 5 ETH.");
           ethInput.value = 5;
           ethAmount = 5;
-          updateStatus("Maximum contribution per wallet is 5 ETH");
+          updateStatus("Maximum contribution per wallet is 5 ETH", "negative");
           showWarning("Maximum contribution per wallet is 5 ETH");
         } else if (ethAmount < 0.01) {
           alert("Minimum contribution is 0.01 ETH. Resetting value to 0.01 ETH.");
           ethInput.value = 0.01;
           ethAmount = 0.01;
-          updateStatus("Minimum contribution is 0.01 ETH");
+          updateStatus("Minimum contribution is 0.01 ETH", "negative");
           showWarning("Minimum contribution is 0.01 ETH");
         } else {
           clearWarning();
-          updateStatus("");
+          updateStatus("", "positive");
         }
       }
       
@@ -712,14 +750,14 @@
       
       setInterval(fetchPresaleProgress, 5000);
       
-      // Copy Contract Address Function
+      // Copy Presale Contract Address Function
       function copyContractAddress() {
         const addressText = PRESALE_CONTRACT_ADDRESS;
         if (navigator.clipboard) {
           navigator.clipboard.writeText(addressText).then(() => {
-            alert("Contract address copied to clipboard!");
+            alert("Presale contract address copied to clipboard!");
           }).catch(() => {
-            alert("Failed to copy contract address. Please try again.");
+            alert("Failed to copy presale contract address. Please try again.");
           });
         } else {
           const textArea = document.createElement("textarea");
@@ -728,15 +766,39 @@
           textArea.select();
           try {
             document.execCommand("copy");
-            alert("Contract address copied to clipboard!");
+            alert("Presale contract address copied to clipboard!");
           } catch (err) {
-            alert("Failed to copy contract address. Please try again.");
+            alert("Failed to copy presale contract address. Please try again.");
           }
           document.body.removeChild(textArea);
         }
       }
       
-      // Function to toggle display of the QR code
+      // Copy Token Contract Address Function
+      function copyTokenAddress() {
+        const tokenAddress = "0x8aaA69666D6de35561D948f6670F262F6cAC7392";
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(tokenAddress).then(() => {
+            alert("Token contract address copied to clipboard!");
+          }).catch(() => {
+            alert("Failed to copy token contract address. Please try again.");
+          });
+        } else {
+          const textArea = document.createElement("textarea");
+          textArea.value = tokenAddress;
+          document.body.appendChild(textArea);
+          textArea.select();
+          try {
+            document.execCommand("copy");
+            alert("Token contract address copied to clipboard!");
+          } catch (err) {
+            alert("Failed to copy token contract address. Please try again.");
+          }
+          document.body.removeChild(textArea);
+        }
+      }
+      
+      // Function to toggle display of the QR code (optional)
       function toggleQRCode() {
         const container = document.getElementById("qrCodeContainer");
         if (container.style.display === "none" || container.style.display === "") {
@@ -766,6 +828,7 @@
       window.validateEthAmount = validateEthAmount;
       window.calculateTokens = calculateTokens;
       window.copyContractAddress = copyContractAddress;
+      window.copyTokenAddress = copyTokenAddress;
       window.toggleQRCode = toggleQRCode;
     });
   </script>
