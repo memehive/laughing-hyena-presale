@@ -6,8 +6,6 @@
   <title>Laughing Hyena Presale</title>
   <!-- Roboto Mono for all text -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
-
-  <!-- NOTE: Ensure that any lockdown script (e.g., lockdown-install.js) is removed or deferred so it does not interfere with MetaMask -->
   
   <!-- ethers.js Library (UMD build) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
@@ -19,7 +17,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
   <!-- web3 Library -->
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
-
+  
   <style>
     /* Global Styles */
     body {
@@ -290,7 +288,7 @@
         <h1 class="header-title">Laughing Hyena - $LHyena Presale</h1>
       </div>
     </header>
-
+    
     <!-- Main Content Container -->
     <div class="container">
       <div class="hero">
@@ -317,12 +315,12 @@
           </ol>
         </div>
       </div>
-
+      
       <div id="status">Not connected</div>
-
+      
       <div class="wallet-buttons-container">
         <button id="connectMetaMask" class="wallet-button" onclick="connectMetaMask()" aria-label="Connect MetaMask Wallet">
-          <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24">
+          <img src="https://gateway.pinata.cloud/ipfs/bafkreifje5ej3p2l354xe3ql773mlrgignsffzs5uq6fbvoks2zsh765fm" alt="MetaMask Logo" width="24" height="24">
           <span>MetaMask</span>
         </button>
         <button id="connectTrustWallet" class="wallet-button" onclick="connectTrustWallet()" aria-label="Connect Trust Wallet">
@@ -338,7 +336,7 @@
           <span>Disconnect</span>
         </button>
       </div>
-
+      
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
         <p id="walletBalance">Wallet Balance: 0 ETH</p>
@@ -351,7 +349,7 @@
           </button>
         </div>
       </div>
-
+      
       <div id="confirmationModal" class="modal-overlay">
         <div class="modal">
           <h3>Confirm Your Transaction</h3>
@@ -361,7 +359,7 @@
         </div>
       </div>
     </div>
-
+    
     <footer class="container">
       <p>&copy; 2025 Laughing Hyena. All Rights Reserved.</p>
       <div class="footer-buttons">
@@ -369,7 +367,7 @@
           <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreifbwyukqegxt7il3odigkndzchztr2t55hibnyry7mlz6lbbl55jq" alt="Website Logo">Website
         </a>
         <a class="footer-button" href="https://x.com/Laughing_LHyena" target="_blank" aria-label="Visit Twitter">
-          <img class="footer-logo" src="https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg" alt="Twitter Logo">Twitter
+          <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreifacaeohlzwepumuvisibrwojwysaraqupy6c7p2nqdqdnpuvrzkiu" alt="Twitter Logo">Twitter
         </a>
         <a class="footer-button" href="https://t.me/Laughing_LHyena" target="_blank" aria-label="Join Telegram">
           <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreihu2e3j4xjpevv77kjjonnwro3fkak7ghrtfdttgkbjg76tqeuazm" alt="Telegram Logo">Telegram
@@ -380,7 +378,7 @@
       </div>
     </footer>
   </div>
-
+  
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       const ethers = window.ethers;
@@ -397,7 +395,7 @@
       let walletConnectProvider;
       let userAddress = "";
       
-      // Web3Modal Setup for WalletConnect, Coinbase Wallet, and Trust Wallet
+      // Updated providerOptions for WalletConnect, Coinbase Wallet, and Trust Wallet
       const providerOptions = {
         walletconnect: {
           package: WalletConnectProvider.default,
@@ -444,7 +442,6 @@
         document.getElementById("warningMessage").innerText = "";
       }
       
-      // Listen for account and chain changes if available
       if (window.ethereum) {
         window.ethereum.on('accountsChanged', (accounts) => {
           if (accounts.length > 0) {
@@ -749,7 +746,7 @@
       window.calculateTokens = calculateTokens;
       window.copyContractAddress = copyContractAddress;
       
-      // Optional: A simple test function to see if MetaMask is detected
+      // Optional: A simple test function to verify MetaMask detection
       async function testMetaMaskConnection() {
         if (window.ethereum) {
           console.log("MetaMask provider is available:", window.ethereum);
@@ -763,7 +760,7 @@
           console.error("MetaMask provider not found.");
         }
       }
-      // Uncomment the following line to run the test on page load:
+      // Uncomment the next line to run the test on page load:
       // testMetaMaskConnection();
     });
   </script>
