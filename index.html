@@ -333,6 +333,7 @@
           <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24">
           <span>MetaMask</span>
         </button>
+        <!-- The Trust Wallet button now leverages native provider (if available) or WalletConnect -->
         <button id="connectTrustWallet" class="wallet-button" onclick="connectTrustWallet()" aria-label="Connect Trust Wallet">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreigpv2by5d3wp6mofa2xedx6o54fjaaqw3ln33xvlfidfs57al7o5m" alt="Trust Wallet Logo" width="24" height="24">
           <span>Trust</span>
@@ -411,7 +412,8 @@
       let walletConnectProvider;
       let userAddress = "";
       
-      // Provider options for WalletConnect, Coinbase Wallet, and Trust Wallet
+      // Provider options for WalletConnect and Coinbase Wallet
+      // (Trust Wallet will be connected via WalletConnect if native provider is unavailable)
       const providerOptions = {
         walletconnect: {
           package: WalletConnectProvider.default,
@@ -429,9 +431,6 @@
             chainId: BASE_CHAIN_ID_DEC,
             darkMode: false
           }
-        },
-        trustwallet: {
-          package: true
         }
       };
       
@@ -480,7 +479,7 @@
         });
       }
       
-      // Revised MetaMask connection function with additional logging and error messaging
+      // Revised MetaMask connection function with additional logging
       async function connectMetaMask() {
         console.log("Attempting to connect with MetaMask...");
         if (!window.ethereum) {
@@ -488,7 +487,6 @@
           return;
         }
         try {
-          // Request accounts and log the provider details
           const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
           console.log("Accounts returned:", accounts);
           if (!accounts || accounts.length === 0) {
@@ -500,7 +498,6 @@
           const { chainId } = await web3Provider.getNetwork();
           console.log("Current network chainId:", chainId);
           
-          // Check if the chain is correct; if not, attempt to switch
           if (chainId !== BASE_CHAIN_ID_DEC) {
             try {
               console.log("Attempting network switch to Basechain...");
@@ -508,7 +505,6 @@
                 method: "wallet_switchEthereumChain",
                 params: [{ chainId: BASE_CHAIN_ID_HEX }],
               });
-              // Reinitialize the provider after switching networks
               web3Provider = new ethers.providers.Web3Provider(window.ethereum);
               console.log("Network switched successfully.");
             } catch (switchError) {
@@ -529,24 +525,54 @@
         }
       }
       
-      // Revised Trust Wallet connection function
+      // Revised Trust Wallet connection function:
+      // First, check if the native provider for Trust Wallet is available.
+      // If not, attempt to connect via WalletConnect.
       async function connectTrustWallet() {
-        try {
-          console.log("Connecting with Trust Wallet...");
-          const instance = await web3Modal.connectTo("trustwallet");
-          provider = new ethers.providers.Web3Provider(instance);
-          const { chainId } = await provider.getNetwork();
-          if (chainId !== BASE_CHAIN_ID_DEC) {
-            updateStatus("Please connect to the Basechain using Trust Wallet.");
-            return;
+        console.log("Attempting to connect with Trust Wallet...");
+        // Check for native Trust Wallet provider (usually available in Trust Wallet's DApp browser)
+        if (window.ethereum && window.ethereum.isTrust) {
+          try {
+            const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+            console.log("Native Trust Wallet accounts returned:", accounts);
+            if (!accounts || accounts.length === 0) {
+              updateStatus("No accounts found in Trust Wallet. Ensure your wallet is unlocked.");
+              return;
+            }
+            let web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+            const { chainId } = await web3Provider.getNetwork();
+            if (chainId !== BASE_CHAIN_ID_DEC) {
+              updateStatus("Please switch Trust Wallet to the Base network.");
+              return;
+            }
+            provider = web3Provider;
+            signer = provider.getSigner();
+            userAddress = accounts[0];
+            updateStatus(`Connected with Trust Wallet (native) on Base network: ${userAddress}`);
+            fetchWalletBalance();
+          } catch (error) {
+            console.error("Native Trust Wallet connection error:", error);
+            updateStatus("Native Trust Wallet connection error: " + error.message);
           }
-          signer = provider.getSigner();
-          userAddress = await signer.getAddress();
-          updateStatus(`Connected with Trust Wallet on Basechain: ${userAddress}`);
-          fetchWalletBalance();
-        } catch (error) {
-          console.error("Trust Wallet connection error:", error);
-          updateStatus(`Trust Wallet connection failed: ${error.message}`);
+        } else {
+          // If no native Trust Wallet provider is detected, use WalletConnect.
+          console.log("Native Trust Wallet provider not detected; attempting WalletConnect...");
+          try {
+            const instance = await web3Modal.connectTo("walletconnect");
+            provider = new ethers.providers.Web3Provider(instance);
+            const { chainId } = await provider.getNetwork();
+            if (chainId !== BASE_CHAIN_ID_DEC) {
+              updateStatus("Please connect to Basechain using WalletConnect.");
+              return;
+            }
+            signer = provider.getSigner();
+            userAddress = await signer.getAddress();
+            updateStatus(`Connected with Trust Wallet via WalletConnect on Base network: ${userAddress}`);
+            fetchWalletBalance();
+          } catch (error) {
+            console.error("Trust Wallet connection error via WalletConnect:", error);
+            updateStatus("Trust Wallet connection error via WalletConnect: " + error.message);
+          }
         }
       }
       
