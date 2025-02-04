@@ -6,6 +6,8 @@
   <title>Laughing Hyena Presale</title>
   <!-- Roboto Mono for all text -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- NOTE: Ensure that any lockdown script (e.g., lockdown-install.js) is removed or deferred so it does not interfere with MetaMask -->
   
   <!-- ethers.js Library (UMD build) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
@@ -17,9 +19,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
   <!-- web3 Library -->
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
-  
+
   <style>
-    /* Global Styles: All text now uses Roboto Mono */
+    /* Global Styles */
     body {
       font-family: 'Roboto Mono', monospace;
       margin: 0;
@@ -38,23 +40,18 @@
       color: #ff5555;
       margin-top: 5px;
     }
-    /* "You will receive:" text style */
     .token-receive {
-      font-family: 'Roboto Mono', monospace;
       font-weight: bold;
       color: #F0A500;
       margin-top: 10px;
     }
-    /* Participation Box */
     .participation-box {
       background-color: #d9edf7;
       color: #0D0D0D;
       padding: 20px;
       margin: 20px 0;
       box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-      border-radius: 0;
     }
-    /* Participation List Styling */
     .participation-list {
       list-style: none;
       padding: 0;
@@ -63,7 +60,6 @@
     .participation-list li {
       margin: 12px 0;
       font-size: 1.1em;
-      line-height: 1.4em;
       display: flex;
       align-items: center;
       text-align: left;
@@ -80,10 +76,7 @@
       justify-content: center;
       margin-right: 12px;
     }
-    /* Wrapper and Container */
     .wrapper {
-      transform: scale(1);
-      transform-origin: top center;
       transition: transform 0.3s ease;
     }
     .container {
@@ -94,7 +87,6 @@
       flex-direction: column;
       align-items: center;
     }
-    /* Header */
     header {
       background-color: #1B263B;
       width: 100%;
@@ -104,10 +96,6 @@
     }
     header .inner-header {
       width: 60%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       margin: 0 auto;
     }
     header img {
@@ -121,39 +109,26 @@
       -webkit-text-fill-color: transparent;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
       letter-spacing: 2px;
-      animation: headerPulse 3s infinite;
     }
-    @keyframes headerPulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.03); }
-      100% { transform: scale(1); }
-    }
-    /* Hero Section */
-    .hero {
-      margin-bottom: 20px;
-      width: 100%;
-    }
-    /* Progress Bar */
+    .hero { margin-bottom: 20px; width: 100%; }
     #progress-bar {
       height: 20px;
-      line-height: 20px;
       width: 60%;
       margin: 10px auto;
       border-radius: 10px;
       background-color: #F0A500;
       color: #0D1B2A;
       font-weight: bold;
+      line-height: 20px;
     }
-    /* Status Bar */
     #status {
       height: 20px;
-      line-height: 20px;
       width: 60%;
       margin: 20px auto;
       border-radius: 10px;
       background-color: #333333;
+      line-height: 20px;
     }
-    /* Custom Warning Message Container */
     #warningMessage {
       color: #ff5555;
       font-size: 14px;
@@ -161,7 +136,6 @@
       margin: 10px auto;
       width: 60%;
     }
-    /* Wallet Buttons Container */
     .wallet-buttons-container {
       display: flex;
       justify-content: center;
@@ -169,7 +143,6 @@
       width: 60%;
       gap: 8px;
     }
-    /* Wallet Buttons & BUY Button (all 150px wide) */
     .wallet-button, .buy-button {
       background: linear-gradient(to bottom, #F0A500, #D9A300);
       color: #0D1B2A;
@@ -182,19 +155,15 @@
       transition: all 0.3s ease;
       box-shadow: 0 4px 0 #000;
       width: 150px;
-      margin: 0 5px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    /* BUY button overrides: larger font size */
     .buy-button {
       background: linear-gradient(to bottom, #28a745, #218838);
       font-size: 20px;
     }
-    .wallet-button img, .buy-button img {
-      margin-right: 8px;
-    }
+    .wallet-button img, .buy-button img { margin-right: 8px; }
     .wallet-button:hover, .buy-button:hover {
       background: linear-gradient(to bottom, #D9A300, #F0A500);
       transform: translateY(2px) scale(1.05);
@@ -207,23 +176,16 @@
       -webkit-text-fill-color: transparent;
       text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
       letter-spacing: 1px;
-      animation: tokenPulse 3s infinite;
-    }
-    @keyframes tokenPulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.03); }
-      100% { transform: scale(1); }
     }
     .total-raised { color: #28a745; }
     .user-contribution { color: #F0A500; }
-    /* Footer */
     footer {
       background-color: #1B263B;
       width: 60%;
       margin: 20px auto;
       padding: 20px;
-      font-size: 1em;
       text-align: center;
+      font-size: 1em;
     }
     .footer-buttons {
       display: flex;
@@ -255,7 +217,6 @@
       margin: 10px 0;
       word-wrap: break-word;
     }
-    /* Modal Styles */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -305,27 +266,18 @@
       background: linear-gradient(to bottom, #c9302c, #d9534f);
     }
     @media (max-width: 480px) {
-      body { display: flex; flex-direction: column; min-height: 100vh; }
-      .wrapper { transform: scale(0.9); transform-origin: top center; }
+      body { flex-direction: column; min-height: 100vh; }
+      .wrapper { transform: scale(0.9); }
       .container { width: 90%; }
       header { flex-direction: column; padding: 10px; }
       header .inner-header { width: 90%; }
-      header img { height: 100px; margin: 0 0 10px 0; }
+      header img { height: 100px; margin-bottom: 10px; }
       header h1 { font-size: 1.2em; }
-      .wallet-buttons-container, .footer-buttons { flex-direction: column; align-items: center; width: 90%; }
+      .wallet-buttons-container, .footer-buttons { flex-direction: column; width: 90%; }
       #status, #progress-bar { width: 100%; }
-      /* Set ETH input field width to 130px on mobile as well */
       input[type="number"] { width: 130px; font-size: 16px; }
       footer { width: 60%; margin: 20px auto; }
       #warningMessage { width: 90%; }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
     }
   </style>
 </head>
@@ -338,24 +290,23 @@
         <h1 class="header-title">Laughing Hyena - $LHyena Presale</h1>
       </div>
     </header>
-    
+
     <!-- Main Content Container -->
     <div class="container">
       <div class="hero">
         <h2>Presale Progress</h2>
-        <div id="progress-bar" class="bar">0%</div>
+        <div id="progress-bar">0%</div>
         <p class="total-raised">Total ETH raised: <span id="ethRaised">0</span> ETH</p>
         <p class="user-contribution">Your Contribution: <span id="userContribution">0</span> ETH</p>
         <p>Hardcap: 50 ETH | Softcap: 25 ETH | Token Rate: 20,000,000 LHyena/ETH</p>
         <p>Vesting: 25% monthly for 4 months</p>
         <p class="contract-address">
           Presale Contract Address: 0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20 
-          <button onclick="copyContractAddress()" style="border:none; background:none; cursor:pointer; margin-left: 8px;" aria-label="Copy Contract Address">
+          <button onclick="copyContractAddress()" style="border:none; background:none; cursor:pointer;" aria-label="Copy Contract Address">
             <img src="https://gateway.pinata.cloud/ipfs/bafkreichlpjusnouyhn4jgipntvamzt6pj33dlzqoeyk6ttifo6dpjiz7q" alt="Copy Icon" style="width:16px; height:16px;">
           </button>
         </p>
         <p class="warning">Warning: Do not send funds directly to the presale contract address.</p>
-        <!-- Custom Warning Message Container -->
         <div id="warningMessage"></div>
         <div class="participation-box">
           <h2>How to Participate?</h2>
@@ -366,36 +317,31 @@
           </ol>
         </div>
       </div>
-      
-      <div id="status" class="bar">Not connected</div>
-      
+
+      <div id="status">Not connected</div>
+
       <div class="wallet-buttons-container">
-        <!-- MetaMask Button -->
         <button id="connectMetaMask" class="wallet-button" onclick="connectMetaMask()" aria-label="Connect MetaMask Wallet">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreifje5ej3p2l354xe3ql773mlrgignsffzs5uq6fbvoks2zsh765fm" alt="MetaMask Logo" width="24" height="24">
           <span>MetaMask</span>
         </button>
-        <!-- Trust Wallet Button -->
         <button id="connectTrustWallet" class="wallet-button" onclick="connectTrustWallet()" aria-label="Connect Trust Wallet">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreigpv2by5d3wp6mofa2xedx6o54fjaaqw3ln33xvlfidfs57al7o5m" alt="Trust Wallet Logo" width="24" height="24">
           <span>Trust</span>
         </button>
-        <!-- Coinbase Wallet Button -->
         <button id="connectCoinbaseWallet" class="wallet-button" onclick="connectCoinbaseWallet()" aria-label="Connect Coinbase Wallet">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreigpbedcletldnqi5ue2vgh4klft5ovlltl4q47uy5qkfthxo6wfuq" alt="Coinbase Wallet Logo" width="24" height="24">
           <span>Coinbase</span>
         </button>
-        <!-- Disconnect Button -->
         <button id="disconnectWallet" class="wallet-button" onclick="disconnectWallet()" aria-label="Disconnect Wallet">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreihrxilkswryoesmiwmwwlwvpcso3gtsenstcufxcwwdoq3m2yd7vm" alt="Disconnect Logo" width="24" height="24">
           <span>Disconnect</span>
         </button>
       </div>
-      
+
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
         <p id="walletBalance">Wallet Balance: 0 ETH</p>
-        <!-- ETH Input Field Width updated to 130px -->
         <input type="number" id="ethAmount" style="width: 130px;" placeholder="ETH (Max 5)" min="0.1" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
         <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
         <div class="wallet-buttons-container">
@@ -405,7 +351,7 @@
           </button>
         </div>
       </div>
-      
+
       <div id="confirmationModal" class="modal-overlay">
         <div class="modal">
           <h3>Confirm Your Transaction</h3>
@@ -415,7 +361,7 @@
         </div>
       </div>
     </div>
-    
+
     <footer class="container">
       <p>&copy; 2025 Laughing Hyena. All Rights Reserved.</p>
       <div class="footer-buttons">
@@ -423,7 +369,7 @@
           <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreifbwyukqegxt7il3odigkndzchztr2t55hibnyry7mlz6lbbl55jq" alt="Website Logo">Website
         </a>
         <a class="footer-button" href="https://x.com/Laughing_LHyena" target="_blank" aria-label="Visit Twitter">
-          <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreiacaeohlzwepumuvisibrwojwysaraqupy6c7p2nqdqdnpuvrzkiu" alt="Twitter Logo">Twitter
+          <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreifacaeohlzwepumuvisibrwojwysaraqupy6c7p2nqdqdnpuvrzkiu" alt="Twitter Logo">Twitter
         </a>
         <a class="footer-button" href="https://t.me/Laughing_LHyena" target="_blank" aria-label="Join Telegram">
           <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreihu2e3j4xjpevv77kjjonnwro3fkak7ghrtfdttgkbjg76tqeuazm" alt="Telegram Logo">Telegram
@@ -434,10 +380,9 @@
       </div>
     </footer>
   </div>
-  
+
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      // Use the ethers library from the window object (UMD build)
       const ethers = window.ethers;
       
       // Configuration Constants
@@ -487,22 +432,19 @@
         providerOptions
       });
       
-      // UI Helper
       function updateStatus(message) {
         document.getElementById("status").innerText = message;
       }
       
-      // Display warnings in the custom warning container
       function showWarning(message) {
         document.getElementById("warningMessage").innerText = message;
       }
       
-      // Clear warnings
       function clearWarning() {
         document.getElementById("warningMessage").innerText = "";
       }
       
-      // Wallet Event Listeners
+      // Listen for account and chain changes if available
       if (window.ethereum) {
         window.ethereum.on('accountsChanged', (accounts) => {
           if (accounts.length > 0) {
@@ -520,18 +462,15 @@
         });
       }
       
-      // MetaMask Connection Function
       async function connectMetaMask() {
         if (window.ethereum) {
           try {
             console.log("MetaMask detected:", window.ethereum);
-            // Request account access
             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
             if (!accounts || accounts.length === 0) {
               updateStatus("No accounts found.");
               return;
             }
-            // Initialize provider
             let tempProvider = new ethers.providers.Web3Provider(window.ethereum);
             const network = await tempProvider.getNetwork();
             console.log("Current network chainId:", network.chainId);
@@ -542,7 +481,6 @@
                   method: 'wallet_switchEthereumChain',
                   params: [{ chainId: BASE_CHAIN_ID_HEX }],
                 });
-                // Reinitialize provider after switching network
                 tempProvider = new ethers.providers.Web3Provider(window.ethereum);
               } catch (switchError) {
                 console.error("Network switch error:", switchError);
@@ -565,7 +503,6 @@
         }
       }
       
-      // Trust Wallet Connection Function
       async function connectTrustWallet() {
         try {
           console.log("Connecting with Trust Wallet...");
@@ -585,13 +522,11 @@
         }
       }
       
-      // Updated Coinbase Wallet Connection Function
       async function connectCoinbaseWallet() {
         try {
           console.log("Connecting with Coinbase Wallet...");
           const instance = await web3Modal.connectTo("coinbasewallet");
           provider = new ethers.providers.Web3Provider(instance);
-          // Explicitly request accounts for Coinbase Wallet
           await provider.send("eth_requestAccounts", []);
           const network = await provider.getNetwork();
           if (network.chainId !== BASE_CHAIN_ID_DEC) {
@@ -607,7 +542,6 @@
         }
       }
       
-      // WalletConnect Connection Function (still defined, but not used)
       async function connectWalletConnect() {
         try {
           const instance = await web3Modal.connect();
@@ -641,7 +575,6 @@
         document.getElementById("walletBalance").innerText = "Wallet Balance: 0 ETH";
       }
       
-      // Helper to Fetch Wallet ETH Balance
       async function fetchWalletBalance() {
         if (!provider || !userAddress) return;
         try {
@@ -779,7 +712,7 @@
       
       setInterval(fetchPresaleProgress, 5000);
       
-      // Copy function for the contract address
+      // Copy Contract Address Function
       function copyContractAddress() {
         const addressText = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
         if (navigator.clipboard) {
@@ -815,6 +748,23 @@
       window.validateEthAmount = validateEthAmount;
       window.calculateTokens = calculateTokens;
       window.copyContractAddress = copyContractAddress;
+      
+      // Optional: A simple test function to see if MetaMask is detected
+      async function testMetaMaskConnection() {
+        if (window.ethereum) {
+          console.log("MetaMask provider is available:", window.ethereum);
+          try {
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            console.log("Test connection accounts:", accounts);
+          } catch (error) {
+            console.error("Error during test connection:", error);
+          }
+        } else {
+          console.error("MetaMask provider not found.");
+        }
+      }
+      // Uncomment the following line to run the test on page load:
+      // testMetaMaskConnection();
     });
   </script>
 </body>
