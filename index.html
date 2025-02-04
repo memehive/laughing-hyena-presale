@@ -100,9 +100,16 @@
       width: 60%;
       margin: 0 auto;
     }
+    /* Updated logo style with 3D hover effect */
     header img {
       height: 150px;
       margin-bottom: 10px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 0 #000;
+    }
+    header img:hover {
+      transform: translateY(2px) scale(1.05);
+      box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
     .header-title {
       font-size: 2.5rem;
