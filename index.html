@@ -51,7 +51,7 @@
       color: #0D0D0D;
       padding: 20px;
       margin: 20px 0;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
       border-radius: 0;
     }
     /* Participation List Styling */
@@ -119,7 +119,7 @@
       background: linear-gradient(to right, #F0A500, #FFD700);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
       letter-spacing: 2px;
       animation: headerPulse 3s infinite;
     }
@@ -153,6 +153,14 @@
       border-radius: 10px;
       background-color: #333333;
     }
+    /* Custom Warning Message Container */
+    #warningMessage {
+      color: #ff5555;
+      font-size: 14px;
+      font-weight: bold;
+      margin: 10px auto;
+      width: 60%;
+    }
     /* Wallet Buttons Container */
     .wallet-buttons-container {
       display: flex;
@@ -161,7 +169,7 @@
       width: 60%;
       gap: 8px;
     }
-    /* Wallet Buttons & BUY Button: all are 150px wide */
+    /* Wallet Buttons & BUY Button (all 150px wide) */
     .wallet-button, .buy-button {
       background: linear-gradient(to bottom, #F0A500, #D9A300);
       color: #0D1B2A;
@@ -179,7 +187,7 @@
       align-items: center;
       justify-content: center;
     }
-    /* BUY button overrides: larger font size for BUY text */
+    /* BUY button overrides: larger font size */
     .buy-button {
       background: linear-gradient(to bottom, #28a745, #218838);
       font-size: 20px;
@@ -197,7 +205,7 @@
       background: linear-gradient(to right, #28a745, #218838);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
       letter-spacing: 1px;
       animation: tokenPulse 3s infinite;
     }
@@ -254,7 +262,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0,0,0,0.6);
       display: none;
       align-items: center;
       justify-content: center;
@@ -306,8 +314,10 @@
       header h1 { font-size: 1.2em; }
       .wallet-buttons-container, .footer-buttons { flex-direction: column; align-items: center; width: 90%; }
       #status, #progress-bar { width: 100%; }
-      input[type="number"] { width: 80%; font-size: 16px; }
+      /* Set ETH input field width to 130px on mobile as well */
+      input[type="number"] { width: 130px; font-size: 16px; }
       footer { width: 60%; margin: 20px auto; }
+      #warningMessage { width: 90%; }
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
@@ -345,6 +355,8 @@
           </button>
         </p>
         <p class="warning">Warning: Do not send funds directly to the presale contract address.</p>
+        <!-- Custom Warning Message Container -->
+        <div id="warningMessage"></div>
         <div class="participation-box">
           <h2>How to Participate?</h2>
           <ol class="participation-list">
@@ -383,7 +395,8 @@
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
         <p id="walletBalance">Wallet Balance: 0 ETH</p>
-        <input type="number" id="ethAmount" style="width: 150px;" placeholder="ETH (Max 5)" min="0.1" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
+        <!-- Updated input field width set to 130px -->
+        <input type="number" id="ethAmount" style="width: 130px;" placeholder="ETH (Max 5)" min="0.1" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
         <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
         <div class="wallet-buttons-container">
           <button id="buyTokensButton" class="buy-button" onclick="promptBuyTokens()" aria-label="Buy Tokens">
@@ -479,6 +492,16 @@
         document.getElementById("status").innerText = message;
       }
       
+      // Display warnings in the custom warning container
+      function showWarning(message) {
+        document.getElementById("warningMessage").innerText = message;
+      }
+      
+      // Clear warnings
+      function clearWarning() {
+        document.getElementById("warningMessage").innerText = "";
+      }
+      
       // Wallet Event Listeners
       if (window.ethereum) {
         window.ethereum.on('accountsChanged', (accounts) => {
@@ -501,21 +524,26 @@
       async function connectMetaMask() {
         if (window.ethereum && window.ethereum.isMetaMask) {
           try {
+            console.log("MetaMask detected:", window.ethereum);
             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            console.log("Accounts:", accounts);
             if (accounts.length === 0) {
               updateStatus("No accounts found.");
               return;
             }
             let tempProvider = new ethers.providers.Web3Provider(window.ethereum);
             const network = await tempProvider.getNetwork();
+            console.log("Network chainId:", network.chainId);
             if (network.chainId !== BASE_CHAIN_ID_DEC) {
               try {
+                console.log("Attempting to switch network...");
                 await window.ethereum.request({
                   method: 'wallet_switchEthereumChain',
                   params: [{ chainId: BASE_CHAIN_ID_HEX }],
                 });
                 tempProvider = new ethers.providers.Web3Provider(window.ethereum);
               } catch (switchError) {
+                console.error("Network switch error:", switchError);
                 updateStatus("Please switch your MetaMask to the Base network.");
                 return;
               }
@@ -523,9 +551,11 @@
             provider = tempProvider;
             signer = provider.getSigner();
             userAddress = accounts[0];
+            console.log("Connected account:", userAddress);
             updateStatus("Connected to MetaMask on Base network: " + userAddress);
             fetchWalletBalance();
           } catch (error) {
+            console.error("MetaMask connection error:", error);
             updateStatus("MetaMask connection failed: " + error.message);
           }
         } else {
@@ -536,6 +566,7 @@
       // Trust Wallet Connection Function
       async function connectTrustWallet() {
         try {
+          console.log("Connecting with Trust Wallet...");
           const instance = await web3Modal.connectTo("trustwallet");
           provider = new ethers.providers.Web3Provider(instance);
           const network = await provider.getNetwork();
@@ -555,6 +586,7 @@
       // Coinbase Wallet Connection Function
       async function connectCoinbaseWallet() {
         try {
+          console.log("Connecting with Coinbase Wallet...");
           const instance = await web3Modal.connectTo("coinbasewallet");
           provider = new ethers.providers.Web3Provider(instance);
           const network = await provider.getNetwork();
@@ -688,17 +720,19 @@
         let ethAmount = parseFloat(ethInput.value);
         if (isNaN(ethAmount)) {
           updateStatus("Please enter a valid ETH amount.");
+          showWarning("Please enter a valid ETH amount.");
           return;
         }
         if (ethAmount > 5) {
-          alert("Maximum contribution per wallet is 5 ETH");
+          showWarning("Maximum contribution per wallet is 5 ETH");
           ethInput.value = 5;
           updateStatus("Maximum contribution per wallet is 5 ETH");
         } else if (ethAmount < 0.1 && ethInput.value !== "") {
-          alert("Minimum contribution is 0.1 ETH");
+          showWarning("Minimum contribution is 0.1 ETH");
           ethInput.value = 0.1;
           updateStatus("Minimum contribution is 0.1 ETH");
         } else {
+          clearWarning();
           updateStatus("");
         }
       }
