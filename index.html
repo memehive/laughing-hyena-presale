@@ -320,7 +320,7 @@
       
       <div class="wallet-buttons-container">
         <button id="connectMetaMask" class="wallet-button" onclick="connectMetaMask()" aria-label="Connect MetaMask Wallet">
-          <!-- Replaced MetaMask logo -->
+          <!-- Updated MetaMask logo -->
           <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24">
           <span>MetaMask</span>
         </button>
@@ -415,13 +415,16 @@
             darkMode: false
           }
         },
+        // Updated Trust Wallet options:
         trustwallet: {
           package: WalletConnectProvider.default,
           options: {
             rpc: { [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL },
             bridge: "https://bridge.walletconnect.org",
             qrcode: true,
-            mobileLinks: ["trust"]
+            qrcodeModalOptions: {
+              mobileLinks: ["trust"]
+            }
           }
         }
       };
