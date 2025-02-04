@@ -13,13 +13,13 @@
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <!-- Coinbase Wallet SDK -->
   <script src="https://unpkg.com/@coinbase/wallet-sdk/dist/wallet-sdk.umd.min.js"></script>
-  <!-- Web3Modal (v1) -->
+  <!-- Web3Modal (v1) for Coinbase Wallet -->
   <script src="https://unpkg.com/web3modal@1.9.8/dist/index.js"></script>
-  <!-- WalletConnect Provider -->
-  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
+  <!-- WalletConnect v2 Provider -->
+  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2.1.0/dist/umd/index.min.js"></script>
   <!-- web3 Library -->
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
-  <!-- QRCode.js Library for generating QR codes (optional) -->
+  <!-- QRCode.js Library (optional) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
   <style>
@@ -132,12 +132,8 @@
       background-color: #333333;
       line-height: 20px;
     }
-    .status-positive {
-      color: #28a745; /* green */
-    }
-    .status-negative {
-      color: #ff5555; /* red */
-    }
+    .status-positive { color: #28a745; }
+    .status-negative { color: #ff5555; }
     #warningMessage {
       color: #ff5555;
       font-size: 14px;
@@ -306,6 +302,22 @@
       width: 16px;
       height: 16px;
     }
+    /* Autofill Text Options Styling */
+    #autofillContainer {
+      margin-top: 5px;
+      display: none; /* Only appears after wallet connection */
+    }
+    .autofill-option {
+      display: inline-block;
+      margin: 0 10px;
+      color: #4A90E2;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .autofill-option:hover {
+      text-decoration: underline;
+      color: #357ABD;
+    }
     
     /* Media Query for Smaller Screens */
     @media (max-width: 480px) {
@@ -327,6 +339,7 @@
       input[type="number"] { width: 130px; font-size: 16px; }
       footer { width: 90%; margin: 20px auto; }
       #warningMessage { width: 90%; }
+      .autofill-option { margin: 5px; }
     }
   </style>
 </head>
@@ -393,8 +406,15 @@
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
         <p id="walletBalance">Wallet Balance: 0 ETH</p>
-        <!-- Updated min attribute to 0.01 -->
+        <!-- ETH Input Field -->
         <input type="number" id="ethAmount" style="width: 130px;" placeholder="ETH (Max 5)" min="0.01" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
+        <!-- Autofill Text Options (displayed as simple text links) -->
+        <div id="autofillContainer">
+          <span class="autofill-option" onclick="autofillAmount(0.1)">10%</span>
+          <span class="autofill-option" onclick="autofillAmount(0.25)">25%</span>
+          <span class="autofill-option" onclick="autofillAmount(0.5)">50%</span>
+          <span class="autofill-option" onclick="autofillAmount(1)">MAX</span>
+        </div>
         <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
         <div class="wallet-buttons-container">
           <button id="buyTokensButton" class="buy-button" onclick="promptBuyTokens()" aria-label="Buy Tokens">
@@ -402,7 +422,7 @@
             <span>BUY</span>
           </button>
         </div>
-        <!-- New instruction to add token to Coinbase Wallet with copy button -->
+        <!-- Instruction to add token to Coinbase Wallet with copy button -->
         <p class="token-instructions">
           To add $LHyena to your Coinbase Wallet, copy the token contract address: 
           <strong>0x8aaA69666D6de35561D948f6670F262F6cAC7392</strong>
@@ -442,57 +462,40 @@
   </div>
   
   <script>
-    // Global variable to hold the WalletConnect URI (if you wish to use custom QR code display)
+    // Global variable to hold the WalletConnect URI (if using custom QR code display)
     let walletConnectUri = "";
+    // Global variable to store the raw wallet balance (in ETH)
+    let walletBalanceRaw = 0;
     
-    // Troubleshooting: Warn if not using HTTPS (except on localhost)
-    if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-      console.warn("Your dApp is not served over HTTPS. Some wallets may refuse to connect.");
-    }
+    // Configuration Constants
+    const BASE_CHAIN_ID_DEC = 8453;
+    const BASE_CHAIN_ID_HEX = '0x2105';
+    const BASECHAIN_RPC_URL = "https://base-mainnet.infura.io/v3/YOUR_INFURA_ID"; // Replace with your Infura ID
+    const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
+    const TOKEN_RATE = 20000000;
     
-    // Coinbase Wallet, WalletConnect, and Wallet Connection Code
+    // Coinbase Wallet connection via Web3Modal remains unchanged
     document.addEventListener("DOMContentLoaded", function () {
       const ethers = window.ethers;
-      
-      // Configuration Constants
-      const BASE_CHAIN_ID_DEC = 8453;
-      const BASE_CHAIN_ID_HEX = '0x2105';
-      const BASECHAIN_RPC_URL = "https://base-mainnet.infura.io/v3/e923b24ca7eb4da7aa7e827ccae39ef9";
-      const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
-      const TOKEN_RATE = 20000000;
-      
-      // Global Variables
       let provider, signer;
-      let walletConnectProvider;
       let userAddress = "";
-      
-      // Provider options for WalletConnect and Coinbase Wallet
-      const providerOptions = {
-        walletconnect: {
-          package: WalletConnectProvider.default,
-          options: {
-            rpc: { [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL },
-            bridge: "https://bridge.walletconnect.org",
-            qrcode: true  // Enable QR code modal automatically
-          }
-        },
-        coinbasewallet: {
-          package: CoinbaseWalletSDK,
-          options: {
-            appName: "Laughing Hyena Presale",
-            rpc: BASECHAIN_RPC_URL,
-            chainId: BASE_CHAIN_ID_DEC,
-            darkMode: false
-          }
-        }
-      };
       
       const web3Modal = new window.Web3Modal.default({
         cacheProvider: false,
-        providerOptions
+        providerOptions: {
+          coinbasewallet: {
+            package: CoinbaseWalletSDK,
+            options: {
+              appName: "Laughing Hyena Presale",
+              rpc: BASECHAIN_RPC_URL,
+              chainId: BASE_CHAIN_ID_DEC,
+              darkMode: false
+            }
+          }
+        }
       });
       
-      // Helper functions for status and warning messages
+      // Helper functions for status messages
       function updateStatus(message, type) {
         const statusEl = document.getElementById("status");
         statusEl.innerText = message;
@@ -512,13 +515,6 @@
         document.getElementById("warningMessage").innerText = "";
       }
       
-      // Debug: Check for injected Ethereum provider
-      if (window.ethereum) {
-        console.log("Ethereum provider detected:", window.ethereum);
-      } else {
-        console.warn("No Ethereum provider detected. Please install a compatible wallet.");
-      }
-      
       // Listen for account and chain changes
       if (window.ethereum) {
         window.ethereum.on('accountsChanged', (accounts) => {
@@ -527,10 +523,12 @@
             userAddress = accounts[0];
             updateStatus("Connected: " + userAddress, "positive");
             fetchWalletBalance();
+            document.getElementById("autofillContainer").style.display = "block";
           } else {
             userAddress = "";
             updateStatus("Not connected", "negative");
             document.getElementById("walletBalance").innerText = "Wallet Balance: 0 ETH";
+            document.getElementById("autofillContainer").style.display = "none";
           }
         });
         window.ethereum.on('chainChanged', (chainId) => {
@@ -560,56 +558,59 @@
           userAddress = await signer.getAddress();
           updateStatus(`Connected with Coinbase Wallet on Basechain: ${userAddress}`, "positive");
           fetchWalletBalance();
+          document.getElementById("autofillContainer").style.display = "block";
         } catch (error) {
           console.error("Coinbase Wallet connection error:", error);
           updateStatus(`Coinbase Wallet connection failed: ${error.message}`, "negative");
         }
       }
       
-      // WalletConnect connection function with QR code modal
+      // WalletConnect v2 connection function using @walletconnect/ethereum-provider v2
       async function connectWalletConnect() {
-        console.log("Connecting with WalletConnect...");
+        console.log("Connecting with WalletConnect v2...");
         try {
-          const instance = await web3Modal.connectTo("walletconnect");
-          provider = new ethers.providers.Web3Provider(instance);
-          await provider.send("eth_requestAccounts", []);
-          const { chainId } = await provider.getNetwork();
-          if (chainId !== BASE_CHAIN_ID_DEC) {
-            updateStatus("Please connect to Basechain using WalletConnect.", "negative");
-            return;
-          }
+          const wcProvider = await WalletConnectEthereumProvider.init({
+            projectId: "YOUR_PROJECT_ID", // Replace with your WalletConnect project ID
+            chains: [BASE_CHAIN_ID_DEC],
+            rpcMap: { [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL },
+            showQrModal: true,
+          });
+          await wcProvider.enable();
+          provider = new ethers.providers.Web3Provider(wcProvider);
           signer = provider.getSigner();
           userAddress = await signer.getAddress();
-          updateStatus(`Connected with WalletConnect on Basechain: ${userAddress}`, "positive");
+          updateStatus(`Connected with WalletConnect v2 on Basechain: ${userAddress}`, "positive");
           fetchWalletBalance();
+          document.getElementById("autofillContainer").style.display = "block";
         } catch (error) {
-          console.error("WalletConnect connection error:", error);
-          updateStatus(`WalletConnect connection failed: ${error.message}`, "negative");
+          console.error("WalletConnect v2 connection error:", error);
+          updateStatus(`WalletConnect v2 connection failed: ${error.message}`, "negative");
         }
       }
       
-      // Disconnect Wallet function with alert if no wallet is connected
+      // Disconnect Wallet function
       async function disconnectWallet() {
         if (!provider || userAddress === "") {
           alert("No wallet connected. Please connect a wallet before trying to disconnect.");
           return;
         }
-        if (walletConnectProvider && walletConnectProvider.disconnect) {
-          await walletConnectProvider.disconnect();
+        if (provider.disconnect) {
+          await provider.disconnect();
         }
         provider = null;
         signer = null;
         userAddress = "";
         updateStatus("Not connected", "negative");
         document.getElementById("walletBalance").innerText = "Wallet Balance: 0 ETH";
+        document.getElementById("autofillContainer").style.display = "none";
       }
       
       async function fetchWalletBalance() {
         if (!provider || !userAddress) return;
         try {
           const balance = await provider.getBalance(userAddress);
-          const balanceFormatted = ethers.utils.formatEther(balance);
-          document.getElementById("walletBalance").innerText = "Wallet Balance: " + balanceFormatted + " ETH";
+          walletBalanceRaw = parseFloat(ethers.utils.formatEther(balance));
+          document.getElementById("walletBalance").innerText = "Wallet Balance: " + walletBalanceRaw + " ETH";
         } catch (err) {
           console.error("Error fetching wallet balance:", err);
         }
@@ -617,7 +618,19 @@
       
       setInterval(fetchWalletBalance, 10000);
       
-      // Prompt Buy Tokens function with alert if no wallet is connected
+      // Autofill function: Fills the ETH input with a percentage of the wallet balance (capped at 5 ETH)
+      function autofillAmount(percentage) {
+        if (walletBalanceRaw > 0) {
+          let amount = walletBalanceRaw * percentage;
+          if (amount > 5) { amount = 5; }
+          document.getElementById("ethAmount").value = amount.toFixed(2);
+          calculateTokens();
+        } else {
+          alert("Wallet balance is 0. Please connect your wallet.");
+        }
+      }
+      
+      // Prompt Buy Tokens function
       function promptBuyTokens() {
         if (!signer) {
           alert("No wallet connected. Please connect your wallet before buying tokens.");
@@ -633,7 +646,7 @@
         const tokenAmount = (ethAmount * TOKEN_RATE).toLocaleString();
         document.getElementById("transactionSummary").innerText =
           `You are about to contribute ${ethAmount} ETH to receive ${tokenAmount} LHyena tokens.`;
-        document.getElementById("confirmationModal").style.display = "flex";
+        document.getElementById("confirmationModal").style.display = "block";
       }
       
       function closeModal() {
@@ -683,17 +696,15 @@
         }
       }
       
-      // Validate ETH amount: Alert and reset if it exceeds max (or below min)
+      // Validate ETH amount
       function validateEthAmount() {
         const ethInput = document.getElementById("ethAmount");
         let ethAmount = parseFloat(ethInput.value);
-        
         if (isNaN(ethAmount)) {
           updateStatus("Please enter a valid ETH amount.", "negative");
           showWarning("Please enter a valid ETH amount.");
           return;
         }
-        
         if (ethAmount > 5) {
           alert("Maximum contribution per wallet is 5 ETH. Resetting value to 5 ETH.");
           ethInput.value = 5;
@@ -734,7 +745,7 @@
           const ethRaised = await contract.totalRaised();
           const ethRaisedFormatted = ethers.utils.formatEther(ethRaised);
           updateProgressBar(ethRaisedFormatted);
-          document.getElementById("ethRaised").innerText = ethRaisedFormatted;
+          document.getElementById("ethRaised").innerText = ethRaisedFormatted + " ETH";
         } catch (error) {
           console.error("Error fetching presale progress:", error);
         }
@@ -830,6 +841,7 @@
       window.copyContractAddress = copyContractAddress;
       window.copyTokenAddress = copyTokenAddress;
       window.toggleQRCode = toggleQRCode;
+      window.autofillAmount = autofillAmount;
     });
   </script>
 </body>
