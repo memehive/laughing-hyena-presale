@@ -275,7 +275,7 @@
       margin-top: 20px;
       padding: 8px 16px;
       font-size: 14px;
-      display: none; /* Hidden by default */
+      display: none;
       cursor: pointer;
       background: #F0A500;
       color: #0D1B2A;
@@ -284,7 +284,7 @@
     }
     #qrCodeContainer {
       margin-top: 10px;
-      display: none; /* Hidden by default */
+      display: none;
     }
     /* Instruction Styling for Adding Token */
     .token-instructions {
@@ -305,7 +305,7 @@
     /* Autofill Text Options Styling */
     #autofillContainer {
       margin-top: 5px;
-      display: none; /* Only appears after wallet connection */
+      display: none;
     }
     .autofill-option {
       display: inline-block;
@@ -408,7 +408,7 @@
         <p id="walletBalance">Wallet Balance: 0 ETH</p>
         <!-- ETH Input Field -->
         <input type="number" id="ethAmount" style="width: 130px;" placeholder="ETH (Max 5)" min="0.01" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
-        <!-- Autofill Text Options (displayed as simple text links) -->
+        <!-- Autofill Text Options (displayed as plain text links, only after wallet connection) -->
         <div id="autofillContainer">
           <span class="autofill-option" onclick="autofillAmount(0.1)">10%</span>
           <span class="autofill-option" onclick="autofillAmount(0.25)">25%</span>
@@ -466,15 +466,18 @@
     let walletConnectUri = "";
     // Global variable to store the raw wallet balance (in ETH)
     let walletBalanceRaw = 0;
+    // Global variable for Coinbase disconnect timer
+    let disconnectTimer = null;
     
     // Configuration Constants
     const BASE_CHAIN_ID_DEC = 8453;
     const BASE_CHAIN_ID_HEX = '0x2105';
-    const BASECHAIN_RPC_URL = "https://base-mainnet.infura.io/v3/YOUR_INFURA_ID"; // Replace with your Infura ID
+    // Replace with your actual Infura project ID
+    const BASECHAIN_RPC_URL = "https://base-mainnet.infura.io/v3/e923b24ca7eb4da7aa7e827ccae39ef9";
     const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
     const TOKEN_RATE = 20000000;
     
-    // Coinbase Wallet connection via Web3Modal remains unchanged
+    // Coinbase Wallet connection via Web3Modal and WalletConnect v2 integration
     document.addEventListener("DOMContentLoaded", function () {
       const ethers = window.ethers;
       let provider, signer;
@@ -495,7 +498,7 @@
         }
       });
       
-      // Helper functions for status messages
+      // Helper functions for status and warning messages
       function updateStatus(message, type) {
         const statusEl = document.getElementById("status");
         statusEl.innerText = message;
@@ -537,7 +540,7 @@
         });
       }
       
-      // Coinbase Wallet connection function
+      // Coinbase Wallet connection function using Web3Modal
       async function connectCoinbaseWallet() {
         console.log("Connecting with Coinbase Wallet...");
         if (!window.ethereum) {
@@ -559,6 +562,11 @@
           updateStatus(`Connected with Coinbase Wallet on Basechain: ${userAddress}`, "positive");
           fetchWalletBalance();
           document.getElementById("autofillContainer").style.display = "block";
+          // Set timer to auto-disconnect after 10 minutes (600,000 milliseconds)
+          disconnectTimer = setTimeout(() => {
+            alert("Your Coinbase wallet connection has timed out.");
+            disconnectWallet();
+          }, 600000);
         } catch (error) {
           console.error("Coinbase Wallet connection error:", error);
           updateStatus(`Coinbase Wallet connection failed: ${error.message}`, "negative");
@@ -570,7 +578,7 @@
         console.log("Connecting with WalletConnect v2...");
         try {
           const wcProvider = await WalletConnectEthereumProvider.init({
-            projectId: "YOUR_PROJECT_ID", // Replace with your WalletConnect project ID
+            projectId: "c7eed8723c3b829bd22e3504832c292f", // Your WalletConnect project ID
             chains: [BASE_CHAIN_ID_DEC],
             rpcMap: { [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL },
             showQrModal: true,
@@ -603,6 +611,10 @@
         updateStatus("Not connected", "negative");
         document.getElementById("walletBalance").innerText = "Wallet Balance: 0 ETH";
         document.getElementById("autofillContainer").style.display = "none";
+        if (disconnectTimer) {
+          clearTimeout(disconnectTimer);
+          disconnectTimer = null;
+        }
       }
       
       async function fetchWalletBalance() {
