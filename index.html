@@ -520,27 +520,29 @@
         });
       }
       
-      // MetaMask Connection Function
+      // Updated MetaMask Connection Function
       async function connectMetaMask() {
-        if (window.ethereum && window.ethereum.isMetaMask) {
+        if (window.ethereum) {
           try {
             console.log("MetaMask detected:", window.ethereum);
+            // Request account access
             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            console.log("Accounts:", accounts);
-            if (accounts.length === 0) {
+            if (!accounts || accounts.length === 0) {
               updateStatus("No accounts found.");
               return;
             }
+            // Initialize provider
             let tempProvider = new ethers.providers.Web3Provider(window.ethereum);
             const network = await tempProvider.getNetwork();
-            console.log("Network chainId:", network.chainId);
+            console.log("Current network chainId:", network.chainId);
             if (network.chainId !== BASE_CHAIN_ID_DEC) {
               try {
-                console.log("Attempting to switch network...");
+                console.log("Attempting network switch...");
                 await window.ethereum.request({
                   method: 'wallet_switchEthereumChain',
                   params: [{ chainId: BASE_CHAIN_ID_HEX }],
                 });
+                // Reinitialize provider after switching network
                 tempProvider = new ethers.providers.Web3Provider(window.ethereum);
               } catch (switchError) {
                 console.error("Network switch error:", switchError);
