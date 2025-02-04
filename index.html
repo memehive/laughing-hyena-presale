@@ -19,6 +19,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
   <!-- web3 Library -->
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+  <!-- QRCode.js Library for generating QR codes -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
   <style>
     /* Global Styles */
@@ -265,8 +267,24 @@
     #disconnectWallet:hover {
       background: linear-gradient(to bottom, #c9302c, #d9534f);
     }
+    /* Styles for the QR Code toggle elements */
+    #toggleQRCode {
+      margin-top: 20px;
+      padding: 8px 16px;
+      font-size: 14px;
+      display: none; /* Hidden by default */
+      cursor: pointer;
+      background: #F0A500;
+      color: #0D1B2A;
+      border: 2px solid #000;
+      border-radius: 5px;
+    }
+    #qrCodeContainer {
+      margin-top: 10px;
+      display: none; /* Hidden by default */
+    }
     
-    /* Media Query for Smaller Screens: Center all button containers */
+    /* Media Query for Smaller Screens */
     @media (max-width: 480px) {
       body { flex-direction: column; min-height: 100vh; }
       .wrapper { transform: scale(0.9); }
@@ -333,7 +351,7 @@
           <img src="https://metamask.io/assets/icon.svg" alt="MetaMask Logo" width="24" height="24">
           <span>MetaMask</span>
         </button>
-        <!-- The Trust Wallet button now leverages native provider (if available) or WalletConnect -->
+        <!-- Trust Wallet button now leverages native provider if available or WalletConnect as fallback -->
         <button id="connectTrustWallet" class="wallet-button" onclick="connectTrustWallet()" aria-label="Connect Trust Wallet">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreigpv2by5d3wp6mofa2xedx6o54fjaaqw3ln33xvlfidfs57al7o5m" alt="Trust Wallet Logo" width="24" height="24">
           <span>Trust</span>
@@ -347,6 +365,10 @@
           <span>Disconnect</span>
         </button>
       </div>
+      
+      <!-- Toggle QR Code Button and Container (initially hidden) -->
+      <button id="toggleQRCode" onclick="toggleQRCode()">Toggle QR Code</button>
+      <div id="qrCodeContainer"></div>
       
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
@@ -391,11 +413,14 @@
   </div>
   
   <script>
+    // Global variable to hold the WalletConnect URI
+    let walletConnectUri = "";
+    
     // Troubleshooting: Warn if not using HTTPS (except on localhost)
     if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
       console.warn("Your dApp is not served over HTTPS. Some wallets may refuse to connect.");
     }
-
+    
     // MetaMask and Wallet Connection Code
     document.addEventListener("DOMContentLoaded", function () {
       const ethers = window.ethers;
@@ -413,14 +438,14 @@
       let userAddress = "";
       
       // Provider options for WalletConnect and Coinbase Wallet
-      // (Trust Wallet will be connected via WalletConnect if native provider is unavailable)
+      // (Trust Wallet fallback will use WalletConnect if native provider is unavailable)
       const providerOptions = {
         walletconnect: {
           package: WalletConnectProvider.default,
           options: {
             rpc: { [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL },
             bridge: "https://bridge.walletconnect.org",
-            qrcode: true
+            qrcode: false  // Disable auto QR code modal
           }
         },
         coinbasewallet: {
@@ -459,7 +484,7 @@
         console.warn("No Ethereum provider detected. Please install MetaMask.");
       }
       
-      // Listen for account and chain changes (if available)
+      // Listen for account and chain changes
       if (window.ethereum) {
         window.ethereum.on('accountsChanged', (accounts) => {
           console.log("Accounts changed:", accounts);
@@ -479,7 +504,7 @@
         });
       }
       
-      // Revised MetaMask connection function with additional logging
+      // MetaMask connection function
       async function connectMetaMask() {
         console.log("Attempting to connect with MetaMask...");
         if (!window.ethereum) {
@@ -493,7 +518,6 @@
             updateStatus("No accounts found in MetaMask. Ensure your wallet is unlocked.");
             return;
           }
-          
           let web3Provider = new ethers.providers.Web3Provider(window.ethereum);
           const { chainId } = await web3Provider.getNetwork();
           console.log("Current network chainId:", chainId);
@@ -525,12 +549,11 @@
         }
       }
       
-      // Revised Trust Wallet connection function:
-      // First, check if the native provider for Trust Wallet is available.
-      // If not, attempt to connect via WalletConnect.
+      // Trust Wallet connection function:
+      // If a native Trust Wallet provider is available (e.g. in Trust Wallet's DApp browser), use it.
+      // Otherwise, fallback to WalletConnect with a toggled QR code.
       async function connectTrustWallet() {
         console.log("Attempting to connect with Trust Wallet...");
-        // Check for native Trust Wallet provider (usually available in Trust Wallet's DApp browser)
         if (window.ethereum && window.ethereum.isTrust) {
           try {
             const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
@@ -555,11 +578,20 @@
             updateStatus("Native Trust Wallet connection error: " + error.message);
           }
         } else {
-          // If no native Trust Wallet provider is detected, use WalletConnect.
           console.log("Native Trust Wallet provider not detected; attempting WalletConnect...");
           try {
+            // Connect using WalletConnect
             const instance = await web3Modal.connectTo("walletconnect");
             provider = new ethers.providers.Web3Provider(instance);
+            
+            // Listen for the display_uri event to capture the connection URI
+            instance.connector.on("display_uri", (uri) => {
+              console.log("WalletConnect URI:", uri);
+              walletConnectUri = uri;
+              // Show the toggle button for QR code
+              document.getElementById("toggleQRCode").style.display = "block";
+            });
+            
             const { chainId } = await provider.getNetwork();
             if (chainId !== BASE_CHAIN_ID_DEC) {
               updateStatus("Please connect to Basechain using WalletConnect.");
@@ -598,7 +630,7 @@
         }
       }
       
-      // WalletConnect connection function (if needed)
+      // Generic WalletConnect connection function (if needed)
       async function connectWalletConnect() {
         try {
           const instance = await web3Modal.connect();
@@ -795,6 +827,26 @@
         }
       }
       
+      // Function to toggle display of the QR code
+      function toggleQRCode() {
+        const container = document.getElementById("qrCodeContainer");
+        if (container.style.display === "none" || container.style.display === "") {
+          container.style.display = "block";
+          container.innerHTML = ""; // Clear any previous QR code
+          if (walletConnectUri) {
+            new QRCode(container, {
+              text: walletConnectUri,
+              width: 200,
+              height: 200,
+            });
+          } else {
+            container.innerHTML = "No QR code URI available.";
+          }
+        } else {
+          container.style.display = "none";
+        }
+      }
+      
       // Expose functions for button clicks
       window.connectMetaMask = connectMetaMask;
       window.connectWalletConnect = connectWalletConnect;
@@ -807,6 +859,7 @@
       window.validateEthAmount = validateEthAmount;
       window.calculateTokens = calculateTokens;
       window.copyContractAddress = copyContractAddress;
+      window.toggleQRCode = toggleQRCode;
     });
   </script>
 </body>
