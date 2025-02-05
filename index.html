@@ -8,6 +8,9 @@
   <title>Laughing Hyena Presale</title>
   <!-- Roboto Mono for all text -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Include the UMD build for @reown/walletkit -->
+  <script src="https://cdn.jsdelivr.net/npm/@reown/walletkit@latest/dist/walletkit.umd.min.js"></script>
   
   <!-- ethers.js Library (UMD build) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
@@ -388,7 +391,7 @@
           <img src="https://gateway.pinata.cloud/ipfs/bafkreigpbedcletldnqi5ue2vgh4klft5ovlltl4q47uy5qkfthxo6wfuq" alt="Coinbase Wallet Logo" width="24" height="24">
           <span>Coinbase</span>
         </button>
-        <!-- WalletConnect button using WalletConnect v2 -->
+        <!-- WalletConnect button using WalletConnect v2 via WalletKit -->
         <button id="connectWalletConnect" class="wallet-button" onclick="connectWalletConnect()" aria-label="Connect WalletConnect">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreica2kla4alapcinmznch47tssr2g26dpdtb3u6ltv3gzlwzmchl4a" alt="WalletConnect Logo" width="24" height="24">
           <span>WalletConnect</span>
@@ -406,7 +409,7 @@
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
         <p id="walletBalance">Wallet Balance: 0 ETH</p>
-        <!-- ETH Input Field (no minimum attribute) -->
+        <!-- ETH Input Field (no minimum enforced, maximum 5 ETH) -->
         <input type="number" id="ethAmount" style="width: 130px;" placeholder="ETH (Max 5)" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
         <!-- Autofill Text Options (plain text links, only after wallet connection) -->
         <div id="autofillContainer">
@@ -553,8 +556,11 @@
         });
       }
       
-      // Coinbase Wallet connection function using Web3Modal
+      // Coinbase Wallet connection function using Web3Modal with forced reauthentication
       async function connectCoinbaseWallet() {
+        console.log("Forcing reauthentication by clearing cached provider...");
+        web3Modal.clearCachedProvider();
+        
         console.log("Connecting with Coinbase Wallet...");
         if (!window.ethereum) {
           updateStatus("Coinbase Wallet not detected. Please install Coinbase Wallet.", "negative");
@@ -575,7 +581,7 @@
           updateStatus(`Connected with Coinbase Wallet on Basechain: ${userAddress}`, "positive");
           fetchWalletBalance();
           document.getElementById("autofillContainer").style.display = "block";
-          // Set timer to auto-disconnect after 10 minutes (600,000 milliseconds)
+          // Set timer to auto-disconnect after 10 minutes (600,000 ms)
           disconnectTimer = setTimeout(() => {
             console.log("Auto-disconnect timer triggered.");
             alert("Your Coinbase wallet connection has timed out.");
@@ -597,7 +603,7 @@
             chains: [BASE_CHAIN_ID_DEC],
             rpcMap: { [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL }
           });
-          // Call connect() to open the QR modal and establish a connection.
+          // Connect and display the QR modal
           const wallet = await walletKitInstance.connect();
           userAddress = wallet.address;
           updateStatus(`Connected with WalletConnect v2: ${userAddress}`, "positive");
@@ -723,7 +729,7 @@
         }
       }
       
-      // Validate ETH amount (only check that it's not greater than 5)
+      // Validate ETH amount (only checking that it's not greater than 5)
       function validateEthAmount() {
         const ethInput = document.getElementById("ethAmount");
         let ethAmount = parseFloat(ethInput.value);
