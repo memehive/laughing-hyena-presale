@@ -164,9 +164,9 @@
       text-align: center;
     }
     
-    /* Status Bar (matches participation box width and centered) */
+    /* Status Bar */
     #status {
-      width: 100%; /* Fills parent container */
+      width: 100%;
       min-height: 40px;
       margin: 20px auto;
       background-color: #d9edf7;
@@ -218,9 +218,7 @@
     .buy-tokens-heading {
       font-family: 'Raleway Dots', sans-serif;
       font-size: 2.5rem;
-      background: linear-gradient(135deg, #28a745, #218838, #3CB371);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #28a745;
       text-shadow: 1px 1px 6px rgba(0,0,0,0.5);
       letter-spacing: 1px;
       margin-bottom: 20px;
@@ -349,7 +347,7 @@
       text-align: center;
     }
     
-    /* Hide wallet balance element (we now show balance in the status bar) */
+    /* Hide wallet balance element (displayed in the status bar) */
     #walletBalance { display: none; }
     
     @media (max-width: 480px) {
@@ -412,7 +410,7 @@
         </div>
       </div>
       
-      <!-- Status Bar: always the same width as its container ("How to Participate?" box) and centered -->
+      <!-- Status Bar -->
       <div id="status" class="status-neutral">Not connected</div>
       
       <div class="wallet-buttons-container">
@@ -494,7 +492,7 @@
     const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
     const TOKEN_RATE = 20000000;
     
-    // Helper: truncate wallet address (e.g., 0x123456.....abcd)
+    // Helper: truncate wallet address
     function truncateAddress(address) {
       if (!address) return "";
       return address.slice(0, 6) + "....." + address.slice(-4);
@@ -503,7 +501,23 @@
     // Global variables for provider, signer, and userAddress
     let provider, signer, userAddress = "";
     
-    // Define functions and assign to window so they’re globally available
+    // Define and assign web3Modal to window so it's global
+    window.web3Modal = new window.Web3Modal.default({
+      cacheProvider: false,
+      providerOptions: {
+        coinbasewallet: {
+          package: CoinbaseWalletSDK,
+          options: {
+            appName: "Laughing Hyena Presale",
+            rpc: BASECHAIN_RPC_URL,
+            chainId: BASE_CHAIN_ID_DEC,
+            darkMode: false
+          }
+        }
+      }
+    });
+    
+    // Make functions globally available
     window.convertLHyenaToETH = function() {
       const lhyenaInput = document.getElementById("lhyenaAmount");
       let lhyenaVal = parseFloat(lhyenaInput.value);
@@ -595,9 +609,9 @@
         alert("Install wallet");
         return;
       }
-      web3Modal.clearCachedProvider();
+      window.web3Modal.clearCachedProvider();
       try {
-        const instance = await web3Modal.connectTo("coinbasewallet");
+        const instance = await window.web3Modal.connectTo("coinbasewallet");
         provider = new ethers.providers.Web3Provider(instance);
         await provider.send("eth_requestAccounts", []);
         const { chainId } = await provider.getNetwork();
@@ -740,38 +754,20 @@
       }
     };
     
-    window.validateEthAmount = function() {
-      const ethInput = document.getElementById("ethAmount");
-      let ethAmount = parseFloat(ethInput.value);
-      if (isNaN(ethAmount)) {
-        window.updateStatus("Please enter a valid ETH amount.", "negative");
-        window.showWarning("Please enter a valid ETH amount.");
-        return;
-      }
-      if (ethAmount < 0.001) {
-        alert("Minimum contribution is 0.001 ETH.");
-        ethInput.value = "0.001";
-        ethAmount = 0.001;
-        window.updateStatus("Minimum contribution is 0.001 ETH", "negative");
-        return;
-      }
-      if (ethAmount > 5) {
-        alert("Maximum contribution is 5 ETH. Resetting value to 5 ETH.");
-        ethInput.value = "5";
-        ethAmount = 5;
-        window.updateStatus("Maximum contribution is 5 ETH", "negative");
-        window.showWarning("Maximum contribution is 5 ETH");
-        return;
-      }
-      if (userAddress && ethAmount > walletBalanceRaw) {
-        alert("Entered amount exceeds your wallet balance (" + walletBalanceRaw.toFixed(2) + " ETH).");
-        ethInput.value = walletBalanceRaw.toFixed(2);
-        window.updateStatus("Amount reset to wallet balance", "negative");
-        return;
-      }
-      window.clearWarning();
-      window.updateWalletStatus();
-    };
+    setInterval(fetchPresaleProgress, 5000);
+    
+    function updateProgressBar(ethRaised) {
+      const hardCap = 50;
+      const progress = Math.min((ethRaised / hardCap) * 100, 100);
+      const progressBar = document.getElementById("progress-bar");
+      progressBar.style.width = "60%";
+      progressBar.style.margin = "10px auto";
+      progressBar.style.height = "20px";
+      progressBar.style.borderRadius = "10px";
+      progressBar.style.lineHeight = "20px";
+      progressBar.style.textAlign = "center";
+      progressBar.innerText = Math.round(progress) + '%';
+    }
     
     async function fetchPresaleProgress() {
       if (!provider) return;
@@ -794,19 +790,6 @@
       } catch (error) {
         console.error("Error fetching presale progress:", error);
       }
-    }
-    
-    function updateProgressBar(ethRaised) {
-      const hardCap = 50;
-      const progress = Math.min((ethRaised / hardCap) * 100, 100);
-      const progressBar = document.getElementById("progress-bar");
-      progressBar.style.width = "60%";
-      progressBar.style.margin = "10px auto";
-      progressBar.style.height = "20px";
-      progressBar.style.borderRadius = "10px";
-      progressBar.style.lineHeight = "20px";
-      progressBar.style.textAlign = "center";
-      progressBar.innerText = Math.round(progress) + '%';
     }
     
     setInterval(fetchPresaleProgress, 5000);
