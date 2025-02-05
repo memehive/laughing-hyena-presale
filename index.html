@@ -360,7 +360,7 @@
           <h2>How to Participate?</h2>
           <ol class="participation-list">
             <li><span class="step-icon">1</span>Connect your wallet (Coinbase Wallet).</li>
-            <li><span class="step-icon">2</span>Enter the amount of ETH you want to contribute (Max 5 ETH).</li>
+            <li><span class="step-icon">2</span>Enter the amount of ETH you want to contribute.</li>
             <li><span class="step-icon">3</span>Click "BUY" and confirm your transaction.</li>
           </ol>
         </div>
@@ -384,13 +384,13 @@
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
         <p id="walletBalance">Wallet Balance: 0 ETH</p>
-        <!-- ETH Input Field; note: no minimum contribution is enforced -->
-        <input type="number" id="ethAmount" style="width: 130px;" placeholder="ETH (Max 5)" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
+        <!-- ETH Input Field (no max attribute now) -->
+        <input type="number" id="ethAmount" style="width: 130px;" placeholder="ETH" step="0.01" onblur="validateEthAmount(); calculateTokens()">
         <!-- Autofill Options (visible after wallet connection) -->
         <div id="autofillContainer">
-          <span class="autofill-option" onclick="autofillAmount(0.1)">10%</span>
+          <span class="autofill-option" onclick="autofillAmount(0.10)">10%</span>
           <span class="autofill-option" onclick="autofillAmount(0.25)">25%</span>
-          <span class="autofill-option" onclick="autofillAmount(0.5)">50%</span>
+          <span class="autofill-option" onclick="autofillAmount(0.50)">50%</span>
           <span class="autofill-option" onclick="autofillAmount(1)">MAX</span>
         </div>
         <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
@@ -590,11 +590,10 @@
       
       setInterval(fetchWalletBalance, 10000);
       
-      // Autofill function
+      // Autofill function: now without any cap
       function autofillAmount(percentage) {
         if (walletBalanceRaw > 0) {
           let amount = walletBalanceRaw * percentage;
-          if (amount > 5) { amount = 5; }
           document.getElementById("ethAmount").value = amount.toFixed(2);
           calculateTokens();
         } else {
@@ -611,8 +610,8 @@
         }
         validateEthAmount();
         const ethAmount = parseFloat(document.getElementById("ethAmount").value);
-        if (isNaN(ethAmount) || ethAmount > 5) {
-          updateStatus("Contribution must be 5 ETH or less.", "negative");
+        if (isNaN(ethAmount)) {
+          updateStatus("Please enter a valid ETH amount.", "negative");
           return;
         }
         const tokenAmount = (ethAmount * TOKEN_RATE).toLocaleString();
@@ -642,8 +641,8 @@
           return;
         }
         let ethAmount = parseFloat(document.getElementById("ethAmount").value);
-        if (ethAmount > 5) {
-          updateStatus("Contribution must be 5 ETH or less.", "negative");
+        if (isNaN(ethAmount)) {
+          updateStatus("Please enter a valid ETH amount.", "negative");
           return;
         }
         const contract = new ethers.Contract(
@@ -668,7 +667,7 @@
         }
       }
       
-      // Validate ETH amount (only checks for a valid number; no minimum enforced)
+      // Validate ETH amount (only checks that it is a valid number; no min enforced)
       function validateEthAmount() {
         const ethInput = document.getElementById("ethAmount");
         let ethAmount = parseFloat(ethInput.value);
@@ -677,7 +676,6 @@
           showWarning("Please enter a valid ETH amount.");
           return;
         }
-        // Remove any minimum contribution check here.
         clearWarning();
         updateStatus("", "positive");
       }
@@ -714,6 +712,7 @@
         const hardCap = 50;
         const progress = Math.min((ethRaised / hardCap) * 100, 100);
         const progressBar = document.getElementById("progress-bar");
+        // Ensure the same styling as the status bar:
         progressBar.style.width = "60%";
         progressBar.style.margin = "10px auto";
         progressBar.style.height = "20px";
