@@ -36,6 +36,7 @@
     }
     h1, h2, h3 { font-family: 'Roboto Mono', monospace; }
     input, .contract-address { font-family: 'Roboto Mono', monospace; }
+    
     /* Ensure all number inputs have the same height and placeholder style */
     input[type="number"] {
       width: 130px;
@@ -45,13 +46,19 @@
       text-align: center;
       box-sizing: border-box;
     }
+    /* Left-align placeholder text and add left padding */
+    input::placeholder {
+      text-align: left;
+      padding-left: 5px;
+    }
+    
     /* Container for label and input: ensures both are 130px wide and left-aligned */
     .input-container {
       width: 130px;
       text-align: left;
       margin: 0 auto 10px auto;
     }
-    /* Label styling for input fields (font-size: 12px now) */
+    /* Label styling for input fields (font-size: 12px) */
     label.input-label {
       display: block;
       font-size: 12px;
@@ -59,6 +66,7 @@
       font-weight: bold;
       color: #FFFFFF;
     }
+    
     .wallet-button, .buy-button, .footer-button, .warning { font-family: 'Roboto Mono', monospace; }
     .warning {
       font-size: 0.8em;
@@ -139,7 +147,8 @@
       margin: 0;
     }
     .hero { margin-bottom: 20px; width: 100%; }
-    /* Progress Bar styling: same size and centered like the status bar */
+    
+    /* Progress Bar styling */
     #progress-bar {
       height: 20px;
       width: 60%;
@@ -151,25 +160,19 @@
       line-height: 20px;
       text-align: center;
     }
-    /* Status Bar Styling */
+    /* Status Bar Styling: 12px text; min-height to accommodate 2 lines; background matching participation-box (#d9edf7); text color set to #0D0D0D */
     #status {
-      height: 20px;
+      min-height: 40px;
       width: 60%;
       margin: 20px auto;
       border-radius: 10px;
-      background-color: #333333;
-      line-height: 20px;
+      background-color: #d9edf7;
+      color: #0D0D0D;
+      font-size: 12px;
       text-align: center;
+      padding: 5px; /* allow some padding for 2 lines */
     }
-    .status-positive { color: #28a745; }
-    .status-negative { color: #ff5555; }
-    #warningMessage {
-      color: #ff5555;
-      font-size: 14px;
-      font-weight: bold;
-      margin: 10px auto;
-      width: 60%;
-    }
+    
     .wallet-buttons-container {
       display: flex;
       justify-content: center;
@@ -338,9 +341,7 @@
     }
     
     /* Hide wallet balance when no wallet is connected */
-    #walletBalance {
-      display: none;
-    }
+    #walletBalance { display: none; }
     
     /* Media Query for Smaller Screens */
     @media (max-width: 480px) {
@@ -398,7 +399,7 @@
           <h2>How to Participate?</h2>
           <ol class="participation-list">
             <li><span class="step-icon">1</span>Connect your wallet (Coinbase Wallet).</li>
-            <li><span class="step-icon">2</span>Enter the amount of ETH you want to contribute (max 5 ETH).</li>
+            <li><span class="step-icon">2</span>Enter the amount of ETH you want to contribute (max 5 ETH; minimum 0.001 ETH).</li>
             <li><span class="step-icon">3</span>Click "BUY" and confirm your transaction.</li>
           </ol>
         </div>
@@ -430,11 +431,11 @@
         <!-- Labels and Input Fields -->
         <div class="input-container">
           <label class="input-label" for="ethAmount">Enter ETH</label>
-          <input type="number" id="ethAmount" placeholder="ETH (Max 5)" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
+          <input type="number" id="ethAmount" placeholder="ETH (Max 5)" min="0.001" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
         </div>
         <div class="input-container">
           <label class="input-label" for="lhyenaAmount">Enter $LHyena</label>
-          <input type="number" id="lhyenaAmount" placeholder="$LHyena" step="any" onblur="convertLHyenaToETH();">
+          <input type="number" id="lhyenaAmount" placeholder="$LHyena" min="0" step="any" onblur="convertLHyenaToETH();">
         </div>
         
         <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
@@ -719,7 +720,7 @@
         }
         const tokenAmount = (ethAmount * TOKEN_RATE).toLocaleString();
         document.getElementById("transactionSummary").innerText =
-          `You are about to contribute ${ethAmount} ETH to receive ${tokenAmount} LHyena tokens.`;
+          `You are about to contribute ${ethAmount} ETH to receive ${tokenAmount} LHyena tokens. (Minimum contribution is 0.001 ETH)`;
         document.getElementById("confirmationModal").style.display = "block";
       }
       
@@ -777,13 +778,20 @@
         }
       }
       
-      // Validate ETH amount (checks that it is a valid number, does not exceed 5 ETH, and does not exceed wallet balance)
+      // Validate ETH amount (checks that it is a valid number, not below 0.001, does not exceed 5 ETH, and does not exceed wallet balance)
       function validateEthAmount() {
         const ethInput = document.getElementById("ethAmount");
         let ethAmount = parseFloat(ethInput.value);
         if (isNaN(ethAmount)) {
           updateStatus("Please enter a valid ETH amount.", "negative");
           showWarning("Please enter a valid ETH amount.");
+          return;
+        }
+        if (ethAmount < 0.001) {
+          alert("Minimum contribution is 0.001 ETH.");
+          ethInput.value = "0.001";
+          ethAmount = 0.001;
+          updateStatus("Minimum contribution is 0.001 ETH", "negative");
           return;
         }
         // Enforce maximum contribution of 5 ETH if user enters more
@@ -843,7 +851,6 @@
         const hardCap = 50;
         const progress = Math.min((ethRaised / hardCap) * 100, 100);
         const progressBar = document.getElementById("progress-bar");
-        // Ensure the same styling as the status bar:
         progressBar.style.width = "60%";
         progressBar.style.margin = "10px auto";
         progressBar.style.height = "20px";
