@@ -19,7 +19,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   
   <style>
-    /* --- CSS Styles (unchanged except for the modal transform) --- */
+    /* --- CSS Styles (unchanged except for the modal transform adjustments) --- */
     body {
       font-family: 'Roboto Mono', monospace;
       margin: 0;
@@ -262,8 +262,8 @@
       max-width: 400px;
       width: 90%;
       text-align: center;
-      /* New line: shift modal downward */
-      transform: translateY(35vh);
+      /* For larger screens: shift modal downward by 25% of viewport height */
+      transform: translateY(25vh);
     }
     .modal button {
       margin-top: 15px;
@@ -345,6 +345,11 @@
       input[type="number"] { width: 130px; font-size: 16px; }
       footer { width: 90%; margin: 20px auto; }
       #warningMessage { width: 90%; }
+      
+      /* Move the modal further down on smaller screens */
+      .modal {
+        transform: translateY(50vh);
+      }
     }
   </style>
 </head>
@@ -646,7 +651,7 @@
         const tokenAmount = (ethAmount * TOKEN_RATE).toLocaleString();
         document.getElementById("transactionSummary").innerText =
           `You are about to contribute ${ethAmount} ETH (minimum 0.001 ETH) to receive ${tokenAmount} LHyena tokens.`;
-        // Updated line: use "flex" to center the modal
+        // Use "flex" to display the modal popup
         document.getElementById("confirmationModal").style.display = "flex";
       };
       
