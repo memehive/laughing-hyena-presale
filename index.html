@@ -102,13 +102,15 @@
       height: 150px;
       margin-bottom: 10px;
     }
+    /* Updated Header Title */
     .header-title {
-      font-size: 2.5rem;
-      background: linear-gradient(to right, #F0A500, #FFD700);
+      font-size: 3rem;
+      background: linear-gradient(135deg, #F0A500, #FFD700, #FFA500);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
       letter-spacing: 2px;
+      margin: 0;
     }
     .hero { margin-bottom: 20px; width: 100%; }
     /* Progress Bar styling: same size and centered like the status bar */
@@ -175,13 +177,16 @@
       transform: translateY(2px) scale(1.05);
       box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
+    /* Updated Buy Tokens Heading */
     .buy-tokens-heading {
-      font-size: 2rem;
-      background: linear-gradient(to right, #28a745, #218838);
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #28a745, #218838, #3CB371);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+      text-shadow: 1px 1px 6px rgba(0,0,0,0.5);
       letter-spacing: 1px;
+      margin-bottom: 20px;
+      padding: 10px 0;
     }
     .total-raised { color: #28a745; }
     .user-contribution { color: #F0A500; }
@@ -271,11 +276,20 @@
     #disconnectWallet:hover {
       background: linear-gradient(to bottom, #c9302c, #d9534f);
     }
-    /* Instruction Styling for Adding Token */
+    /* Instruction Styling for Adding Token with Coinbase Wallet Download Links */
     .token-instructions {
       font-size: 0.9em;
       margin: 15px 0;
       color: #F0A500;
+    }
+    .token-instructions a {
+      color: #4A90E2;
+      text-decoration: none;
+      margin: 0 5px;
+      font-weight: bold;
+    }
+    .token-instructions a:hover {
+      text-decoration: underline;
     }
     .copy-button {
       border: none;
@@ -382,6 +396,7 @@
       </div>
       
       <div>
+        <!-- Updated Buy Tokens Heading -->
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
         <p id="walletBalance">Wallet Balance: 0 ETH</p>
         <!-- ETH Input Field: max contribution is 5 ETH -->
@@ -400,13 +415,17 @@
             <span>BUY</span>
           </button>
         </div>
-        <!-- Instruction to add token with copy button -->
+        <!-- Updated token instructions with Coinbase Wallet download links -->
         <p class="token-instructions">
           To add $LHyena to your Coinbase Wallet, copy the token contract address: 
           <strong>0x8aaA69666D6de35561D948f6670F262F6cAC7392</strong>
           <button onclick="copyTokenAddress()" class="copy-button" aria-label="Copy Token Contract Address">
             <img src="https://gateway.pinata.cloud/ipfs/bafkreichlpjusnouyhn4jgipntvamzt6pj33dlzqoeyk6ttifo6dpjiz7q" alt="Copy Icon">
           </button>
+          <br>
+          Don't have Coinbase Wallet? Download it from 
+          <a href="https://apps.apple.com/us/app/coinbase-wallet/id1278383455" target="_blank">iOS</a> or 
+          <a href="https://play.google.com/store/apps/details?id=org.toshi" target="_blank">Android</a>.
         </p>
       </div>
       
@@ -681,6 +700,7 @@
       }
       
       // Validate ETH amount (only checks that it is a valid number; no minimum enforced)
+      // Now also checks if the entered amount exceeds the wallet balance.
       function validateEthAmount() {
         const ethInput = document.getElementById("ethAmount");
         let ethAmount = parseFloat(ethInput.value);
@@ -696,10 +716,17 @@
           ethAmount = 5;
           updateStatus("Maximum contribution is 5 ETH", "negative");
           showWarning("Maximum contribution is 5 ETH");
-        } else {
-          clearWarning();
-          updateStatus("", "positive");
+          return;
         }
+        // Check if the entered amount exceeds the wallet balance.
+        if (ethAmount > walletBalanceRaw) {
+          alert("Entered amount exceeds your wallet balance (" + walletBalanceRaw.toFixed(2) + " ETH).");
+          ethInput.value = walletBalanceRaw.toFixed(2);
+          updateStatus("Amount reset to wallet balance", "negative");
+          return;
+        }
+        clearWarning();
+        updateStatus("", "positive");
       }
       
       // Calculate token amount based on current ETH input
