@@ -10,6 +10,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Raleway+Dots&display=swap" rel="stylesheet">
   <!-- Roboto Mono for other text -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- External Libraries with defer -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js" defer></script>
+  <script src="https://unpkg.com/@coinbase/wallet-sdk/dist/wallet-sdk.umd.min.js" defer></script>
+  <script src="https://unpkg.com/web3modal@1.9.8/dist/index.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  
   <style>
     /* --- CSS Styles --- */
     body {
@@ -52,7 +60,7 @@
       color: #FFFFFF;
     }
     
-    /* Buttons, warnings, etc. */
+    /* Buttons and warnings */
     .wallet-button, .buy-button, .footer-button, .warning {
       font-family: 'Roboto Mono', monospace;
     }
@@ -471,8 +479,8 @@
     </footer>
   </div>
   
-  <!-- Load custom script with defer (not as module) -->
-  <script defer>
+  <!-- Custom script loaded WITHOUT defer so it executes immediately after the HTML -->
+  <script>
     // Global variables and constants
     let walletBalanceRaw = 0;
     let disconnectTimer = null;
@@ -491,7 +499,7 @@
     let provider, signer, userAddress = "";
     
     // Initialize Web3Modal.
-    // Use the default export if available, otherwise use window.Web3Modal.
+    // Check if there's a default export or not.
     const Web3ModalConstructor = window.Web3Modal && (window.Web3Modal.default || window.Web3Modal);
     window.web3Modal = new Web3ModalConstructor({
       cacheProvider: false,
