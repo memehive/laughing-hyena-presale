@@ -34,8 +34,12 @@
       font-size: 16px;
       line-height: 1.6;
     }
-    h1, h2, h3 { font-family: 'Roboto Mono', monospace; }
-    input, .contract-address { font-family: 'Roboto Mono', monospace; }
+    h1, h2, h3 {
+      font-family: 'Roboto Mono', monospace;
+    }
+    input, .contract-address {
+      font-family: 'Roboto Mono', monospace;
+    }
     
     /* Ensure all number inputs have the same height and placeholder style */
     input[type="number"] {
@@ -46,13 +50,13 @@
       text-align: center;
       box-sizing: border-box;
     }
-    /* Left-align placeholder text and add left padding */
+    /* Left-align placeholder text with a bit of padding */
     input::placeholder {
       text-align: left;
       padding-left: 5px;
     }
     
-    /* Container for label and input: ensures both are 130px wide and left-aligned */
+    /* Container for label and input: fixed width and left-aligned */
     .input-container {
       width: 130px;
       text-align: left;
@@ -67,7 +71,9 @@
       color: #FFFFFF;
     }
     
-    .wallet-button, .buy-button, .footer-button, .warning { font-family: 'Roboto Mono', monospace; }
+    .wallet-button, .buy-button, .footer-button, .warning {
+      font-family: 'Roboto Mono', monospace;
+    }
     .warning {
       font-size: 0.8em;
       color: #ff5555;
@@ -83,7 +89,7 @@
       color: #0D0D0D;
       padding: 20px;
       margin: 20px 0;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
     }
     .participation-list {
       list-style: none;
@@ -142,11 +148,14 @@
       background: linear-gradient(135deg, #F0A500, #FFD700, #FFA500);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+      text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
       letter-spacing: 2px;
       margin: 0;
     }
-    .hero { margin-bottom: 20px; width: 100%; }
+    .hero {
+      margin-bottom: 20px;
+      width: 100%;
+    }
     
     /* Progress Bar styling */
     #progress-bar {
@@ -160,18 +169,27 @@
       line-height: 20px;
       text-align: center;
     }
-    /* Status Bar Styling: 12px text; min-height to accommodate 2 lines; background matching participation-box (#d9edf7); text color set to #0D0D0D */
+    
+    /* Status Bar Styling:
+       - 12px font size,
+       - min-height of 40px plus padding to accommodate two lines,
+       - background color matching participation box (#d9edf7),
+       - no border-radius.
+       Also, it now shows the truncated wallet address and current balance when connected. */
     #status {
+      width: 100%;  /* Fill the container width */
       min-height: 40px;
-      width: 60%;
       margin: 20px auto;
-      border-radius: 10px;
       background-color: #d9edf7;
       color: #0D0D0D;
       font-size: 12px;
       text-align: center;
-      padding: 5px; /* allow some padding for 2 lines */
+      padding: 5px;
+      border-radius: 0;
     }
+    /* Status Message Colors: Negative in red, Positive in green */
+    .status-positive { color: green; }
+    .status-negative { color: red; }
     
     .wallet-buttons-container {
       display: flex;
@@ -200,11 +218,13 @@
       background: linear-gradient(to bottom, #28a745, #218838);
       font-size: 20px;
     }
-    .wallet-button img, .buy-button img { margin-right: 8px; }
+    .wallet-button img, .buy-button img {
+      margin-right: 8px;
+    }
     .wallet-button:hover, .buy-button:hover {
       background: linear-gradient(to bottom, #D9A300, #F0A500);
       transform: translateY(2px) scale(1.05);
-      box-shadow: 0 6px 10px rgba(0,0,0,0.2);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
     }
     /* FUTURISTIC Buy Tokens Heading using Orbitron */
     .buy-tokens-heading {
@@ -213,7 +233,7 @@
       background: linear-gradient(135deg, #28a745, #218838, #3CB371);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 1px 1px 6px rgba(0,0,0,0.5);
+      text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.5);
       letter-spacing: 1px;
       margin-bottom: 20px;
       padding: 10px 0;
@@ -264,7 +284,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0, 0, 0, 0.6);
       display: none;
       align-items: center;
       justify-content: center;
@@ -306,7 +326,7 @@
     #disconnectWallet:hover {
       background: linear-gradient(to bottom, #c9302c, #d9534f);
     }
-    /* Instruction Styling for Adding Token with Coinbase Wallet Download Links */
+    /* Instruction Styling for Coinbase Wallet Download Links */
     .token-instructions {
       font-size: 0.9em;
       margin: 15px 0;
@@ -331,7 +351,7 @@
       width: 16px;
       height: 16px;
     }
-    /* Additional Input Field for LHyena Amount (identical styling to ETH input) */
+    /* Additional Input Field for LHyena Amount */
     .conversion-container input {
       width: 130px;
       font-size: 16px;
@@ -405,11 +425,10 @@
         </div>
       </div>
       
-      <!-- Status bar -->
+      <!-- Status bar: displays wallet address and balance when connected -->
       <div id="status" class="status-neutral">Not connected</div>
       
-      <!-- Wallet Balance Paragraph (hidden by default) -->
-      <p id="walletBalance">Wallet Balance: 0 ETH</p>
+      <!-- (Wallet balance is now shown in the status bar) -->
       
       <div class="wallet-buttons-container">
         <!-- Coinbase Wallet button -->
@@ -426,7 +445,6 @@
       <div>
         <!-- Updated Buy Tokens Heading -->
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
-        <p id="walletBalance">Wallet Balance: 0 ETH</p>
         
         <!-- Labels and Input Fields -->
         <div class="input-container">
@@ -500,6 +518,12 @@
     const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
     const TOKEN_RATE = 20000000;
     
+    // Helper function to truncate wallet address for display (e.g., 0x123456.....abcd)
+    function truncateAddress(address) {
+      if (!address) return "";
+      return address.slice(0, 6) + "....." + address.slice(-4);
+    }
+    
     // Function to convert a manually entered LHyena amount into ETH (and update the ETH field)
     function convertLHyenaToETH() {
       const lhyenaInput = document.getElementById("lhyenaAmount");
@@ -507,7 +531,6 @@
       if (isNaN(lhyenaVal)) return;
       // Required ETH = LHyena amount / TOKEN_RATE
       let ethRequired = lhyenaVal / TOKEN_RATE;
-      // Enforce maximum contribution of 5 ETH if necessary
       if (ethRequired > 5) {
         alert("Converted ETH exceeds maximum contribution (5 ETH).");
         ethRequired = 5;
@@ -551,6 +574,16 @@
         }
       }
       
+      function updateWalletStatus() {
+        // If a wallet is connected, update the status bar with the truncated wallet address and current balance.
+        if (userAddress) {
+          const statusEl = document.getElementById("status");
+          statusEl.innerText = "Connected: " + truncateAddress(userAddress) + " | Balance: " + walletBalanceRaw.toFixed(2) + " ETH";
+          statusEl.classList.remove("status-negative");
+          statusEl.classList.add("status-positive");
+        }
+      }
+      
       function showWarning(message) {
         document.getElementById("warningMessage").innerText = message;
       }
@@ -565,28 +598,11 @@
           console.log("Accounts changed:", accounts);
           if (accounts.length > 0) {
             userAddress = accounts[0];
-            updateStatus("Connected: " + userAddress, "positive");
+            updateWalletStatus();
             fetchWalletBalance();
-            // Show autofill container and wallet balance when connected
-            const autofillElem = document.getElementById("autofillContainer");
-            if (autofillElem) {
-              autofillElem.style.display = "block";
-            }
-            const walletBalanceElem = document.getElementById("walletBalance");
-            if (walletBalanceElem) {
-              walletBalanceElem.style.display = "block";
-            }
           } else {
             userAddress = "";
             updateStatus("Not connected", "negative");
-            const walletBalanceElem = document.getElementById("walletBalance");
-            if (walletBalanceElem) {
-              walletBalanceElem.style.display = "none";
-            }
-            const autofillElem = document.getElementById("autofillContainer");
-            if (autofillElem) {
-              autofillElem.style.display = "none";
-            }
           }
         });
         window.ethereum.on('chainChanged', (chainId) => {
@@ -600,7 +616,6 @@
       // Coinbase Wallet connection function using Web3Modal
       async function connectCoinbaseWallet() {
         console.log("Attempting to connect with Coinbase Wallet...");
-        // If no wallet is installed, alert the user to install one.
         if (!window.ethereum) {
           updateStatus("Coinbase Wallet not detected.", "negative");
           alert("Install wallet");
@@ -618,17 +633,8 @@
           }
           signer = provider.getSigner();
           userAddress = await signer.getAddress();
-          updateStatus(`Connected with Coinbase Wallet on Basechain: ${userAddress}`, "positive");
+          updateWalletStatus();
           fetchWalletBalance();
-          // Show autofill container and wallet balance when connected
-          const autofillElem = document.getElementById("autofillContainer");
-          if (autofillElem) {
-            autofillElem.style.display = "block";
-          }
-          const walletBalanceElem = document.getElementById("walletBalance");
-          if (walletBalanceElem) {
-            walletBalanceElem.style.display = "block";
-          }
           // Auto-disconnect after 10 minutes
           disconnectTimer = setTimeout(() => {
             console.log("Auto-disconnect timer triggered.");
@@ -641,7 +647,7 @@
         }
       }
       
-      // Disconnect Wallet function: now also resets the ETH and LHyena input fields
+      // Disconnect Wallet function: resets fields and status
       async function disconnectWallet() {
         console.log("Disconnecting wallet...");
         if (!provider || userAddress === "") {
@@ -655,19 +661,8 @@
         signer = null;
         userAddress = "";
         updateStatus("Not connected", "negative");
-        // Hide wallet balance when disconnected and clear it
-        const walletBalanceElem = document.getElementById("walletBalance");
-        if (walletBalanceElem) {
-          walletBalanceElem.style.display = "none";
-          walletBalanceElem.innerText = "Wallet Balance: 0 ETH";
-        }
-        // Reset input fields
         document.getElementById("ethAmount").value = "";
         document.getElementById("lhyenaAmount").value = "";
-        const autofillElem = document.getElementById("autofillContainer");
-        if (autofillElem) {
-          autofillElem.style.display = "none";
-        }
         if (disconnectTimer) {
           clearTimeout(disconnectTimer);
           disconnectTimer = null;
@@ -679,7 +674,7 @@
         try {
           const balance = await provider.getBalance(userAddress);
           walletBalanceRaw = parseFloat(ethers.utils.formatEther(balance));
-          document.getElementById("walletBalance").innerText = "Wallet Balance: " + walletBalanceRaw + " ETH";
+          updateWalletStatus();
           console.log("Wallet balance updated:", walletBalanceRaw, "ETH");
         } catch (err) {
           console.error("Error fetching wallet balance:", err);
@@ -688,7 +683,7 @@
       
       setInterval(fetchWalletBalance, 10000);
       
-      // Autofill function: calculates percentage of wallet balance (cap at 5 ETH)
+      // Autofill function (if needed)
       function autofillAmount(percentage) {
         if (!userAddress) {
           alert("Please connect your wallet first!");
@@ -720,7 +715,7 @@
         }
         const tokenAmount = (ethAmount * TOKEN_RATE).toLocaleString();
         document.getElementById("transactionSummary").innerText =
-          `You are about to contribute ${ethAmount} ETH to receive ${tokenAmount} LHyena tokens. (Minimum contribution is 0.001 ETH)`;
+          `You are about to contribute ${ethAmount} ETH (minimum 0.001 ETH) to receive ${tokenAmount} LHyena tokens.`;
         document.getElementById("confirmationModal").style.display = "block";
       }
       
@@ -749,7 +744,6 @@
           updateStatus("Please enter a valid ETH amount.", "negative");
           return;
         }
-        // Enforce the maximum contribution of 5 ETH
         if (ethAmount > 5) {
           alert("Maximum contribution is 5 ETH. Resetting value to 5 ETH.");
           ethAmount = 5;
@@ -778,7 +772,7 @@
         }
       }
       
-      // Validate ETH amount (checks that it is a valid number, not below 0.001, does not exceed 5 ETH, and does not exceed wallet balance)
+      // Validate ETH amount: must be a number, at least 0.001, no more than 5, and not exceeding wallet balance
       function validateEthAmount() {
         const ethInput = document.getElementById("ethAmount");
         let ethAmount = parseFloat(ethInput.value);
@@ -794,7 +788,6 @@
           updateStatus("Minimum contribution is 0.001 ETH", "negative");
           return;
         }
-        // Enforce maximum contribution of 5 ETH if user enters more
         if (ethAmount > 5) {
           alert("Maximum contribution is 5 ETH. Resetting value to 5 ETH.");
           ethInput.value = "5";
@@ -803,7 +796,6 @@
           showWarning("Maximum contribution is 5 ETH");
           return;
         }
-        // Check if the entered amount exceeds the wallet balance.
         if (ethAmount > walletBalanceRaw) {
           alert("Entered amount exceeds your wallet balance (" + walletBalanceRaw.toFixed(2) + " ETH).");
           ethInput.value = walletBalanceRaw.toFixed(2);
@@ -811,15 +803,14 @@
           return;
         }
         clearWarning();
-        updateStatus("", "positive");
+        updateWalletStatus();
       }
       
-      // Calculate token amount based on current ETH input and update LHyena input field as well.
+      // Calculate token amount based on ETH input and update LHyena field
       function calculateTokens() {
         let ethAmount = parseFloat(document.getElementById("ethAmount").value) || 0;
         const lhyenaAmount = ethAmount * TOKEN_RATE;
         document.getElementById("tokenAmount").innerText = lhyenaAmount.toLocaleString();
-        // Also update the LHyena input field for conversion reference.
         document.getElementById("lhyenaAmount").value = lhyenaAmount.toFixed(2);
         console.log("Calculated token amount for", ethAmount, "ETH is", lhyenaAmount.toLocaleString());
       }
@@ -911,7 +902,7 @@
         }
       }
       
-      // Expose functions to the global scope for button clicks
+      // Expose functions to the global scope
       window.connectCoinbaseWallet = connectCoinbaseWallet;
       window.disconnectWallet = disconnectWallet;
       window.promptBuyTokens = promptBuyTokens;
