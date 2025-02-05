@@ -168,10 +168,10 @@
        - min-height of 40px plus padding,
        - background color matching participation box (#d9edf7),
        - no border-radius.
-       The status bar will show the truncated wallet address and balance when connected.
+       The status bar will display the truncated wallet address and current balance when connected.
     */
     #status {
-      width: 100%; /* Fill the parent container's width */
+      width: 100%; /* Fills its parent container (which is 60% of the viewport) */
       min-height: 40px;
       margin: 20px auto;
       background-color: #d9edf7;
@@ -212,9 +212,7 @@
       background: linear-gradient(to bottom, #28a745, #218838);
       font-size: 20px;
     }
-    .wallet-button img, .buy-button img {
-      margin-right: 8px;
-    }
+    .wallet-button img, .buy-button img { margin-right: 8px; }
     .wallet-button:hover, .buy-button:hover {
       background: linear-gradient(to bottom, #D9A300, #F0A500);
       transform: translateY(2px) scale(1.05);
@@ -523,9 +521,12 @@
       if (isNaN(lhyenaVal)) return;
       // Required ETH = LHyena amount / TOKEN_RATE
       let ethRequired = lhyenaVal / TOKEN_RATE;
+      // Check if conversion exceeds maximum 5 ETH
       if (ethRequired > 5) {
-        alert("Converted ETH exceeds maximum contribution (5 ETH).");
+        alert("Maximum contribution is 5 ETH. Resetting to 5 ETH equivalent.");
         ethRequired = 5;
+        // Update LHyena field to reflect the token amount equivalent to 5 ETH
+        lhyenaInput.value = (5 * TOKEN_RATE).toFixed(2);
       }
       document.getElementById("ethAmount").value = ethRequired.toFixed(2);
       calculateTokens();
@@ -762,7 +763,7 @@
         }
       }
       
-      // Validate ETH amount: must be a number, at least 0.001, no more than 5, and (if wallet connected) not exceeding wallet balance
+      // Validate ETH amount: must be a number, at least 0.001, no more than 5, and (if wallet connected) not exceeding wallet balance.
       function validateEthAmount() {
         const ethInput = document.getElementById("ethAmount");
         let ethAmount = parseFloat(ethInput.value);
@@ -776,6 +777,14 @@
           ethInput.value = "0.001";
           ethAmount = 0.001;
           updateStatus("Minimum contribution is 0.001 ETH", "negative");
+          return;
+        }
+        if (ethAmount > 5) {
+          alert("Maximum contribution is 5 ETH. Resetting value to 5 ETH.");
+          ethInput.value = "5";
+          ethAmount = 5;
+          updateStatus("Maximum contribution is 5 ETH", "negative");
+          showWarning("Maximum contribution is 5 ETH");
           return;
         }
         // Only check wallet balance if a wallet is connected
