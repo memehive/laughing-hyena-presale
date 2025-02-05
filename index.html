@@ -164,7 +164,7 @@
       text-align: center;
     }
     
-    /* Status Bar */
+    /* Status Bar (always matching container width) */
     #status {
       width: 100%;
       min-height: 40px;
@@ -214,7 +214,7 @@
       box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
     
-    /* Buy Tokens Heading */
+    /* Buy Tokens Heading (green to match BUY button) */
     .buy-tokens-heading {
       font-family: 'Raleway Dots', sans-serif;
       font-size: 2.5rem;
@@ -347,7 +347,7 @@
       text-align: center;
     }
     
-    /* Hide wallet balance element (displayed in the status bar) */
+    /* Hide wallet balance element (shown in status bar) */
     #walletBalance { display: none; }
     
     @media (max-width: 480px) {
@@ -427,11 +427,11 @@
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
         <div class="input-container">
-          <label class="input-label" for="ethAmount">Enter ETH</label>
+          <label class="input-label" for="ethAmount">Enter ETH:</label>
           <input type="number" id="ethAmount" placeholder="ETH (Max 5)" min="0.001" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
         </div>
         <div class="input-container">
-          <label class="input-label" for="lhyenaAmount">Enter $LHyena</label>
+          <label class="input-label" for="lhyenaAmount">Enter $LHyena:</label>
           <input type="number" id="lhyenaAmount" placeholder="$LHyena" min="0" step="any" onblur="convertLHyenaToETH();">
         </div>
         <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
@@ -483,6 +483,7 @@
     </footer>
   </div>
   
+  <!-- Ensure script is NOT loaded as a module -->
   <script>
     // Global variables
     let walletBalanceRaw = 0;
@@ -492,16 +493,16 @@
     const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
     const TOKEN_RATE = 20000000;
     
-    // Helper: truncate wallet address
+    // Helper: truncate wallet address (e.g., 0x123456.....abcd)
     function truncateAddress(address) {
       if (!address) return "";
       return address.slice(0, 6) + "....." + address.slice(-4);
     }
     
-    // Global variables for provider, signer, and userAddress
+    // Global variables for provider, signer, userAddress
     let provider, signer, userAddress = "";
     
-    // Define and assign web3Modal to window so it's global
+    // Make web3Modal global
     window.web3Modal = new window.Web3Modal.default({
       cacheProvider: false,
       providerOptions: {
@@ -543,7 +544,8 @@
     window.updateWalletStatus = function() {
       if (userAddress) {
         const statusEl = document.getElementById("status");
-        statusEl.innerText = "Connected: " + truncateAddress(userAddress) + " | Balance: " + walletBalanceRaw.toFixed(2) + " ETH";
+        // Display balance with five decimals
+        statusEl.innerText = "Connected: " + truncateAddress(userAddress) + " | Balance: " + walletBalanceRaw.toFixed(5) + " ETH";
         statusEl.classList.remove("status-negative");
         statusEl.classList.add("status-positive");
       }
@@ -593,8 +595,8 @@
         return;
       }
       if (userAddress && ethAmount > walletBalanceRaw) {
-        alert("Entered amount exceeds your wallet balance (" + walletBalanceRaw.toFixed(2) + " ETH).");
-        ethInput.value = walletBalanceRaw.toFixed(2);
+        alert("Entered amount exceeds your wallet balance (" + walletBalanceRaw.toFixed(5) + " ETH).");
+        ethInput.value = walletBalanceRaw.toFixed(5);
         window.updateStatus("Amount reset to wallet balance", "negative");
         return;
       }
