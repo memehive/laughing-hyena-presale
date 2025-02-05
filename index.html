@@ -13,8 +13,8 @@
   <!-- External Libraries (loaded with defer) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js" defer></script>
   <script src="https://unpkg.com/@coinbase/wallet-sdk/dist/wallet-sdk.umd.min.js" defer></script>
-  <!-- IMPORTANT: Use the known UMD URL for Web3Modal v1.9.8 -->
-  <script src="https://unpkg.com/web3modal@1.9.8/dist/index.js" defer></script>
+  <!-- Use jsDelivr for Web3Modal v1.9.8 -->
+  <script src="https://cdn.jsdelivr.net/npm/web3modal@1.9.8/dist/index.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   
@@ -457,9 +457,12 @@
     </footer>
   </div>
   
-  <!-- Custom script without defer, wrapped in a load event to ensure external libraries are ready -->
+  <!-- Custom script: wrap in load event to ensure external libraries are ready -->
   <script>
     window.addEventListener('load', function () {
+      // Log the Web3Modal object so you can inspect it in the console
+      console.log("window.Web3Modal:", window.Web3Modal);
+      
       // Global variables and constants
       let walletBalanceRaw = 0;
       let disconnectTimer = null;
@@ -477,8 +480,14 @@
       // Global variables for provider, signer, and userAddress
       let provider, signer, userAddress = "";
       
-      // Initialize Web3Modal using window.CoinbaseWalletSDK.
-      window.web3Modal = new window.Web3Modal({
+      // Initialize Web3Modal.
+      // Try using window.Web3Modal.default if available; otherwise, use window.Web3Modal.
+      const Web3ModalConstructor = (window.Web3Modal && window.Web3Modal.default) || window.Web3Modal;
+      if (!Web3ModalConstructor) {
+        console.error("Web3Modal constructor not found. Check that the Web3Modal script is loaded correctly.");
+        return;
+      }
+      window.web3Modal = new Web3ModalConstructor({
         cacheProvider: false,
         providerOptions: {
           coinbasewallet: {
