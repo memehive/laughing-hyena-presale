@@ -6,14 +6,10 @@
   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Laughing Hyena Presale</title>
-  <!-- Import additional fonts -->
+  <!-- Import fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Raleway+Dots&display=swap" rel="stylesheet">
-  <!-- Import Orbitron font for fallback futuristic styling (if needed) -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-  <!-- Roboto Mono for other text -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
-  
   <!-- ethers.js Library (UMD build) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <!-- Coinbase Wallet SDK -->
@@ -67,7 +63,7 @@
       color: #FFFFFF;
     }
     
-    /* Buttons and Warnings */
+    /* Buttons and warnings */
     .wallet-button, .buy-button, .footer-button, .warning {
       font-family: 'Roboto Mono', monospace;
     }
@@ -167,7 +163,7 @@
     
     /* Status Bar */
     #status {
-      width: 100%; /* Fill parent container */
+      width: 100%;
       min-height: 40px;
       margin: 20px auto;
       background-color: #d9edf7;
@@ -208,20 +204,19 @@
       background: linear-gradient(to bottom, #28a745, #218838);
       font-size: 20px;
     }
-    .wallet-button img, .buy-button img {
-      margin-right: 8px;
-    }
+    .wallet-button img, .buy-button img { margin-right: 8px; }
     .wallet-button:hover, .buy-button:hover {
       background: linear-gradient(to bottom, #D9A300, #F0A500);
       transform: translateY(2px) scale(1.05);
       box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
     
-    /* Buy Tokens Heading using Raleway Dots */
+    /* Buy Tokens Heading using Raleway Dots, purple with golden yellow shadow */
     .buy-tokens-heading {
       font-family: 'Raleway Dots', cursive;
       font-size: 2.5rem;
-      /* You may adjust other properties (such as text-shadow) if needed */
+      color: purple;
+      text-shadow: 2px 2px 4px #F0A500;
       margin-bottom: 20px;
       padding: 10px 0;
     }
@@ -273,7 +268,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0,0,0,0.6);
       display: none;
       align-items: center;
       justify-content: center;
@@ -348,7 +343,7 @@
       text-align: center;
     }
     
-    /* Hide wallet balance element (displayed in status bar now) */
+    /* Hide wallet balance element (we now show it in the status bar) */
     #walletBalance { display: none; }
     
     @media (max-width: 480px) {
@@ -493,7 +488,7 @@
     const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
     const TOKEN_RATE = 20000000;
     
-    // Helper function to truncate wallet address (e.g., 0x123456.....abcd)
+    // Helper: truncate wallet address
     function truncateAddress(address) {
       if (!address) return "";
       return address.slice(0, 6) + "....." + address.slice(-4);
@@ -502,7 +497,7 @@
     // Global variables for provider, signer, userAddress
     let provider, signer, userAddress = "";
     
-    // Make functions globally available by attaching them to window
+    // Make functions globally available
     window.convertLHyenaToETH = function() {
       const lhyenaInput = document.getElementById("lhyenaAmount");
       let lhyenaVal = parseFloat(lhyenaInput.value);
