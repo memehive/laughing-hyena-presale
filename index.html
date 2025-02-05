@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- Serve your dApp over HTTPS for wallet connections -->
+  <!-- Ensure secure connections -->
   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Laughing Hyena Presale</title>
@@ -10,53 +10,502 @@
   <link href="https://fonts.googleapis.com/css2?family=Raleway+Dots&display=swap" rel="stylesheet">
   <!-- Roboto Mono for other text -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
-  
-  <!-- ethers.js Library (UMD build) -->
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <!-- Coinbase Wallet SDK -->
-  <script src="https://unpkg.com/@coinbase/wallet-sdk/dist/wallet-sdk.umd.min.js"></script>
-  <!-- Web3Modal (v1) for Coinbase Wallet -->
-  <script src="https://unpkg.com/web3modal@1.9.8/dist/index.js"></script>
-  <!-- web3 Library -->
-  <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
-  <!-- QRCode.js Library (optional) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  
   <style>
-    /* Your existing CSS goes here */
+    /* Global Styles */
+    body {
+      font-family: 'Roboto Mono', monospace;
+      margin: 0;
+      padding: 0;
+      background-color: #0D1B2A;
+      color: #FFFFFF;
+      text-align: center;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    h1, h2, h3 {
+      font-family: 'Roboto Mono', monospace;
+    }
+    input, .contract-address {
+      font-family: 'Roboto Mono', monospace;
+    }
+    
+    /* Inputs */
+    input[type="number"] {
+      width: 130px;
+      height: 40px;
+      font-size: 16px;
+      line-height: 40px;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    input::placeholder {
+      text-align: left;
+      padding-left: 5px;
+    }
+    
+    .input-container {
+      width: 130px;
+      text-align: left;
+      margin: 0 auto 10px;
+    }
+    /* Updated input labels */
+    label.input-label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 2px;
+      font-weight: bold;
+      color: #FFFFFF;
+    }
+    
+    /* Buttons and warnings */
+    .wallet-button, .buy-button, .footer-button, .warning {
+      font-family: 'Roboto Mono', monospace;
+    }
+    .warning {
+      font-size: 0.8em;
+      color: #ff5555;
+      margin-top: 5px;
+    }
+    .token-receive {
+      font-weight: bold;
+      color: #F0A500;
+      margin-top: 10px;
+    }
+    
+    /* Participation Box */
+    .participation-box {
+      background-color: #d9edf7;
+      color: #0D0D0D;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    }
+    .participation-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .participation-list li {
+      margin: 12px 0;
+      font-size: 1.1em;
+      display: flex;
+      align-items: center;
+      text-align: left;
+    }
+    .step-icon {
+      background: #F0A500;
+      color: #0D1B2A;
+      font-weight: bold;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+    }
+    
+    /* Container and Header */
+    .wrapper {
+      transition: transform 0.3s ease;
+    }
+    .container {
+      width: 60%;
+      margin: 0 auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      background-color: #1B263B;
+      width: 100%;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    header .inner-header {
+      width: 60%;
+      margin: 0 auto;
+    }
+    header img {
+      height: 150px;
+      margin-bottom: 10px;
+    }
+    .header-title {
+      font-family: 'Raleway Dots', sans-serif;
+      font-size: 3rem;
+      background: linear-gradient(135deg, #F0A500, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+      letter-spacing: 2px;
+      margin: 0;
+    }
+    .hero {
+      margin-bottom: 20px;
+      width: 100%;
+    }
+    
+    /* Progress Bar */
+    #progress-bar {
+      height: 20px;
+      width: 60%;
+      margin: 10px auto;
+      border-radius: 10px;
+      background-color: #F0A500;
+      color: #0D1B2A;
+      font-weight: bold;
+      line-height: 20px;
+      text-align: center;
+    }
+    
+    /* Status Bar */
+    #status {
+      width: 100%;
+      min-height: 40px;
+      margin: 20px auto;
+      background-color: #d9edf7;
+      color: #0D0D0D;
+      font-size: 12px;
+      text-align: center;
+      padding: 5px;
+      border-radius: 0;
+    }
+    .status-positive { color: green; }
+    .status-negative { color: red; }
+    
+    /* Wallet Buttons */
+    .wallet-buttons-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px auto;
+      width: 60%;
+      gap: 8px;
+    }
+    .wallet-button, .buy-button {
+      background: linear-gradient(to bottom, #F0A500, #D9A300);
+      color: #0D1B2A;
+      font-weight: bold;
+      padding: 10px 0;
+      font-size: 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      border: 2px solid #000;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 0 #000;
+      width: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .buy-button {
+      background: linear-gradient(to bottom, #28a745, #218838);
+      font-size: 20px;
+    }
+    .wallet-button img, .buy-button img {
+      margin-right: 8px;
+    }
+    .wallet-button:hover, .buy-button:hover {
+      background: linear-gradient(to bottom, #D9A300, #F0A500);
+      transform: translateY(2px) scale(1.05);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Buy Tokens Heading (green to match BUY button) */
+    .buy-tokens-heading {
+      font-family: 'Raleway Dots', sans-serif;
+      font-size: 2.5rem;
+      color: #28a745;
+      text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.5);
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+      padding: 10px 0;
+    }
+    .total-raised { color: #28a745; }
+    .user-contribution { color: #F0A500; }
+    
+    footer {
+      background-color: #1B263B;
+      width: 60%;
+      margin: 20px auto;
+      padding: 20px;
+      text-align: center;
+      font-size: 1em;
+    }
+    .footer-buttons {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+      gap: 8px;
+    }
+    .footer-button {
+      display: flex;
+      width: 100px;
+      height: 25px;
+      background: #F0A500;
+      color: #0D1B2A;
+      margin: 5px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 0.8em;
+      transition: background 0.3s;
+      border: 2px solid #000;
+      box-shadow: 0 4px 0 #000;
+      align-items: center;
+      justify-content: center;
+    }
+    .footer-button:hover { background: #D9A300; }
+    .footer-logo { height: 20px; margin-right: 4px; }
+    .contract-address {
+      text-align: center;
+      font-size: 1em;
+      margin: 10px 0;
+      word-wrap: break-word;
+    }
+    
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+    .modal button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .confirm-btn {
+      background: #F0A500;
+      color: #0D1B2A;
+      border: 2px solid #000;
+      box-shadow: 0 4px 0 #000;
+    }
+    .cancel-btn {
+      background: #d9534f;
+      color: white;
+      margin-left: 10px;
+      border: 2px solid #000;
+      box-shadow: 0 4px 0 #000;
+    }
+    #disconnectWallet {
+      background: linear-gradient(to bottom, #d9534f, #c9302c);
+      border: 2px solid #000;
+    }
+    #disconnectWallet:hover {
+      background: linear-gradient(to bottom, #c9302c, #d9534f);
+    }
+    
+    .token-instructions {
+      font-size: 0.9em;
+      margin: 15px 0;
+      color: #F0A500;
+    }
+    .token-instructions a {
+      color: #4A90E2;
+      text-decoration: none;
+      margin: 0 5px;
+      font-weight: bold;
+    }
+    .token-instructions a:hover {
+      text-decoration: underline;
+    }
+    .copy-button {
+      border: none;
+      background: none;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+    .copy-button img {
+      width: 16px;
+      height: 16px;
+    }
+    .conversion-container input {
+      width: 130px;
+      font-size: 16px;
+      padding: 0.3em;
+      margin: 5px;
+      text-align: center;
+    }
+    
+    /* Hide wallet balance element (displayed in the status bar) */
+    #walletBalance { display: none; }
+    
+    @media (max-width: 480px) {
+      body { flex-direction: column; min-height: 100vh; }
+      .wrapper { transform: scale(0.9); }
+      .container { width: 90%; }
+      header { flex-direction: column; padding: 10px; }
+      header .inner-header { width: 90%; }
+      header img { height: 100px; margin-bottom: 10px; }
+      header h1 { font-size: 1.2em; }
+      .wallet-buttons-container, .footer-buttons {
+        flex-direction: column;
+        width: 90%;
+        margin: 0 auto;
+        justify-content: center;
+        align-items: center;
+      }
+      #status, #progress-bar { width: 100%; }
+      input[type="number"] { width: 130px; font-size: 16px; }
+      footer { width: 90%; margin: 20px auto; }
+      #warningMessage { width: 90%; }
+    }
   </style>
 </head>
 <body>
-  <!-- Your HTML content -->
+  <div class="wrapper">
+    <!-- Header Section -->
+    <header class="container">
+      <div class="inner-header">
+        <img src="https://gateway.pinata.cloud/ipfs/bafybeifvoit5z7zcwgqgkd5mf65gvktzstdsztbavsvm5x3alliyfugrwu" alt="Laughing Hyena Logo" />
+        <h1 class="header-title">Laughing Hyena - $LHyena Presale</h1>
+      </div>
+    </header>
+    
+    <!-- Main Content Container -->
+    <div class="container">
+      <div class="hero">
+        <h2>Presale Progress</h2>
+        <div id="progress-bar">0%</div>
+        <p class="total-raised">Total ETH raised: <span id="ethRaised">0</span> ETH</p>
+        <p class="user-contribution">Your Contribution: <span id="userContribution">0</span> ETH</p>
+        <p>Hardcap: 50 ETH | Softcap: 25 ETH | Token Rate: 20,000,000 LHyena/ETH</p>
+        <p>Vesting: 25% monthly for 4 months</p>
+        <p class="contract-address">
+          Presale Contract Address: 
+          <strong style="color: white;">0x8aaA69666D6de35561D948f6670F262F6cAC7392</strong>
+          <button onclick="copyContractAddress()" class="copy-button" aria-label="Copy Presale Contract Address">
+            <img src="https://gateway.pinata.cloud/ipfs/bafkreichlpjusnouyhn4jgipntvamzt6pj33dlzqoeyk6ttifo6dpjiz7q" alt="Copy Icon">
+          </button>
+        </p>
+        <p class="warning">Warning: Do not send funds directly to the presale contract address.</p>
+        <div id="warningMessage"></div>
+        <div class="participation-box">
+          <h2>How to Participate?</h2>
+          <ol class="participation-list">
+            <li><span class="step-icon">1</span>Connect your wallet (Coinbase Wallet).</li>
+            <li><span class="step-icon">2</span>Enter the amount of ETH you want to contribute (max 5 ETH; minimum 0.001 ETH).</li>
+            <li><span class="step-icon">3</span>Click "BUY" and confirm your transaction.</li>
+          </ol>
+        </div>
+      </div>
+      
+      <!-- Status Bar -->
+      <div id="status" class="status-neutral">Not connected</div>
+      
+      <div class="wallet-buttons-container">
+        <button id="connectCoinbaseWallet" class="wallet-button" onclick="connectCoinbaseWallet()" aria-label="Connect Coinbase Wallet">
+          <img src="https://gateway.pinata.cloud/ipfs/bafkreigpbedcletldnqi5ue2vgh4klft5ovlltl4q47uy5qkfthxo6wfuq" alt="Coinbase Wallet Logo" width="24" height="24">
+          <span>Coinbase</span>
+        </button>
+        <button id="disconnectWallet" class="wallet-button" onclick="disconnectWallet()" aria-label="Disconnect Wallet">
+          <img src="https://gateway.pinata.cloud/ipfs/bafkreihrxilkswryoesmiwmwwlwvpcso3gtsenstcufxcwwdoq3m2yd7vm" alt="Disconnect Logo" width="24" height="24">
+          <span>Disconnect</span>
+        </button>
+      </div>
+      
+      <div>
+        <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
+        <div class="input-container">
+          <label class="input-label" for="ethAmount">Enter ETH:</label>
+          <input type="number" id="ethAmount" placeholder="ETH (Max 5)" min="0.001" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
+        </div>
+        <div class="input-container">
+          <label class="input-label" for="lhyenaAmount">Enter $LHyena:</label>
+          <input type="number" id="lhyenaAmount" placeholder="$LHyena" min="0" step="any" onblur="convertLHyenaToETH();">
+        </div>
+        <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
+        <div class="wallet-buttons-container">
+          <button id="buyTokensButton" class="buy-button" onclick="promptBuyTokens()" aria-label="Buy Tokens">
+            <img src="https://gateway.pinata.cloud/ipfs/bafkreid3b6ufuleuioz3zplwxnfvl5uu4o4oafbvmma3jfiok7d6btj7fi" alt="Buy Logo" width="24" height="24">
+            <span>BUY</span>
+          </button>
+        </div>
+        <p class="token-instructions">
+          To add $LHyena to your Coinbase Wallet, copy the token contract address: 
+          <strong style="color: white;">0x8aaA69666D6de35561D948f6670F262F6cAC7392</strong>
+          <button onclick="copyTokenAddress()" class="copy-button" aria-label="Copy Token Contract Address">
+            <img src="https://gateway.pinata.cloud/ipfs/bafkreichlpjusnouyhn4jgipntvamzt6pj33dlzqoeyk6ttifo6dpjiz7q" alt="Copy Icon">
+          </button>
+          <br>
+          Don't have Coinbase Wallet? Download it from 
+          <a href="https://apps.apple.com/us/app/coinbase-wallet/id1278383455" target="_blank">iOS</a> or 
+          <a href="https://play.google.com/store/apps/details?id=org.toshi" target="_blank">Android</a>.
+        </p>
+      </div>
+      
+      <div id="confirmationModal" class="modal-overlay">
+        <div class="modal">
+          <h3>Confirm Your Transaction</h3>
+          <p id="transactionSummary">You are about to contribute X ETH to receive Y LHyena tokens.</p>
+          <button class="confirm-btn" onclick="confirmedBuyTokens()">Confirm Purchase</button>
+          <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+    
+    <footer class="container">
+      <p>&copy; 2025 Laughing Hyena. All Rights Reserved.</p>
+      <div class="footer-buttons">
+        <a class="footer-button" href="https://memehive.click/lhyena" target="_blank" aria-label="Visit Website">
+          <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreifbwyukqegxt7il3odigkndzchztr2t55hibnyry7mlz6lbbl55jq" alt="Website Logo">Website
+        </a>
+        <a class="footer-button" href="https://x.com/Laughing_LHyena" target="_blank" aria-label="Visit Twitter">
+          <img class="footer-logo" src="https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg" alt="Twitter Logo">Twitter
+        </a>
+        <a class="footer-button" href="https://t.me/Laughing_LHyena" target="_blank" aria-label="Join Telegram">
+          <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreihu2e3j4xjpevv77kjjonnwro3fkak7ghrtfdttgkbjg76tqeuazm" alt="Telegram Logo">Telegram
+        </a>
+        <a class="footer-button" href="https://www.facebook.com/share/15sZairCuW/?mibextid=wwXIfr" target="_blank" aria-label="Visit Facebook">
+          <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreieghdvsc2s43xfvbetosyezg3kaukny6motwti3fz6amtqw7tatyy" alt="Facebook Logo">Facebook
+        </a>
+      </div>
+    </footer>
+  </div>
   
-  <!-- Place your script at the bottom (without type="module") -->
+  <!-- Script loaded at the end without type="module" -->
   <script>
-    // Global variables and constants
+    // Global variables
     let walletBalanceRaw = 0;
     let disconnectTimer = null;
     const BASE_CHAIN_ID_DEC = 8453;
     const BASECHAIN_RPC_URL = "https://base-mainnet.infura.io/v3/e923b24ca7eb4da7aa7e827ccae39ef9";
     const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
     const TOKEN_RATE = 20000000;
-
-    // Declare CoinbaseWalletSDK from the global window object
-    const CoinbaseWalletSDK = window.CoinbaseWalletSDK;
-
+    
     // Helper: truncate wallet address
     function truncateAddress(address) {
       if (!address) return "";
       return address.slice(0, 6) + "....." + address.slice(-4);
     }
-
+    
     // Global variables for provider, signer, and userAddress
     let provider, signer, userAddress = "";
-
+    
     // Make web3Modal global
     window.web3Modal = new window.Web3Modal.default({
       cacheProvider: false,
       providerOptions: {
         coinbasewallet: {
-          package: CoinbaseWalletSDK,
+          package: window.CoinbaseWalletSDK, // use window.CoinbaseWalletSDK directly
           options: {
             appName: "Laughing Hyena Presale",
             rpc: BASECHAIN_RPC_URL,
@@ -66,8 +515,8 @@
         }
       }
     });
-
-    // Make functions globally available
+    
+    // Global functions
     window.connectCoinbaseWallet = async function() {
       if (!window.ethereum) {
         window.updateStatus("Coinbase Wallet not detected.", "negative");
@@ -96,7 +545,7 @@
         window.updateStatus(`Coinbase Wallet connection failed: ${error.message}`, "negative");
       }
     };
-
+    
     window.disconnectWallet = async function() {
       if (!provider || userAddress === "") {
         alert("No wallet connected. Please connect a wallet before trying to disconnect.");
@@ -111,7 +560,7 @@
       document.getElementById("lhyenaAmount").value = "";
       if (disconnectTimer) clearTimeout(disconnectTimer);
     };
-
+    
     window.validateEthAmount = function() {
       const ethInput = document.getElementById("ethAmount");
       let ethAmount = parseFloat(ethInput.value);
@@ -144,7 +593,7 @@
       window.clearWarning();
       window.updateWalletStatus();
     };
-
+    
     window.convertLHyenaToETH = function() {
       const lhyenaInput = document.getElementById("lhyenaAmount");
       let lhyenaVal = parseFloat(lhyenaInput.value);
@@ -158,14 +607,14 @@
       document.getElementById("ethAmount").value = ethRequired.toFixed(2);
       window.calculateTokens();
     };
-
+    
     window.calculateTokens = function() {
       let ethAmount = parseFloat(document.getElementById("ethAmount").value) || 0;
       const lhyenaAmount = ethAmount * TOKEN_RATE;
       document.getElementById("tokenAmount").innerText = lhyenaAmount.toLocaleString();
       document.getElementById("lhyenaAmount").value = lhyenaAmount.toFixed(2);
     };
-
+    
     window.updateWalletStatus = function() {
       if (userAddress) {
         const statusEl = document.getElementById("status");
@@ -174,7 +623,7 @@
         statusEl.classList.add("status-positive");
       }
     };
-
+    
     window.updateStatus = function(message, type) {
       const statusEl = document.getElementById("status");
       statusEl.innerText = message;
@@ -182,15 +631,15 @@
       if (type === "positive") statusEl.classList.add("status-positive");
       else if (type === "negative") statusEl.classList.add("status-negative");
     };
-
+    
     window.showWarning = function(message) {
       document.getElementById("warningMessage").innerText = message;
     };
-
+    
     window.clearWarning = function() {
       document.getElementById("warningMessage").innerText = "";
     };
-
+    
     window.promptBuyTokens = function() {
       if (!signer) {
         alert("No wallet connected. Please connect your wallet before buying tokens.");
@@ -208,11 +657,11 @@
         `You are about to contribute ${ethAmount} ETH (minimum 0.001 ETH) to receive ${tokenAmount} LHyena tokens.`;
       document.getElementById("confirmationModal").style.display = "block";
     };
-
+    
     window.closeModal = function() {
       document.getElementById("confirmationModal").style.display = "none";
     };
-
+    
     window.confirmedBuyTokens = async function() {
       window.closeModal();
       const { chainId } = await provider.getNetwork();
@@ -222,7 +671,7 @@
       }
       await window.buyTokens();
     };
-
+    
     window.buyTokens = async function() {
       if (!signer) {
         alert("No wallet connected. Please connect your wallet before buying tokens.");
