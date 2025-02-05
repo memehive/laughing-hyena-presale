@@ -360,7 +360,7 @@
           <h2>How to Participate?</h2>
           <ol class="participation-list">
             <li><span class="step-icon">1</span>Connect your wallet (Coinbase Wallet).</li>
-            <li><span class="step-icon">2</span>Enter the amount of ETH you want to contribute.</li>
+            <li><span class="step-icon">2</span>Enter the amount of ETH you want to contribute (max 5 ETH).</li>
             <li><span class="step-icon">3</span>Click "BUY" and confirm your transaction.</li>
           </ol>
         </div>
@@ -384,8 +384,8 @@
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
         <p id="walletBalance">Wallet Balance: 0 ETH</p>
-        <!-- ETH Input Field (no max attribute now) -->
-        <input type="number" id="ethAmount" style="width: 130px;" placeholder="ETH" step="0.01" onblur="validateEthAmount(); calculateTokens()">
+        <!-- ETH Input Field: max contribution is 5 ETH -->
+        <input type="number" id="ethAmount" style="width: 130px;" placeholder="ETH (Max 5)" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
         <!-- Autofill Options (visible after wallet connection) -->
         <div id="autofillContainer">
           <span class="autofill-option" onclick="autofillAmount(0.10)">10%</span>
@@ -590,10 +590,11 @@
       
       setInterval(fetchWalletBalance, 10000);
       
-      // Autofill function: now without any cap
+      // Autofill function: calculate percentage of wallet balance (cap at 5 ETH)
       function autofillAmount(percentage) {
         if (walletBalanceRaw > 0) {
           let amount = walletBalanceRaw * percentage;
+          if (amount > 5) { amount = 5; }
           document.getElementById("ethAmount").value = amount.toFixed(2);
           calculateTokens();
         } else {
@@ -645,6 +646,13 @@
           updateStatus("Please enter a valid ETH amount.", "negative");
           return;
         }
+        // Enforce the maximum contribution of 5 ETH
+        if (ethAmount > 5) {
+          alert("Maximum contribution is 5 ETH. Resetting value to 5 ETH.");
+          ethAmount = 5;
+          document.getElementById("ethAmount").value = "5";
+          updateStatus("Maximum contribution is 5 ETH", "negative");
+        }
         const contract = new ethers.Contract(
           PRESALE_CONTRACT_ADDRESS,
           [{
@@ -667,7 +675,7 @@
         }
       }
       
-      // Validate ETH amount (only checks that it is a valid number; no min enforced)
+      // Validate ETH amount (only checks that it is a valid number; no minimum enforced)
       function validateEthAmount() {
         const ethInput = document.getElementById("ethAmount");
         let ethAmount = parseFloat(ethInput.value);
@@ -676,8 +684,17 @@
           showWarning("Please enter a valid ETH amount.");
           return;
         }
-        clearWarning();
-        updateStatus("", "positive");
+        // Enforce maximum contribution of 5 ETH if user enters more
+        if (ethAmount > 5) {
+          alert("Maximum contribution is 5 ETH. Resetting value to 5 ETH.");
+          ethInput.value = "5";
+          ethAmount = 5;
+          updateStatus("Maximum contribution is 5 ETH", "negative");
+          showWarning("Maximum contribution is 5 ETH");
+        } else {
+          clearWarning();
+          updateStatus("", "positive");
+        }
       }
       
       function calculateTokens() {
