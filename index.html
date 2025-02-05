@@ -56,6 +56,7 @@
       text-align: left;
       margin: 0 auto 10px;
     }
+    /* Updated labels */
     label.input-label {
       display: block;
       font-size: 12px;
@@ -164,7 +165,7 @@
       text-align: center;
     }
     
-    /* Status Bar (always matching container width) */
+    /* Status Bar */
     #status {
       width: 100%;
       min-height: 40px;
@@ -214,7 +215,7 @@
       box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
     
-    /* Buy Tokens Heading (green to match BUY button) */
+    /* Buy Tokens Heading (green color to match BUY button) */
     .buy-tokens-heading {
       font-family: 'Raleway Dots', sans-serif;
       font-size: 2.5rem;
@@ -347,7 +348,7 @@
       text-align: center;
     }
     
-    /* Hide wallet balance element (shown in status bar) */
+    /* Hide wallet balance element (displayed in the status bar) */
     #walletBalance { display: none; }
     
     @media (max-width: 480px) {
@@ -483,7 +484,7 @@
     </footer>
   </div>
   
-  <!-- Ensure script is NOT loaded as a module -->
+  <!-- Ensure that the script tag does NOT use type="module" so that functions are global -->
   <script>
     // Global variables
     let walletBalanceRaw = 0;
@@ -499,7 +500,7 @@
       return address.slice(0, 6) + "....." + address.slice(-4);
     }
     
-    // Global variables for provider, signer, userAddress
+    // Global variables for provider, signer, and userAddress
     let provider, signer, userAddress = "";
     
     // Make web3Modal global
@@ -538,7 +539,6 @@
       const lhyenaAmount = ethAmount * TOKEN_RATE;
       document.getElementById("tokenAmount").innerText = lhyenaAmount.toLocaleString();
       document.getElementById("lhyenaAmount").value = lhyenaAmount.toFixed(2);
-      console.log("Calculated token amount for", ethAmount, "ETH is", lhyenaAmount.toLocaleString());
     };
     
     window.updateWalletStatus = function() {
@@ -555,12 +555,8 @@
       const statusEl = document.getElementById("status");
       statusEl.innerText = message;
       statusEl.classList.remove("status-positive", "status-negative");
-      console.log("Status update:", message);
-      if (type === "positive") {
-        statusEl.classList.add("status-positive");
-      } else if (type === "negative") {
-        statusEl.classList.add("status-negative");
-      }
+      if (type === "positive") statusEl.classList.add("status-positive");
+      else if (type === "negative") statusEl.classList.add("status-negative");
     };
     
     window.showWarning = function(message) {
@@ -605,7 +601,6 @@
     };
     
     window.connectCoinbaseWallet = async function() {
-      console.log("Attempting to connect with Coinbase Wallet...");
       if (!window.ethereum) {
         window.updateStatus("Coinbase Wallet not detected.", "negative");
         alert("Install wallet");
@@ -626,25 +621,20 @@
         window.updateWalletStatus();
         await fetchWalletBalance();
         disconnectTimer = setTimeout(() => {
-          console.log("Auto-disconnect timer triggered.");
           alert("Your Coinbase wallet connection has timed out.");
           window.disconnectWallet();
         }, 600000);
       } catch (error) {
-        console.error("Coinbase Wallet connection error:", error);
         window.updateStatus(`Coinbase Wallet connection failed: ${error.message}`, "negative");
       }
     };
     
     window.disconnectWallet = async function() {
-      console.log("Disconnecting wallet...");
       if (!provider || userAddress === "") {
         alert("No wallet connected. Please connect a wallet before trying to disconnect.");
         return;
       }
-      if (provider.disconnect) {
-        await provider.disconnect();
-      }
+      if (provider.disconnect) await provider.disconnect();
       provider = null;
       signer = null;
       userAddress = "";
@@ -663,7 +653,6 @@
         const balance = await provider.getBalance(userAddress);
         walletBalanceRaw = parseFloat(ethers.utils.formatEther(balance));
         window.updateWalletStatus();
-        console.log("Wallet balance updated:", walletBalanceRaw, "ETH");
       } catch (err) {
         console.error("Error fetching wallet balance:", err);
       }
@@ -678,7 +667,6 @@
         let amount = walletBalanceRaw * percentage;
         if (amount > 5) { amount = 5; }
         document.getElementById("ethAmount").value = amount.toFixed(2);
-        console.log("Autofill set ETH amount to:", amount.toFixed(2));
         window.calculateTokens();
       } else {
         alert("Wallet balance is 0. Please connect your wallet.");
@@ -751,12 +739,12 @@
         await tx.wait(3);
         window.updateStatus("Transaction Successful! You have purchased $LHyena tokens.", "positive");
       } catch (error) {
-        console.error("Buy tokens error:", error);
         window.updateStatus("Transaction failed: " + error.message, "negative");
       }
     };
     
     setInterval(fetchPresaleProgress, 5000);
+    setInterval(fetchWalletBalance, 10000);
     
     function updateProgressBar(ethRaised) {
       const hardCap = 50;
@@ -798,7 +786,6 @@
     
     window.copyContractAddress = function() {
       const addressText = PRESALE_CONTRACT_ADDRESS;
-      console.log("Copying presale contract address:", addressText);
       if (navigator.clipboard) {
         navigator.clipboard.writeText(addressText).then(() => {
           alert("Presale contract address copied to clipboard!");
@@ -822,7 +809,6 @@
     
     window.copyTokenAddress = function() {
       const tokenAddress = "0x8aaA69666D6de35561D948f6670F262F6cAC7392";
-      console.log("Copying token contract address:", tokenAddress);
       if (navigator.clipboard) {
         navigator.clipboard.writeText(tokenAddress).then(() => {
           alert("Token contract address copied to clipboard!");
