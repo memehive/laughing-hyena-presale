@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Raleway+Dots&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
   
-  <!-- External Libraries (with defer) -->
+  <!-- External Libraries (loaded with defer) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js" defer></script>
   <script src="https://unpkg.com/@coinbase/wallet-sdk/dist/wallet-sdk.umd.min.js" defer></script>
   <!-- Use jsDelivr for Web3Modal v1.9.8 -->
@@ -19,7 +19,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   
   <style>
-    /* --- CSS Styles --- */
+    /* --- CSS Styles (unchanged) --- */
     body {
       font-family: 'Roboto Mono', monospace;
       margin: 0;
@@ -243,27 +243,86 @@
       margin: 10px 0;
       word-wrap: break-word;
     }
-    /* New Confirmation Section Styling */
-    .confirmation-section {
-      background-color: #333;
-      color: #FFF;
-      padding: 15px;
-      width: 100%;
-      margin-bottom: 20px;
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+    .modal button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
       border-radius: 5px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      cursor: pointer;
     }
-    .confirmation-section h3 {
-      margin: 0 0 10px 0;
-      font-size: 1.8rem;
-      font-family: 'Roboto Mono', monospace;
+    .confirm-btn {
+      background: #F0A500;
+      color: #0D1B2A;
+      border: 2px solid #000;
+      box-shadow: 0 4px 0 #000;
     }
-    .confirmation-section p {
-      margin: 0;
-      font-size: 1rem;
+    .cancel-btn {
+      background: #d9534f;
+      color: white;
+      margin-left: 10px;
+      border: 2px solid #000;
+      box-shadow: 0 4px 0 #000;
     }
-    
-    /* Modal overlay styles removed for confirmation section */
+    #disconnectWallet {
+      background: linear-gradient(to bottom, #d9534f, #c9302c);
+      border: 2px solid #000;
+    }
+    #disconnectWallet:hover {
+      background: linear-gradient(to bottom, #c9302c, #d9534f);
+    }
+    .token-instructions {
+      font-size: 0.9em;
+      margin: 15px 0;
+      color: #F0A500;
+    }
+    .token-instructions a {
+      color: #4A90E2;
+      text-decoration: none;
+      margin: 0 5px;
+      font-weight: bold;
+    }
+    .token-instructions a:hover {
+      text-decoration: underline;
+    }
+    .copy-button {
+      border: none;
+      background: none;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+    .copy-button img {
+      width: 16px;
+      height: 16px;
+    }
+    .conversion-container input {
+      width: 130px;
+      font-size: 16px;
+      padding: 0.3em;
+      margin: 5px;
+      text-align: center;
+    }
+    #walletBalance { display: none; }
     
     @media (max-width: 480px) {
       body { flex-direction: column; min-height: 100vh; }
@@ -283,6 +342,7 @@
       #status, #progress-bar { width: 100%; }
       input[type="number"] { width: 130px; font-size: 16px; }
       footer { width: 90%; margin: 20px auto; }
+      #warningMessage { width: 90%; }
     }
   </style>
 </head>
@@ -327,15 +387,6 @@
       <!-- Status Bar -->
       <div id="status" class="status-neutral">Not connected</div>
       
-      <!-- Confirmation Section positioned above Buy Tokens -->
-      <div id="confirmationSection" class="confirmation-section" style="display: none;">
-        <h3>Confirm Your Transaction</h3>
-        <p id="transactionSummary">You are about to contribute X ETH to receive Y LHyena tokens.</p>
-        <button class="confirm-btn" onclick="confirmedBuyTokens()">Confirm Purchase</button>
-        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
-      </div>
-      
-      <!-- Wallet Buttons -->
       <div class="wallet-buttons-container">
         <button id="connectCoinbaseWallet" class="wallet-button" onclick="connectCoinbaseWallet()" aria-label="Connect Coinbase Wallet">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreigpbedcletldnqi5ue2vgh4klft5ovlltl4q47uy5qkfthxo6wfuq" alt="Coinbase Wallet Logo" width="24" height="24">
@@ -347,7 +398,6 @@
         </button>
       </div>
       
-      <!-- Buy Tokens Section -->
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
         <div class="input-container">
@@ -378,6 +428,14 @@
         </p>
       </div>
       
+      <div id="confirmationModal" class="modal-overlay">
+        <div class="modal">
+          <h3>Confirm Your Transaction</h3>
+          <p id="transactionSummary">You are about to contribute X ETH to receive Y LHyena tokens.</p>
+          <button class="confirm-btn" onclick="confirmedBuyTokens()">Confirm Purchase</button>
+          <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+        </div>
+      </div>
     </div>
     
     <footer class="container">
@@ -399,9 +457,10 @@
     </footer>
   </div>
   
-  <!-- Custom script without defer, wrapped in a load event -->
+  <!-- Custom script: wrap in load event to ensure external libraries are ready -->
   <script>
     window.addEventListener('load', function () {
+      // Log the Web3Modal object so you can inspect it in the console
       console.log("window.Web3Modal:", window.Web3Modal);
       
       // Global variables and constants
@@ -422,7 +481,8 @@
       let provider, signer, userAddress = "";
       
       // Initialize Web3Modal.
-      const Web3ModalConstructor = window.Web3Modal && (window.Web3Modal.default || window.Web3Modal);
+      // Try using window.Web3Modal.default if available; otherwise, use window.Web3Modal.
+      const Web3ModalConstructor = (window.Web3Modal && window.Web3Modal.default) || window.Web3Modal;
       if (!Web3ModalConstructor) {
         console.error("Web3Modal constructor not found. Check that the Web3Modal script is loaded correctly.");
         return;
@@ -584,12 +644,12 @@
         const tokenAmount = (ethAmount * TOKEN_RATE).toLocaleString();
         document.getElementById("transactionSummary").innerText =
           `You are about to contribute ${ethAmount} ETH (minimum 0.001 ETH) to receive ${tokenAmount} LHyena tokens.`;
-        // Instead of displaying a modal overlay, show the confirmation section
-        document.getElementById("confirmationSection").style.display = "block";
+        // Updated line: use "flex" to center the modal
+        document.getElementById("confirmationModal").style.display = "flex";
       };
       
       window.closeModal = function() {
-        document.getElementById("confirmationSection").style.display = "none";
+        document.getElementById("confirmationModal").style.display = "none";
       };
       
       window.confirmedBuyTokens = async function() {
