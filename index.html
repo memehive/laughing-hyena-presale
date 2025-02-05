@@ -590,12 +590,17 @@
       
       setInterval(fetchWalletBalance, 10000);
       
-      // Autofill function: calculate percentage of wallet balance (cap at 5 ETH)
+      // Autofill function: calculates percentage of wallet balance (cap at 5 ETH)
       function autofillAmount(percentage) {
+        if (!userAddress) {
+          alert("Please connect your wallet first!");
+          return;
+        }
         if (walletBalanceRaw > 0) {
           let amount = walletBalanceRaw * percentage;
           if (amount > 5) { amount = 5; }
           document.getElementById("ethAmount").value = amount.toFixed(2);
+          console.log("Autofill set ETH amount to:", amount.toFixed(2));
           calculateTokens();
         } else {
           alert("Wallet balance is 0. Please connect your wallet.");
@@ -697,9 +702,11 @@
         }
       }
       
+      // Calculate token amount based on current ETH input
       function calculateTokens() {
         let ethAmount = parseFloat(document.getElementById("ethAmount").value) || 0;
         document.getElementById("tokenAmount").innerText = (ethAmount * TOKEN_RATE).toLocaleString();
+        console.log("Calculated token amount for", ethAmount, "ETH is", (ethAmount * TOKEN_RATE).toLocaleString());
       }
       
       async function fetchPresaleProgress() {
