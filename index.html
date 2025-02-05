@@ -10,8 +10,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Raleway+Dots&display=swap" rel="stylesheet">
   <!-- Roboto Mono for other text -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- External Libraries (loaded via HTTPS) -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js" defer></script>
+  <script src="https://unpkg.com/@coinbase/wallet-sdk/dist/wallet-sdk.umd.min.js" defer></script>
+  <script src="https://unpkg.com/web3modal@1.9.8/dist/index.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  
   <style>
-    /* Global Styles */
+    /* --- CSS Styles --- */
     body {
       font-family: 'Roboto Mono', monospace;
       margin: 0;
@@ -24,8 +32,6 @@
     }
     h1, h2, h3 { font-family: 'Roboto Mono', monospace; }
     input, .contract-address { font-family: 'Roboto Mono', monospace; }
-    
-    /* Inputs */
     input[type="number"] {
       width: 130px;
       height: 40px;
@@ -38,12 +44,12 @@
       text-align: left;
       padding-left: 5px;
     }
-    
     .input-container {
       width: 130px;
       text-align: left;
       margin: 0 auto 10px;
     }
+    /* Updated input labels */
     label.input-label {
       display: block;
       font-size: 12px;
@@ -51,7 +57,6 @@
       font-weight: bold;
       color: #FFFFFF;
     }
-    
     /* Buttons and warnings */
     .wallet-button, .buy-button, .footer-button, .warning {
       font-family: 'Roboto Mono', monospace;
@@ -66,14 +71,13 @@
       color: #F0A500;
       margin-top: 10px;
     }
-    
     /* Participation Box */
     .participation-box {
       background-color: #d9edf7;
       color: #0D0D0D;
       padding: 20px;
       margin: 20px 0;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
     }
     .participation-list {
       list-style: none;
@@ -99,7 +103,6 @@
       justify-content: center;
       margin-right: 12px;
     }
-    
     /* Container and Header */
     .wrapper {
       transition: transform 0.3s ease;
@@ -133,12 +136,11 @@
       background: linear-gradient(135deg, #F0A500, #FFD700, #FFA500);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
       letter-spacing: 2px;
       margin: 0;
     }
     .hero { margin-bottom: 20px; width: 100%; }
-    
     /* Progress Bar */
     #progress-bar {
       height: 20px;
@@ -151,7 +153,6 @@
       line-height: 20px;
       text-align: center;
     }
-    
     /* Status Bar */
     #status {
       width: 100%;
@@ -166,7 +167,6 @@
     }
     .status-positive { color: green; }
     .status-negative { color: red; }
-    
     /* Wallet Buttons */
     .wallet-buttons-container {
       display: flex;
@@ -199,22 +199,20 @@
     .wallet-button:hover, .buy-button:hover {
       background: linear-gradient(to bottom, #D9A300, #F0A500);
       transform: translateY(2px) scale(1.05);
-      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
-    
     /* Buy Tokens Heading */
     .buy-tokens-heading {
       font-family: 'Raleway Dots', sans-serif;
       font-size: 2.5rem;
       color: #28a745;
-      text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.5);
+      text-shadow: 1px 1px 6px rgba(0,0,0,0.5);
       letter-spacing: 1px;
       margin-bottom: 20px;
       padding: 10px 0;
     }
     .total-raised { color: #28a745; }
     .user-contribution { color: #F0A500; }
-    
     footer {
       background-color: #1B263B;
       width: 60%;
@@ -253,14 +251,13 @@
       margin: 10px 0;
       word-wrap: break-word;
     }
-    
     .modal-overlay {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0,0,0,0.6);
       display: none;
       align-items: center;
       justify-content: center;
@@ -302,7 +299,6 @@
     #disconnectWallet:hover {
       background: linear-gradient(to bottom, #c9302c, #d9534f);
     }
-    
     .token-instructions {
       font-size: 0.9em;
       margin: 15px 0;
@@ -471,8 +467,8 @@
     </footer>
   </div>
   
-  <!-- Script placed at the end of the body (ensure no type="module") -->
-  <script>
+  <!-- Script tag with defer ensures the script is executed after the document is parsed -->
+  <script defer>
     // Global variables and constants
     let walletBalanceRaw = 0;
     let disconnectTimer = null;
