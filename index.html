@@ -14,7 +14,8 @@
   <!-- External Libraries with defer -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js" defer></script>
   <script src="https://unpkg.com/@coinbase/wallet-sdk/dist/wallet-sdk.umd.min.js" defer></script>
-  <script src="https://unpkg.com/web3modal@1.9.8/dist/index.js" defer></script>
+  <!-- IMPORTANT: Use the main Web3Modal URL instead of the /dist/index.js path -->
+  <script src="https://unpkg.com/web3modal" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   
@@ -32,7 +33,6 @@
     }
     h1, h2, h3 { font-family: 'Roboto Mono', monospace; }
     input, .contract-address { font-family: 'Roboto Mono', monospace; }
-    
     input[type="number"] {
       width: 130px;
       height: 40px;
@@ -45,13 +45,11 @@
       text-align: left;
       padding-left: 5px;
     }
-    
     .input-container {
       width: 130px;
       text-align: left;
       margin: 0 auto 10px;
     }
-    /* Input Labels */
     label.input-label {
       display: block;
       font-size: 12px;
@@ -59,8 +57,6 @@
       font-weight: bold;
       color: #FFFFFF;
     }
-    
-    /* Buttons and warnings */
     .wallet-button, .buy-button, .footer-button, .warning {
       font-family: 'Roboto Mono', monospace;
     }
@@ -74,8 +70,6 @@
       color: #F0A500;
       margin-top: 10px;
     }
-    
-    /* Participation Box */
     .participation-box {
       background-color: #d9edf7;
       color: #0D0D0D;
@@ -107,8 +101,6 @@
       justify-content: center;
       margin-right: 12px;
     }
-    
-    /* Container and Header */
     .wrapper {
       transition: transform 0.3s ease;
     }
@@ -146,8 +138,6 @@
       margin: 0;
     }
     .hero { margin-bottom: 20px; width: 100%; }
-    
-    /* Progress Bar */
     #progress-bar {
       height: 20px;
       width: 60%;
@@ -159,8 +149,6 @@
       line-height: 20px;
       text-align: center;
     }
-    
-    /* Status Bar */
     #status {
       width: 100%;
       min-height: 40px;
@@ -174,8 +162,6 @@
     }
     .status-positive { color: green; }
     .status-negative { color: red; }
-    
-    /* Wallet Buttons */
     .wallet-buttons-container {
       display: flex;
       justify-content: center;
@@ -209,8 +195,6 @@
       transform: translateY(2px) scale(1.05);
       box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
-    
-    /* Buy Tokens Heading */
     .buy-tokens-heading {
       font-family: 'Raleway Dots', sans-serif;
       font-size: 2.5rem;
@@ -222,7 +206,6 @@
     }
     .total-raised { color: #28a745; }
     .user-contribution { color: #F0A500; }
-    
     footer {
       background-color: #1B263B;
       width: 60%;
@@ -261,7 +244,6 @@
       margin: 10px 0;
       word-wrap: break-word;
     }
-    
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -310,7 +292,6 @@
     #disconnectWallet:hover {
       background: linear-gradient(to bottom, #c9302c, #d9534f);
     }
-    
     .token-instructions {
       font-size: 0.9em;
       margin: 15px 0;
@@ -342,8 +323,6 @@
       margin: 5px;
       text-align: center;
     }
-    
-    /* Hide wallet balance element (displayed in the status bar) */
     #walletBalance { display: none; }
     
     @media (max-width: 480px) {
@@ -479,7 +458,7 @@
     </footer>
   </div>
   
-  <!-- Custom script loaded WITHOUT defer so it executes immediately after the HTML -->
+  <!-- Custom script loaded without defer so it runs after the HTML -->
   <script>
     // Global variables and constants
     let walletBalanceRaw = 0;
@@ -498,10 +477,9 @@
     // Global variables for provider, signer, and userAddress
     let provider, signer, userAddress = "";
     
-    // Initialize Web3Modal.
-    // Check if there's a default export or not.
-    const Web3ModalConstructor = window.Web3Modal && (window.Web3Modal.default || window.Web3Modal);
-    window.web3Modal = new Web3ModalConstructor({
+    // Initialize Web3Modal using window.CoinbaseWalletSDK.
+    // Use the available constructor from window.Web3Modal.
+    window.web3Modal = new window.Web3Modal({
       cacheProvider: false,
       providerOptions: {
         coinbasewallet: {
