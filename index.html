@@ -374,7 +374,7 @@
           <h2>How to Participate?</h2>
           <ol class="participation-list">
             <li><span class="step-icon">1</span>Connect your wallet (Coinbase Wallet, WalletConnect).</li>
-            <li><span class="step-icon">2</span>Enter the amount of ETH you want to contribute (min 0.01 ETH, max 5 ETH).</li>
+            <li><span class="step-icon">2</span>Enter the amount of ETH you want to contribute (Max 5 ETH).</li>
             <li><span class="step-icon">3</span>Click "BUY" and confirm your transaction.</li>
           </ol>
         </div>
@@ -388,7 +388,7 @@
           <img src="https://gateway.pinata.cloud/ipfs/bafkreigpbedcletldnqi5ue2vgh4klft5ovlltl4q47uy5qkfthxo6wfuq" alt="Coinbase Wallet Logo" width="24" height="24">
           <span>Coinbase</span>
         </button>
-        <!-- WalletConnect button with attached logo -->
+        <!-- WalletConnect button using WalletConnect v2 -->
         <button id="connectWalletConnect" class="wallet-button" onclick="connectWalletConnect()" aria-label="Connect WalletConnect">
           <img src="https://gateway.pinata.cloud/ipfs/bafkreica2kla4alapcinmznch47tssr2g26dpdtb3u6ltv3gzlwzmchl4a" alt="WalletConnect Logo" width="24" height="24">
           <span>WalletConnect</span>
@@ -406,9 +406,9 @@
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
         <p id="walletBalance">Wallet Balance: 0 ETH</p>
-        <!-- ETH Input Field -->
-        <input type="number" id="ethAmount" style="width: 130px;" placeholder="ETH (Max 5)" min="0.01" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
-        <!-- Autofill Text Options (displayed as plain text links, only after wallet connection) -->
+        <!-- ETH Input Field (no minimum attribute) -->
+        <input type="number" id="ethAmount" style="width: 130px;" placeholder="ETH (Max 5)" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
+        <!-- Autofill Text Options (plain text links, only after wallet connection) -->
         <div id="autofillContainer">
           <span class="autofill-option" onclick="autofillAmount(0.1)">10%</span>
           <span class="autofill-option" onclick="autofillAmount(0.25)">25%</span>
@@ -461,6 +461,20 @@
     </footer>
   </div>
   
+  <!-- Module Script to Import and Use @reown/walletkit, @walletconnect/utils, and @walletconnect/core (optional) -->
+  <script type="module">
+    // Import modules from Skypack CDN (optional integration)
+    import WalletKit from "https://cdn.skypack.dev/@reown/walletkit";
+    import * as WCUtils from "https://cdn.skypack.dev/@walletconnect/utils";
+    import WalletConnectCore from "https://cdn.skypack.dev/@walletconnect/core";
+    
+    console.log("WalletKit:", WalletKit);
+    console.log("WalletConnect Utils:", WCUtils);
+    console.log("WalletConnect Core:", WalletConnectCore);
+    
+    // You may integrate these modules into your UI if desired.
+  </script>
+  
   <script>
     // Global variable to hold the WalletConnect URI (if using custom QR code display)
     let walletConnectUri = "";
@@ -472,7 +486,6 @@
     // Configuration Constants
     const BASE_CHAIN_ID_DEC = 8453;
     const BASE_CHAIN_ID_HEX = '0x2105';
-    // Replace with your actual Infura project ID
     const BASECHAIN_RPC_URL = "https://base-mainnet.infura.io/v3/e923b24ca7eb4da7aa7e827ccae39ef9";
     const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
     const TOKEN_RATE = 20000000;
@@ -564,6 +577,7 @@
           document.getElementById("autofillContainer").style.display = "block";
           // Set timer to auto-disconnect after 10 minutes (600,000 milliseconds)
           disconnectTimer = setTimeout(() => {
+            console.log("Auto-disconnect timer triggered.");
             alert("Your Coinbase wallet connection has timed out.");
             disconnectWallet();
           }, 600000);
@@ -573,21 +587,22 @@
         }
       }
       
-      // WalletConnect v2 connection function using @walletconnect/ethereum-provider v2
+      // WalletConnect v2 connection function using WalletKit from @reown/walletkit
       async function connectWalletConnect() {
-        console.log("Connecting with WalletConnect v2...");
+        console.log("Connecting with WalletConnect v2 via WalletKit...");
         try {
-          const wcProvider = await WalletConnectEthereumProvider.init({
-            projectId: "c7eed8723c3b829bd22e3504832c292f", // Your WalletConnect project ID
+          // Initialize WalletKit with your WalletConnect v2 configuration
+          const walletKitInstance = new window.WalletKit({
+            projectId: "c7eed8723c3b829bd22e3504832c292f",
             chains: [BASE_CHAIN_ID_DEC],
-            rpcMap: { [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL },
-            showQrModal: true,
+            rpcMap: { [BASE_CHAIN_ID_DEC]: BASECHAIN_RPC_URL }
           });
-          await wcProvider.enable();
-          provider = new ethers.providers.Web3Provider(wcProvider);
+          // Call connect() to open the QR modal and establish a connection.
+          const wallet = await walletKitInstance.connect();
+          userAddress = wallet.address;
+          updateStatus(`Connected with WalletConnect v2: ${userAddress}`, "positive");
+          provider = new ethers.providers.Web3Provider(walletKitInstance.provider);
           signer = provider.getSigner();
-          userAddress = await signer.getAddress();
-          updateStatus(`Connected with WalletConnect v2 on Basechain: ${userAddress}`, "positive");
           fetchWalletBalance();
           document.getElementById("autofillContainer").style.display = "block";
         } catch (error) {
@@ -651,8 +666,8 @@
         }
         validateEthAmount();
         const ethAmount = parseFloat(document.getElementById("ethAmount").value);
-        if (!ethAmount || ethAmount < 0.01 || ethAmount > 5) {
-          updateStatus("Contribution must be between 0.01 and 5 ETH.", "negative");
+        if (!ethAmount || ethAmount > 5) {
+          updateStatus("Contribution must be 5 ETH or less.", "negative");
           return;
         }
         const tokenAmount = (ethAmount * TOKEN_RATE).toLocaleString();
@@ -682,8 +697,8 @@
           return;
         }
         let ethAmount = parseFloat(document.getElementById("ethAmount").value);
-        if (ethAmount < 0.01 || ethAmount > 5) {
-          updateStatus("Contribution must be between 0.01 and 5 ETH.", "negative");
+        if (ethAmount > 5) {
+          updateStatus("Contribution must be 5 ETH or less.", "negative");
           return;
         }
         const contract = new ethers.Contract(
@@ -708,7 +723,7 @@
         }
       }
       
-      // Validate ETH amount
+      // Validate ETH amount (only check that it's not greater than 5)
       function validateEthAmount() {
         const ethInput = document.getElementById("ethAmount");
         let ethAmount = parseFloat(ethInput.value);
@@ -718,17 +733,11 @@
           return;
         }
         if (ethAmount > 5) {
-          alert("Maximum contribution per wallet is 5 ETH. Resetting value to 5 ETH.");
+          alert("Maximum contribution is 5 ETH. Resetting value to 5 ETH.");
           ethInput.value = 5;
           ethAmount = 5;
-          updateStatus("Maximum contribution per wallet is 5 ETH", "negative");
-          showWarning("Maximum contribution per wallet is 5 ETH");
-        } else if (ethAmount < 0.01) {
-          alert("Minimum contribution is 0.01 ETH. Resetting value to 0.01 ETH.");
-          ethInput.value = 0.01;
-          ethAmount = 0.01;
-          updateStatus("Minimum contribution is 0.01 ETH", "negative");
-          showWarning("Minimum contribution is 0.01 ETH");
+          updateStatus("Maximum contribution is 5 ETH", "negative");
+          showWarning("Maximum contribution is 5 ETH");
         } else {
           clearWarning();
           updateStatus("", "positive");
