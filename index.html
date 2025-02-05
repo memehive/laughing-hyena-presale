@@ -11,7 +11,7 @@
   <!-- Roboto Mono for other text -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    /* --- CSS Styles --- */
+    /* Global Styles */
     body {
       font-family: 'Roboto Mono', monospace;
       margin: 0;
@@ -24,6 +24,8 @@
     }
     h1, h2, h3 { font-family: 'Roboto Mono', monospace; }
     input, .contract-address { font-family: 'Roboto Mono', monospace; }
+    
+    /* Inputs */
     input[type="number"] {
       width: 130px;
       height: 40px;
@@ -36,12 +38,13 @@
       text-align: left;
       padding-left: 5px;
     }
+    
     .input-container {
       width: 130px;
       text-align: left;
       margin: 0 auto 10px;
     }
-    /* Updated labels */
+    /* Input Labels */
     label.input-label {
       display: block;
       font-size: 12px;
@@ -49,7 +52,8 @@
       font-weight: bold;
       color: #FFFFFF;
     }
-    /* Buttons, warnings, etc. */
+    
+    /* Buttons and warnings */
     .wallet-button, .buy-button, .footer-button, .warning {
       font-family: 'Roboto Mono', monospace;
     }
@@ -63,6 +67,7 @@
       color: #F0A500;
       margin-top: 10px;
     }
+    
     /* Participation Box */
     .participation-box {
       background-color: #d9edf7;
@@ -95,6 +100,7 @@
       justify-content: center;
       margin-right: 12px;
     }
+    
     /* Container and Header */
     .wrapper {
       transition: transform 0.3s ease;
@@ -132,7 +138,11 @@
       letter-spacing: 2px;
       margin: 0;
     }
-    .hero { margin-bottom: 20px; width: 100%; }
+    .hero {
+      margin-bottom: 20px;
+      width: 100%;
+    }
+    
     /* Progress Bar */
     #progress-bar {
       height: 20px;
@@ -145,6 +155,7 @@
       line-height: 20px;
       text-align: center;
     }
+    
     /* Status Bar */
     #status {
       width: 100%;
@@ -159,6 +170,7 @@
     }
     .status-positive { color: green; }
     .status-negative { color: red; }
+    
     /* Wallet Buttons */
     .wallet-buttons-container {
       display: flex;
@@ -187,12 +199,15 @@
       background: linear-gradient(to bottom, #28a745, #218838);
       font-size: 20px;
     }
-    .wallet-button img, .buy-button img { margin-right: 8px; }
+    .wallet-button img, .buy-button img {
+      margin-right: 8px;
+    }
     .wallet-button:hover, .buy-button:hover {
       background: linear-gradient(to bottom, #D9A300, #F0A500);
       transform: translateY(2px) scale(1.05);
       box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
+    
     /* Buy Tokens Heading */
     .buy-tokens-heading {
       font-family: 'Raleway Dots', sans-serif;
@@ -205,6 +220,7 @@
     }
     .total-raised { color: #28a745; }
     .user-contribution { color: #F0A500; }
+    
     footer {
       background-color: #1B263B;
       width: 60%;
@@ -243,6 +259,7 @@
       margin: 10px 0;
       word-wrap: break-word;
     }
+    
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -291,6 +308,7 @@
     #disconnectWallet:hover {
       background: linear-gradient(to bottom, #c9302c, #d9534f);
     }
+    
     .token-instructions {
       font-size: 0.9em;
       margin: 15px 0;
@@ -322,6 +340,7 @@
       margin: 5px;
       text-align: center;
     }
+    
     /* Hide wallet balance element (displayed in the status bar) */
     #walletBalance { display: none; }
     
@@ -458,7 +477,7 @@
     </footer>
   </div>
   
-  <!-- Script placed at the end without type="module" -->
+  <!-- Script is loaded at the end without type="module" -->
   <script>
     // Global variables and constants
     let walletBalanceRaw = 0;
@@ -467,17 +486,17 @@
     const BASECHAIN_RPC_URL = "https://base-mainnet.infura.io/v3/e923b24ca7eb4da7aa7e827ccae39ef9";
     const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
     const TOKEN_RATE = 20000000;
-
+    
     // Helper: truncate wallet address
     function truncateAddress(address) {
       if (!address) return "";
       return address.slice(0, 6) + "....." + address.slice(-4);
     }
-
-    // Global variables for provider, signer, userAddress
+    
+    // Global variables for provider, signer, and userAddress
     let provider, signer, userAddress = "";
-
-    // Make web3Modal global (using window.CoinbaseWalletSDK)
+    
+    // Initialize web3Modal using window.CoinbaseWalletSDK
     window.web3Modal = new window.Web3Modal.default({
       cacheProvider: false,
       providerOptions: {
@@ -492,8 +511,8 @@
         }
       }
     });
-
-    // Global functions
+    
+    // Global functions attached to window
     window.connectCoinbaseWallet = async function() {
       if (!window.ethereum) {
         window.updateStatus("Coinbase Wallet not detected.", "negative");
@@ -605,8 +624,11 @@
       const statusEl = document.getElementById("status");
       statusEl.innerText = message;
       statusEl.classList.remove("status-positive", "status-negative");
-      if (type === "positive") statusEl.classList.add("status-positive");
-      else if (type === "negative") statusEl.classList.add("status-negative");
+      if (type === "positive") {
+        statusEl.classList.add("status-positive");
+      } else if (type === "negative") {
+        statusEl.classList.add("status-negative");
+      }
     };
 
     window.showWarning = function(message) {
@@ -734,6 +756,7 @@
       progressBar.innerText = Math.round(progress) + '%';
     }
 
+    // Start fetching progress and wallet balance periodically
     setInterval(fetchPresaleProgress, 5000);
     setInterval(fetchWalletBalance, 10000);
 
