@@ -6,21 +6,20 @@
   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Laughing Hyena Presale</title>
-  <!-- Raleway Dots for header and headings -->
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Raleway+Dots&display=swap" rel="stylesheet">
-  <!-- Roboto Mono for other text -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
   
-  <!-- External Libraries with defer -->
+  <!-- External Libraries (loaded with defer) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js" defer></script>
   <script src="https://unpkg.com/@coinbase/wallet-sdk/dist/wallet-sdk.umd.min.js" defer></script>
-  <!-- IMPORTANT: Use the main Web3Modal URL instead of the /dist/index.js path -->
-  <script src="https://unpkg.com/web3modal" defer></script>
+  <!-- IMPORTANT: Use the known UMD URL for Web3Modal v1.9.8 -->
+  <script src="https://unpkg.com/web3modal@1.9.8/dist/index.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   
   <style>
-    /* --- CSS Styles --- */
+    /* --- CSS Styles (unchanged) --- */
     body {
       font-family: 'Roboto Mono', monospace;
       margin: 0;
@@ -458,336 +457,337 @@
     </footer>
   </div>
   
-  <!-- Custom script loaded without defer so it runs after the HTML -->
+  <!-- Custom script without defer, wrapped in a load event to ensure external libraries are ready -->
   <script>
-    // Global variables and constants
-    let walletBalanceRaw = 0;
-    let disconnectTimer = null;
-    const BASE_CHAIN_ID_DEC = 8453;
-    const BASECHAIN_RPC_URL = "https://base-mainnet.infura.io/v3/e923b24ca7eb4da7aa7e827ccae39ef9";
-    const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
-    const TOKEN_RATE = 20000000;
-    
-    // Helper: truncate wallet address
-    function truncateAddress(address) {
-      if (!address) return "";
-      return address.slice(0, 6) + "....." + address.slice(-4);
-    }
-    
-    // Global variables for provider, signer, and userAddress
-    let provider, signer, userAddress = "";
-    
-    // Initialize Web3Modal using window.CoinbaseWalletSDK.
-    // Use the available constructor from window.Web3Modal.
-    window.web3Modal = new window.Web3Modal({
-      cacheProvider: false,
-      providerOptions: {
-        coinbasewallet: {
-          package: window.CoinbaseWalletSDK,
-          options: {
-            appName: "Laughing Hyena Presale",
-            rpc: BASECHAIN_RPC_URL,
-            chainId: BASE_CHAIN_ID_DEC,
-            darkMode: false
+    window.addEventListener('load', function () {
+      // Global variables and constants
+      let walletBalanceRaw = 0;
+      let disconnectTimer = null;
+      const BASE_CHAIN_ID_DEC = 8453;
+      const BASECHAIN_RPC_URL = "https://base-mainnet.infura.io/v3/e923b24ca7eb4da7aa7e827ccae39ef9";
+      const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
+      const TOKEN_RATE = 20000000;
+      
+      // Helper: truncate wallet address
+      function truncateAddress(address) {
+        if (!address) return "";
+        return address.slice(0, 6) + "....." + address.slice(-4);
+      }
+      
+      // Global variables for provider, signer, and userAddress
+      let provider, signer, userAddress = "";
+      
+      // Initialize Web3Modal using window.CoinbaseWalletSDK.
+      window.web3Modal = new window.Web3Modal({
+        cacheProvider: false,
+        providerOptions: {
+          coinbasewallet: {
+            package: window.CoinbaseWalletSDK,
+            options: {
+              appName: "Laughing Hyena Presale",
+              rpc: BASECHAIN_RPC_URL,
+              chainId: BASE_CHAIN_ID_DEC,
+              darkMode: false
+            }
           }
         }
-      }
-    });
-    
-    // Global functions attached to window
-    window.connectCoinbaseWallet = async function() {
-      if (!window.ethereum) {
-        window.updateStatus("Coinbase Wallet not detected.", "negative");
-        alert("Install wallet");
-        return;
-      }
-      window.web3Modal.clearCachedProvider();
-      try {
-        const instance = await window.web3Modal.connectTo("coinbasewallet");
-        provider = new ethers.providers.Web3Provider(instance);
-        await provider.send("eth_requestAccounts", []);
-        const { chainId } = await provider.getNetwork();
-        if (chainId !== BASE_CHAIN_ID_DEC) {
-          window.updateStatus("Please connect to Basechain using Coinbase Wallet.", "negative");
+      });
+      
+      // Global functions attached to window
+      window.connectCoinbaseWallet = async function() {
+        if (!window.ethereum) {
+          window.updateStatus("Coinbase Wallet not detected.", "negative");
+          alert("Install wallet");
           return;
         }
-        signer = provider.getSigner();
-        userAddress = await signer.getAddress();
+        window.web3Modal.clearCachedProvider();
+        try {
+          const instance = await window.web3Modal.connectTo("coinbasewallet");
+          provider = new ethers.providers.Web3Provider(instance);
+          await provider.send("eth_requestAccounts", []);
+          const { chainId } = await provider.getNetwork();
+          if (chainId !== BASE_CHAIN_ID_DEC) {
+            window.updateStatus("Please connect to Basechain using Coinbase Wallet.", "negative");
+            return;
+          }
+          signer = provider.getSigner();
+          userAddress = await signer.getAddress();
+          window.updateWalletStatus();
+          await fetchWalletBalance();
+          disconnectTimer = setTimeout(() => {
+            alert("Your Coinbase wallet connection has timed out.");
+            window.disconnectWallet();
+          }, 600000);
+        } catch (error) {
+          window.updateStatus(`Coinbase Wallet connection failed: ${error.message}`, "negative");
+        }
+      };
+      
+      window.disconnectWallet = async function() {
+        if (!provider || userAddress === "") {
+          alert("No wallet connected. Please connect a wallet before trying to disconnect.");
+          return;
+        }
+        if (provider.disconnect) await provider.disconnect();
+        provider = null;
+        signer = null;
+        userAddress = "";
+        window.updateStatus("Not connected", "negative");
+        document.getElementById("ethAmount").value = "";
+        document.getElementById("lhyenaAmount").value = "";
+        if (disconnectTimer) clearTimeout(disconnectTimer);
+      };
+      
+      window.validateEthAmount = function() {
+        const ethInput = document.getElementById("ethAmount");
+        let ethAmount = parseFloat(ethInput.value);
+        if (isNaN(ethAmount)) {
+          window.updateStatus("Please enter a valid ETH amount.", "negative");
+          window.showWarning("Please enter a valid ETH amount.");
+          return;
+        }
+        if (ethAmount < 0.001) {
+          alert("Minimum contribution is 0.001 ETH.");
+          ethInput.value = "0.001";
+          ethAmount = 0.001;
+          window.updateStatus("Minimum contribution is 0.001 ETH", "negative");
+          return;
+        }
+        if (ethAmount > 5) {
+          alert("Maximum contribution is 5 ETH. Resetting value to 5 ETH.");
+          ethInput.value = "5";
+          ethAmount = 5;
+          window.updateStatus("Maximum contribution is 5 ETH", "negative");
+          window.showWarning("Maximum contribution is 5 ETH");
+          return;
+        }
+        if (userAddress && ethAmount > walletBalanceRaw) {
+          alert("Entered amount exceeds your wallet balance (" + walletBalanceRaw.toFixed(5) + " ETH).");
+          ethInput.value = walletBalanceRaw.toFixed(5);
+          window.updateStatus("Amount reset to wallet balance", "negative");
+          return;
+        }
+        window.clearWarning();
         window.updateWalletStatus();
-        await fetchWalletBalance();
-        disconnectTimer = setTimeout(() => {
-          alert("Your Coinbase wallet connection has timed out.");
-          window.disconnectWallet();
-        }, 600000);
-      } catch (error) {
-        window.updateStatus(`Coinbase Wallet connection failed: ${error.message}`, "negative");
-      }
-    };
-    
-    window.disconnectWallet = async function() {
-      if (!provider || userAddress === "") {
-        alert("No wallet connected. Please connect a wallet before trying to disconnect.");
-        return;
-      }
-      if (provider.disconnect) await provider.disconnect();
-      provider = null;
-      signer = null;
-      userAddress = "";
-      window.updateStatus("Not connected", "negative");
-      document.getElementById("ethAmount").value = "";
-      document.getElementById("lhyenaAmount").value = "";
-      if (disconnectTimer) clearTimeout(disconnectTimer);
-    };
-    
-    window.validateEthAmount = function() {
-      const ethInput = document.getElementById("ethAmount");
-      let ethAmount = parseFloat(ethInput.value);
-      if (isNaN(ethAmount)) {
-        window.updateStatus("Please enter a valid ETH amount.", "negative");
-        window.showWarning("Please enter a valid ETH amount.");
-        return;
-      }
-      if (ethAmount < 0.001) {
-        alert("Minimum contribution is 0.001 ETH.");
-        ethInput.value = "0.001";
-        ethAmount = 0.001;
-        window.updateStatus("Minimum contribution is 0.001 ETH", "negative");
-        return;
-      }
-      if (ethAmount > 5) {
-        alert("Maximum contribution is 5 ETH. Resetting value to 5 ETH.");
-        ethInput.value = "5";
-        ethAmount = 5;
-        window.updateStatus("Maximum contribution is 5 ETH", "negative");
-        window.showWarning("Maximum contribution is 5 ETH");
-        return;
-      }
-      if (userAddress && ethAmount > walletBalanceRaw) {
-        alert("Entered amount exceeds your wallet balance (" + walletBalanceRaw.toFixed(5) + " ETH).");
-        ethInput.value = walletBalanceRaw.toFixed(5);
-        window.updateStatus("Amount reset to wallet balance", "negative");
-        return;
-      }
-      window.clearWarning();
-      window.updateWalletStatus();
-    };
-    
-    window.convertLHyenaToETH = function() {
-      const lhyenaInput = document.getElementById("lhyenaAmount");
-      let lhyenaVal = parseFloat(lhyenaInput.value);
-      if (isNaN(lhyenaVal)) return;
-      let ethRequired = lhyenaVal / TOKEN_RATE;
-      if (ethRequired > 5) {
-        alert("Maximum contribution is 5 ETH. Resetting to 5 ETH equivalent.");
-        ethRequired = 5;
-        lhyenaInput.value = (5 * TOKEN_RATE).toFixed(2);
-      }
-      document.getElementById("ethAmount").value = ethRequired.toFixed(2);
-      window.calculateTokens();
-    };
-    
-    window.calculateTokens = function() {
-      let ethAmount = parseFloat(document.getElementById("ethAmount").value) || 0;
-      const lhyenaAmount = ethAmount * TOKEN_RATE;
-      document.getElementById("tokenAmount").innerText = lhyenaAmount.toLocaleString();
-      document.getElementById("lhyenaAmount").value = lhyenaAmount.toFixed(2);
-    };
-    
-    window.updateWalletStatus = function() {
-      if (userAddress) {
+      };
+      
+      window.convertLHyenaToETH = function() {
+        const lhyenaInput = document.getElementById("lhyenaAmount");
+        let lhyenaVal = parseFloat(lhyenaInput.value);
+        if (isNaN(lhyenaVal)) return;
+        let ethRequired = lhyenaVal / TOKEN_RATE;
+        if (ethRequired > 5) {
+          alert("Maximum contribution is 5 ETH. Resetting to 5 ETH equivalent.");
+          ethRequired = 5;
+          lhyenaInput.value = (5 * TOKEN_RATE).toFixed(2);
+        }
+        document.getElementById("ethAmount").value = ethRequired.toFixed(2);
+        window.calculateTokens();
+      };
+      
+      window.calculateTokens = function() {
+        let ethAmount = parseFloat(document.getElementById("ethAmount").value) || 0;
+        const lhyenaAmount = ethAmount * TOKEN_RATE;
+        document.getElementById("tokenAmount").innerText = lhyenaAmount.toLocaleString();
+        document.getElementById("lhyenaAmount").value = lhyenaAmount.toFixed(2);
+      };
+      
+      window.updateWalletStatus = function() {
+        if (userAddress) {
+          const statusEl = document.getElementById("status");
+          statusEl.innerText = "Connected: " + truncateAddress(userAddress) + " | Balance: " + walletBalanceRaw.toFixed(5) + " ETH";
+          statusEl.classList.remove("status-negative");
+          statusEl.classList.add("status-positive");
+        }
+      };
+      
+      window.updateStatus = function(message, type) {
         const statusEl = document.getElementById("status");
-        statusEl.innerText = "Connected: " + truncateAddress(userAddress) + " | Balance: " + walletBalanceRaw.toFixed(5) + " ETH";
-        statusEl.classList.remove("status-negative");
-        statusEl.classList.add("status-positive");
-      }
-    };
-    
-    window.updateStatus = function(message, type) {
-      const statusEl = document.getElementById("status");
-      statusEl.innerText = message;
-      statusEl.classList.remove("status-positive", "status-negative");
-      if (type === "positive") {
-        statusEl.classList.add("status-positive");
-      } else if (type === "negative") {
-        statusEl.classList.add("status-negative");
-      }
-    };
-    
-    window.showWarning = function(message) {
-      document.getElementById("warningMessage").innerText = message;
-    };
-    
-    window.clearWarning = function() {
-      document.getElementById("warningMessage").innerText = "";
-    };
-    
-    window.promptBuyTokens = function() {
-      if (!signer) {
-        alert("No wallet connected. Please connect your wallet before buying tokens.");
-        window.updateStatus("Please connect your wallet first!", "negative");
-        return;
-      }
-      window.validateEthAmount();
-      const ethAmount = parseFloat(document.getElementById("ethAmount").value);
-      if (isNaN(ethAmount)) {
-        window.updateStatus("Please enter a valid ETH amount.", "negative");
-        return;
-      }
-      const tokenAmount = (ethAmount * TOKEN_RATE).toLocaleString();
-      document.getElementById("transactionSummary").innerText =
-        `You are about to contribute ${ethAmount} ETH (minimum 0.001 ETH) to receive ${tokenAmount} LHyena tokens.`;
-      document.getElementById("confirmationModal").style.display = "block";
-    };
-    
-    window.closeModal = function() {
-      document.getElementById("confirmationModal").style.display = "none";
-    };
-    
-    window.confirmedBuyTokens = async function() {
-      window.closeModal();
-      const { chainId } = await provider.getNetwork();
-      if (chainId !== BASE_CHAIN_ID_DEC) {
-        window.updateStatus("Incorrect network. Please switch to Basechain.", "negative");
-        return;
-      }
-      await window.buyTokens();
-    };
-    
-    window.buyTokens = async function() {
-      if (!signer) {
-        alert("No wallet connected. Please connect your wallet before buying tokens.");
-        window.updateStatus("Please connect your wallet first!", "negative");
-        return;
-      }
-      let ethAmount = parseFloat(document.getElementById("ethAmount").value);
-      if (isNaN(ethAmount)) {
-        window.updateStatus("Please enter a valid ETH amount.", "negative");
-        return;
-      }
-      if (ethAmount > 5) {
-        alert("Maximum contribution is 5 ETH. Resetting value to 5 ETH.");
-        ethAmount = 5;
-        document.getElementById("ethAmount").value = "5";
-        window.updateStatus("Maximum contribution is 5 ETH", "negative");
-      }
-      const contract = new ethers.Contract(
-        PRESALE_CONTRACT_ADDRESS,
-        [{
-          "inputs": [],
-          "name": "buyTokens",
-          "outputs": [],
-          "stateMutability": "payable",
-          "type": "function"
-        }],
-        signer
-      );
-      try {
-        const tx = await contract.buyTokens({ value: ethers.utils.parseEther(ethAmount.toString()) });
-        window.updateStatus("Transaction submitted. Waiting for 3 confirmations...", "positive");
-        await tx.wait(3);
-        window.updateStatus("Transaction Successful! You have purchased $LHyena tokens.", "positive");
-      } catch (error) {
-        window.updateStatus("Transaction failed: " + error.message, "negative");
-      }
-    };
-    
-    async function fetchWalletBalance() {
-      if (!provider || !userAddress) return;
-      try {
-        const balance = await provider.getBalance(userAddress);
-        walletBalanceRaw = parseFloat(ethers.utils.formatEther(balance));
-        window.updateWalletStatus();
-      } catch (err) {
-        console.error("Error fetching wallet balance:", err);
-      }
-    }
-    
-    async function fetchPresaleProgress() {
-      if (!provider) return;
-      try {
+        statusEl.innerText = message;
+        statusEl.classList.remove("status-positive", "status-negative");
+        if (type === "positive") {
+          statusEl.classList.add("status-positive");
+        } else if (type === "negative") {
+          statusEl.classList.add("status-negative");
+        }
+      };
+      
+      window.showWarning = function(message) {
+        document.getElementById("warningMessage").innerText = message;
+      };
+      
+      window.clearWarning = function() {
+        document.getElementById("warningMessage").innerText = "";
+      };
+      
+      window.promptBuyTokens = function() {
+        if (!signer) {
+          alert("No wallet connected. Please connect your wallet before buying tokens.");
+          window.updateStatus("Please connect your wallet first!", "negative");
+          return;
+        }
+        window.validateEthAmount();
+        const ethAmount = parseFloat(document.getElementById("ethAmount").value);
+        if (isNaN(ethAmount)) {
+          window.updateStatus("Please enter a valid ETH amount.", "negative");
+          return;
+        }
+        const tokenAmount = (ethAmount * TOKEN_RATE).toLocaleString();
+        document.getElementById("transactionSummary").innerText =
+          `You are about to contribute ${ethAmount} ETH (minimum 0.001 ETH) to receive ${tokenAmount} LHyena tokens.`;
+        document.getElementById("confirmationModal").style.display = "block";
+      };
+      
+      window.closeModal = function() {
+        document.getElementById("confirmationModal").style.display = "none";
+      };
+      
+      window.confirmedBuyTokens = async function() {
+        window.closeModal();
+        const { chainId } = await provider.getNetwork();
+        if (chainId !== BASE_CHAIN_ID_DEC) {
+          window.updateStatus("Incorrect network. Please switch to Basechain.", "negative");
+          return;
+        }
+        await window.buyTokens();
+      };
+      
+      window.buyTokens = async function() {
+        if (!signer) {
+          alert("No wallet connected. Please connect your wallet before buying tokens.");
+          window.updateStatus("Please connect your wallet first!", "negative");
+          return;
+        }
+        let ethAmount = parseFloat(document.getElementById("ethAmount").value);
+        if (isNaN(ethAmount)) {
+          window.updateStatus("Please enter a valid ETH amount.", "negative");
+          return;
+        }
+        if (ethAmount > 5) {
+          alert("Maximum contribution is 5 ETH. Resetting value to 5 ETH.");
+          ethAmount = 5;
+          document.getElementById("ethAmount").value = "5";
+          window.updateStatus("Maximum contribution is 5 ETH", "negative");
+        }
         const contract = new ethers.Contract(
           PRESALE_CONTRACT_ADDRESS,
           [{
             "inputs": [],
-            "name": "totalRaised",
-            "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-            "stateMutability": "view",
+            "name": "buyTokens",
+            "outputs": [],
+            "stateMutability": "payable",
             "type": "function"
           }],
-          provider
+          signer
         );
-        const ethRaised = await contract.totalRaised();
-        const ethRaisedFormatted = ethers.utils.formatEther(ethRaised);
-        updateProgressBar(ethRaisedFormatted);
-        document.getElementById("ethRaised").innerText = ethRaisedFormatted + " ETH";
-      } catch (error) {
-        console.error("Error fetching presale progress:", error);
-      }
-    }
-    
-    function updateProgressBar(ethRaised) {
-      const hardCap = 50;
-      const progress = Math.min((ethRaised / hardCap) * 100, 100);
-      const progressBar = document.getElementById("progress-bar");
-      progressBar.style.width = "60%";
-      progressBar.style.margin = "10px auto";
-      progressBar.style.height = "20px";
-      progressBar.style.borderRadius = "10px";
-      progressBar.style.lineHeight = "20px";
-      progressBar.style.textAlign = "center";
-      progressBar.innerText = Math.round(progress) + '%';
-    }
-    
-    setInterval(fetchPresaleProgress, 5000);
-    setInterval(fetchWalletBalance, 10000);
-    
-    window.copyContractAddress = function() {
-      const addressText = PRESALE_CONTRACT_ADDRESS;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(addressText).then(() => {
-          alert("Presale contract address copied to clipboard!");
-        }).catch(() => {
-          alert("Failed to copy presale contract address. Please try again.");
-        });
-      } else {
-        const textArea = document.createElement("textarea");
-        textArea.value = addressText;
-        document.body.appendChild(textArea);
-        textArea.select();
         try {
-          document.execCommand("copy");
-          alert("Presale contract address copied to clipboard!");
-        } catch (err) {
-          alert("Failed to copy presale contract address. Please try again.");
+          const tx = await contract.buyTokens({ value: ethers.utils.parseEther(ethAmount.toString()) });
+          window.updateStatus("Transaction submitted. Waiting for 3 confirmations...", "positive");
+          await tx.wait(3);
+          window.updateStatus("Transaction Successful! You have purchased $LHyena tokens.", "positive");
+        } catch (error) {
+          window.updateStatus("Transaction failed: " + error.message, "negative");
         }
-        document.body.removeChild(textArea);
-      }
-    };
-    
-    window.copyTokenAddress = function() {
-      const tokenAddress = "0x8aaA69666D6de35561D948f6670F262F6cAC7392";
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(tokenAddress).then(() => {
-          alert("Token contract address copied to clipboard!");
-        }).catch(() => {
-          alert("Failed to copy token contract address. Please try again.");
-        });
-      } else {
-        const textArea = document.createElement("textarea");
-        textArea.value = tokenAddress;
-        document.body.appendChild(textArea);
-        textArea.select();
+      };
+      
+      async function fetchWalletBalance() {
+        if (!provider || !userAddress) return;
         try {
-          document.execCommand("copy");
-          alert("Token contract address copied to clipboard!");
+          const balance = await provider.getBalance(userAddress);
+          walletBalanceRaw = parseFloat(ethers.utils.formatEther(balance));
+          window.updateWalletStatus();
         } catch (err) {
-          alert("Failed to copy token contract address. Please try again.");
+          console.error("Error fetching wallet balance:", err);
         }
-        document.body.removeChild(textArea);
       }
-    };
-    
-    console.log("Setup complete.");
+      
+      async function fetchPresaleProgress() {
+        if (!provider) return;
+        try {
+          const contract = new ethers.Contract(
+            PRESALE_CONTRACT_ADDRESS,
+            [{
+              "inputs": [],
+              "name": "totalRaised",
+              "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+              "stateMutability": "view",
+              "type": "function"
+            }],
+            provider
+          );
+          const ethRaised = await contract.totalRaised();
+          const ethRaisedFormatted = ethers.utils.formatEther(ethRaised);
+          updateProgressBar(ethRaisedFormatted);
+          document.getElementById("ethRaised").innerText = ethRaisedFormatted + " ETH";
+        } catch (error) {
+          console.error("Error fetching presale progress:", error);
+        }
+      }
+      
+      function updateProgressBar(ethRaised) {
+        const hardCap = 50;
+        const progress = Math.min((ethRaised / hardCap) * 100, 100);
+        const progressBar = document.getElementById("progress-bar");
+        progressBar.style.width = "60%";
+        progressBar.style.margin = "10px auto";
+        progressBar.style.height = "20px";
+        progressBar.style.borderRadius = "10px";
+        progressBar.style.lineHeight = "20px";
+        progressBar.style.textAlign = "center";
+        progressBar.innerText = Math.round(progress) + '%';
+      }
+      
+      setInterval(fetchPresaleProgress, 5000);
+      setInterval(fetchWalletBalance, 10000);
+      
+      window.copyContractAddress = function() {
+        const addressText = PRESALE_CONTRACT_ADDRESS;
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(addressText).then(() => {
+            alert("Presale contract address copied to clipboard!");
+          }).catch(() => {
+            alert("Failed to copy presale contract address. Please try again.");
+          });
+        } else {
+          const textArea = document.createElement("textarea");
+          textArea.value = addressText;
+          document.body.appendChild(textArea);
+          textArea.select();
+          try {
+            document.execCommand("copy");
+            alert("Presale contract address copied to clipboard!");
+          } catch (err) {
+            alert("Failed to copy presale contract address. Please try again.");
+          }
+          document.body.removeChild(textArea);
+        }
+      };
+      
+      window.copyTokenAddress = function() {
+        const tokenAddress = "0x8aaA69666D6de35561D948f6670F262F6cAC7392";
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(tokenAddress).then(() => {
+            alert("Token contract address copied to clipboard!");
+          }).catch(() => {
+            alert("Failed to copy token contract address. Please try again.");
+          });
+        } else {
+          const textArea = document.createElement("textarea");
+          textArea.value = tokenAddress;
+          document.body.appendChild(textArea);
+          textArea.select();
+          try {
+            document.execCommand("copy");
+            alert("Token contract address copied to clipboard!");
+          } catch (err) {
+            alert("Failed to copy token contract address. Please try again.");
+          }
+          document.body.removeChild(textArea);
+        }
+      };
+      
+      console.log("Setup complete.");
+    });
   </script>
 </body>
 </html>
