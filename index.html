@@ -9,7 +9,6 @@
   <!-- Roboto Mono for all text -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
 
-  <!-- Include the UMD build for @reown/walletkit (removed WalletConnect usage) -->
   <!-- ethers.js Library (UMD build) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <!-- Coinbase Wallet SDK -->
@@ -112,6 +111,7 @@
       letter-spacing: 2px;
     }
     .hero { margin-bottom: 20px; width: 100%; }
+    /* Progress Bar styling: same size and centered like the status bar */
     #progress-bar {
       height: 20px;
       width: 60%;
@@ -121,6 +121,7 @@
       color: #0D1B2A;
       font-weight: bold;
       line-height: 20px;
+      text-align: center;
     }
     /* Status Bar Styling */
     #status {
@@ -130,6 +131,7 @@
       border-radius: 10px;
       background-color: #333333;
       line-height: 20px;
+      text-align: center;
     }
     .status-positive { color: #28a745; }
     .status-negative { color: #ff5555; }
@@ -340,6 +342,7 @@
     <div class="container">
       <div class="hero">
         <h2>Presale Progress</h2>
+        <!-- Progress bar placed under the header -->
         <div id="progress-bar">0%</div>
         <p class="total-raised">Total ETH raised: <span id="ethRaised">0</span> ETH</p>
         <p class="user-contribution">Your Contribution: <span id="userContribution">0</span> ETH</p>
@@ -363,6 +366,7 @@
         </div>
       </div>
       
+      <!-- Status bar -->
       <div id="status" class="status-neutral">Not connected</div>
       
       <div class="wallet-buttons-container">
@@ -380,9 +384,9 @@
       <div>
         <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
         <p id="walletBalance">Wallet Balance: 0 ETH</p>
-        <!-- ETH Input Field (no minimum enforced, maximum 5 ETH) -->
+        <!-- ETH Input Field; note: no minimum contribution is enforced -->
         <input type="number" id="ethAmount" style="width: 130px;" placeholder="ETH (Max 5)" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
-        <!-- Autofill Text Options (plain text links, only after wallet connection) -->
+        <!-- Autofill Options (visible after wallet connection) -->
         <div id="autofillContainer">
           <span class="autofill-option" onclick="autofillAmount(0.1)">10%</span>
           <span class="autofill-option" onclick="autofillAmount(0.25)">25%</span>
@@ -396,7 +400,7 @@
             <span>BUY</span>
           </button>
         </div>
-        <!-- Instruction to add token to Coinbase Wallet with copy button -->
+        <!-- Instruction to add token with copy button -->
         <p class="token-instructions">
           To add $LHyena to your Coinbase Wallet, copy the token contract address: 
           <strong>0x8aaA69666D6de35561D948f6670F262F6cAC7392</strong>
@@ -436,23 +440,23 @@
   </div>
   
   <script>
-    // Global variable to store the raw wallet balance (in ETH)
+    // Global variable to store wallet balance (in ETH)
     let walletBalanceRaw = 0;
     // Global variable for Coinbase disconnect timer
     let disconnectTimer = null;
     
     // Configuration Constants
     const BASE_CHAIN_ID_DEC = 8453;
-    const BASE_CHAIN_ID_HEX = '0x2105';
     const BASECHAIN_RPC_URL = "https://base-mainnet.infura.io/v3/e923b24ca7eb4da7aa7e827ccae39ef9";
     const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
     const TOKEN_RATE = 20000000;
     
-    // Coinbase Wallet connection via Web3Modal
     document.addEventListener("DOMContentLoaded", function () {
       const ethers = window.ethers;
       let provider, signer;
       let userAddress = "";
+      
+      console.log("DOM fully loaded. Setting up Web3Modal...");
       
       const web3Modal = new window.Web3Modal.default({
         cacheProvider: false,
@@ -474,6 +478,7 @@
         const statusEl = document.getElementById("status");
         statusEl.innerText = message;
         statusEl.classList.remove("status-positive", "status-negative");
+        console.log("Status update:", message);
         if (type === "positive") {
           statusEl.classList.add("status-positive");
         } else if (type === "negative") {
@@ -509,19 +514,20 @@
           console.log("Chain changed to:", chainId);
           window.location.reload();
         });
+      } else {
+        console.warn("window.ethereum is not available. Make sure a wallet extension is installed.");
       }
       
-      // Coinbase Wallet connection function using Web3Modal with forced reauthentication
+      // Coinbase Wallet connection function using Web3Modal
       async function connectCoinbaseWallet() {
-        console.log("Forcing reauthentication by clearing cached provider...");
-        web3Modal.clearCachedProvider();
-        
-        console.log("Connecting with Coinbase Wallet...");
+        console.log("Attempting to connect with Coinbase Wallet...");
+        // If no wallet is installed, alert the user to install one.
         if (!window.ethereum) {
-          updateStatus("Coinbase Wallet not detected. Please install Coinbase Wallet.", "negative");
-          alert("No wallet detected. Please install Coinbase Wallet.");
+          updateStatus("Coinbase Wallet not detected.", "negative");
+          alert("Install wallet");
           return;
         }
+        web3Modal.clearCachedProvider();
         try {
           const instance = await web3Modal.connectTo("coinbasewallet");
           provider = new ethers.providers.Web3Provider(instance);
@@ -536,7 +542,7 @@
           updateStatus(`Connected with Coinbase Wallet on Basechain: ${userAddress}`, "positive");
           fetchWalletBalance();
           document.getElementById("autofillContainer").style.display = "block";
-          // Set timer to auto-disconnect after 10 minutes (600,000 ms)
+          // Auto-disconnect after 10 minutes
           disconnectTimer = setTimeout(() => {
             console.log("Auto-disconnect timer triggered.");
             alert("Your Coinbase wallet connection has timed out.");
@@ -550,6 +556,7 @@
       
       // Disconnect Wallet function
       async function disconnectWallet() {
+        console.log("Disconnecting wallet...");
         if (!provider || userAddress === "") {
           alert("No wallet connected. Please connect a wallet before trying to disconnect.");
           return;
@@ -575,6 +582,7 @@
           const balance = await provider.getBalance(userAddress);
           walletBalanceRaw = parseFloat(ethers.utils.formatEther(balance));
           document.getElementById("walletBalance").innerText = "Wallet Balance: " + walletBalanceRaw + " ETH";
+          console.log("Wallet balance updated:", walletBalanceRaw, "ETH");
         } catch (err) {
           console.error("Error fetching wallet balance:", err);
         }
@@ -582,7 +590,7 @@
       
       setInterval(fetchWalletBalance, 10000);
       
-      // Autofill function: Fills the ETH input with a percentage of the wallet balance (capped at 5 ETH)
+      // Autofill function
       function autofillAmount(percentage) {
         if (walletBalanceRaw > 0) {
           let amount = walletBalanceRaw * percentage;
@@ -603,7 +611,7 @@
         }
         validateEthAmount();
         const ethAmount = parseFloat(document.getElementById("ethAmount").value);
-        if (!ethAmount || ethAmount > 5) {
+        if (isNaN(ethAmount) || ethAmount > 5) {
           updateStatus("Contribution must be 5 ETH or less.", "negative");
           return;
         }
@@ -660,7 +668,7 @@
         }
       }
       
-      // Validate ETH amount (only checking that it's not greater than 5)
+      // Validate ETH amount (only checks for a valid number; no minimum enforced)
       function validateEthAmount() {
         const ethInput = document.getElementById("ethAmount");
         let ethAmount = parseFloat(ethInput.value);
@@ -669,16 +677,9 @@
           showWarning("Please enter a valid ETH amount.");
           return;
         }
-        if (ethAmount > 5) {
-          alert("Maximum contribution is 5 ETH. Resetting value to 5 ETH.");
-          ethInput.value = 5;
-          ethAmount = 5;
-          updateStatus("Maximum contribution is 5 ETH", "negative");
-          showWarning("Maximum contribution is 5 ETH");
-        } else {
-          clearWarning();
-          updateStatus("", "positive");
-        }
+        // Remove any minimum contribution check here.
+        clearWarning();
+        updateStatus("", "positive");
       }
       
       function calculateTokens() {
@@ -713,15 +714,21 @@
         const hardCap = 50;
         const progress = Math.min((ethRaised / hardCap) * 100, 100);
         const progressBar = document.getElementById("progress-bar");
-        progressBar.style.width = progress + '%';
+        progressBar.style.width = "60%";
+        progressBar.style.margin = "10px auto";
+        progressBar.style.height = "20px";
+        progressBar.style.borderRadius = "10px";
+        progressBar.style.lineHeight = "20px";
+        progressBar.style.textAlign = "center";
         progressBar.innerText = Math.round(progress) + '%';
       }
       
       setInterval(fetchPresaleProgress, 5000);
       
-      // Copy Presale Contract Address Function
+      // Copy functions
       function copyContractAddress() {
         const addressText = PRESALE_CONTRACT_ADDRESS;
+        console.log("Copying presale contract address:", addressText);
         if (navigator.clipboard) {
           navigator.clipboard.writeText(addressText).then(() => {
             alert("Presale contract address copied to clipboard!");
@@ -743,9 +750,9 @@
         }
       }
       
-      // Copy Token Contract Address Function
       function copyTokenAddress() {
         const tokenAddress = "0x8aaA69666D6de35561D948f6670F262F6cAC7392";
+        console.log("Copying token contract address:", tokenAddress);
         if (navigator.clipboard) {
           navigator.clipboard.writeText(tokenAddress).then(() => {
             alert("Token contract address copied to clipboard!");
@@ -767,7 +774,7 @@
         }
       }
       
-      // Expose functions for button clicks
+      // Expose functions to the global scope for button clicks
       window.connectCoinbaseWallet = connectCoinbaseWallet;
       window.disconnectWallet = disconnectWallet;
       window.promptBuyTokens = promptBuyTokens;
@@ -778,6 +785,8 @@
       window.copyContractAddress = copyContractAddress;
       window.copyTokenAddress = copyTokenAddress;
       window.autofillAmount = autofillAmount;
+      
+      console.log("Setup complete.");
     });
   </script>
 </body>
