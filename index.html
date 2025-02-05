@@ -45,11 +45,17 @@
       text-align: center;
       box-sizing: border-box;
     }
-    /* Label styling for input fields */
+    /* Container for label and input: ensures both are 130px wide and left-aligned */
+    .input-container {
+      width: 130px;
+      text-align: left;
+      margin: 0 auto 10px auto;
+    }
+    /* Label styling: reduced font size (half of 16px) */
     label.input-label {
       display: block;
-      font-size: 16px;
-      margin-bottom: 5px;
+      font-size: 12px;
+      margin: 0 0 2px 0;
       font-weight: bold;
       color: #FFFFFF;
     }
@@ -242,7 +248,7 @@
       justify-content: center;
     }
     .footer-button:hover { background: #D9A300; }
-    .footer-logo { height: 12px; margin-right: 4px; }
+    .footer-logo { height: 15px; margin-right: 4px; }
     .contract-address {
       text-align: center;
       font-size: 1em;
@@ -322,22 +328,6 @@
       width: 16px;
       height: 16px;
     }
-    /* Autofill Text Options Styling */
-    #autofillContainer {
-      margin-top: 5px;
-      display: none;
-    }
-    .autofill-option {
-      display: inline-block;
-      margin: 0 10px;
-      color: #4A90E2;
-      cursor: pointer;
-      transition: color 0.2s;
-    }
-    .autofill-option:hover {
-      text-decoration: underline;
-      color: #357ABD;
-    }
     /* Additional Input Field for LHyena Amount (identical styling to ETH input) */
     .conversion-container input {
       width: 130px;
@@ -372,7 +362,6 @@
       input[type="number"] { width: 130px; font-size: 16px; }
       footer { width: 90%; margin: 20px auto; }
       #warningMessage { width: 90%; }
-      .autofill-option { margin: 5px; }
     }
   </style>
 </head>
@@ -439,22 +428,15 @@
         <p id="walletBalance">Wallet Balance: 0 ETH</p>
         
         <!-- Labels and Input Fields -->
-        <div>
+        <div class="input-container">
           <label class="input-label" for="ethAmount">Enter ETH</label>
           <input type="number" id="ethAmount" placeholder="ETH (Max 5)" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
         </div>
-        <div class="conversion-container">
+        <div class="input-container">
           <label class="input-label" for="lhyenaAmount">Enter $LHyena</label>
-          <input type="number" id="lhyenaAmount" placeholder="LHyena Amount" step="any" onblur="convertLHyenaToETH();">
+          <input type="number" id="lhyenaAmount" placeholder="$LHyena" step="any" onblur="convertLHyenaToETH();">
         </div>
         
-        <!-- Autofill Options (visible after wallet connection) -->
-        <div id="autofillContainer">
-          <span class="autofill-option" onclick="autofillAmount(0.10)">10%</span>
-          <span class="autofill-option" onclick="autofillAmount(0.25)">25%</span>
-          <span class="autofill-option" onclick="autofillAmount(0.50)">50%</span>
-          <span class="autofill-option" onclick="autofillAmount(1)">MAX</span>
-        </div>
         <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
         <div class="wallet-buttons-container">
           <button id="buyTokensButton" class="buy-button" onclick="promptBuyTokens()" aria-label="Buy Tokens">
