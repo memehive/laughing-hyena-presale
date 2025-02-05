@@ -34,12 +34,8 @@
       font-size: 16px;
       line-height: 1.6;
     }
-    h1, h2, h3 {
-      font-family: 'Roboto Mono', monospace;
-    }
-    input, .contract-address {
-      font-family: 'Roboto Mono', monospace;
-    }
+    h1, h2, h3 { font-family: 'Roboto Mono', monospace; }
+    input, .contract-address { font-family: 'Roboto Mono', monospace; }
     
     /* Ensure all number inputs have the same height and placeholder style */
     input[type="number"] {
@@ -56,7 +52,7 @@
       padding-left: 5px;
     }
     
-    /* Container for label and input: fixed width and left-aligned */
+    /* Container for label and input: fixed width and left aligned */
     .input-container {
       width: 130px;
       text-align: left;
@@ -152,10 +148,7 @@
       letter-spacing: 2px;
       margin: 0;
     }
-    .hero {
-      margin-bottom: 20px;
-      width: 100%;
-    }
+    .hero { margin-bottom: 20px; width: 100%; }
     
     /* Progress Bar styling */
     #progress-bar {
@@ -172,12 +165,13 @@
     
     /* Status Bar Styling:
        - 12px font size,
-       - min-height of 40px plus padding to accommodate two lines,
+       - min-height of 40px plus padding,
        - background color matching participation box (#d9edf7),
        - no border-radius.
-       Also, it now shows the truncated wallet address and current balance when connected. */
+       The status bar will show the truncated wallet address and balance when connected.
+    */
     #status {
-      width: 100%;  /* Fill the container width */
+      width: 100%; /* Fill the parent container's width */
       min-height: 40px;
       margin: 20px auto;
       background-color: #d9edf7;
@@ -187,7 +181,7 @@
       padding: 5px;
       border-radius: 0;
     }
-    /* Status Message Colors: Negative in red, Positive in green */
+    /* Status Message Colors */
     .status-positive { color: green; }
     .status-negative { color: red; }
     
@@ -428,8 +422,6 @@
       <!-- Status bar: displays wallet address and balance when connected -->
       <div id="status" class="status-neutral">Not connected</div>
       
-      <!-- (Wallet balance is now shown in the status bar) -->
-      
       <div class="wallet-buttons-container">
         <!-- Coinbase Wallet button -->
         <button id="connectCoinbaseWallet" class="wallet-button" onclick="connectCoinbaseWallet()" aria-label="Connect Coinbase Wallet">
@@ -575,7 +567,6 @@
       }
       
       function updateWalletStatus() {
-        // If a wallet is connected, update the status bar with the truncated wallet address and current balance.
         if (userAddress) {
           const statusEl = document.getElementById("status");
           statusEl.innerText = "Connected: " + truncateAddress(userAddress) + " | Balance: " + walletBalanceRaw.toFixed(2) + " ETH";
@@ -635,7 +626,6 @@
           userAddress = await signer.getAddress();
           updateWalletStatus();
           fetchWalletBalance();
-          // Auto-disconnect after 10 minutes
           disconnectTimer = setTimeout(() => {
             console.log("Auto-disconnect timer triggered.");
             alert("Your Coinbase wallet connection has timed out.");
@@ -772,7 +762,7 @@
         }
       }
       
-      // Validate ETH amount: must be a number, at least 0.001, no more than 5, and not exceeding wallet balance
+      // Validate ETH amount: must be a number, at least 0.001, no more than 5, and (if wallet connected) not exceeding wallet balance
       function validateEthAmount() {
         const ethInput = document.getElementById("ethAmount");
         let ethAmount = parseFloat(ethInput.value);
@@ -788,15 +778,8 @@
           updateStatus("Minimum contribution is 0.001 ETH", "negative");
           return;
         }
-        if (ethAmount > 5) {
-          alert("Maximum contribution is 5 ETH. Resetting value to 5 ETH.");
-          ethInput.value = "5";
-          ethAmount = 5;
-          updateStatus("Maximum contribution is 5 ETH", "negative");
-          showWarning("Maximum contribution is 5 ETH");
-          return;
-        }
-        if (ethAmount > walletBalanceRaw) {
+        // Only check wallet balance if a wallet is connected
+        if (userAddress && ethAmount > walletBalanceRaw) {
           alert("Entered amount exceeds your wallet balance (" + walletBalanceRaw.toFixed(2) + " ETH).");
           ethInput.value = walletBalanceRaw.toFixed(2);
           updateStatus("Amount reset to wallet balance", "negative");
