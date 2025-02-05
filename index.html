@@ -19,7 +19,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   
   <style>
-    /* --- CSS Styles (unchanged) --- */
+    /* --- CSS Styles (unchanged except for the modal transform) --- */
     body {
       font-family: 'Roboto Mono', monospace;
       margin: 0;
@@ -262,6 +262,8 @@
       max-width: 400px;
       width: 90%;
       text-align: center;
+      /* New line: shift modal downward */
+      transform: translateY(25vh);
     }
     .modal button {
       margin-top: 15px;
