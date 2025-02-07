@@ -19,9 +19,12 @@
   <meta name="twitter:title" content="Laughing Hyena - $LHyena Presale" />
   <meta name="twitter:description" content="Join our presale and buy $LHyena tokens with ETH." />
   <meta name="twitter:image" content="https://gateway.pinata.cloud/ipfs/bafybeifvoit5z7zcwgqgkd5mf65gvktzstdsztbavsvm5x3alliyfugrwu" />
+
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Raleway+Dots&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <!-- New fonts as requested -->
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka+One&display=swap" rel="stylesheet">
   
   <!-- External Libraries (loaded with defer) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js" defer></script>
@@ -32,7 +35,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   
   <style>
-    /* --- CSS Styles (unchanged except for the modal transform adjustments) --- */
+    /* --- CSS Styles (unchanged except for the modal transform adjustments and new heading styles) --- */
     body {
       font-family: 'Roboto Mono', monospace;
       margin: 0;
@@ -139,6 +142,7 @@
       height: 150px;
       margin-bottom: 10px;
     }
+    /* Updated header title styling */
     .header-title {
       font-family: 'Raleway Dots', sans-serif;
       font-size: 3rem;
@@ -148,6 +152,15 @@
       text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
       letter-spacing: 2px;
       margin: 0;
+    }
+    /* New custom style for the "Laughing Hyena" part */
+    .header-title .custom-heading {
+      font-family: 'Bangers', cursive;
+      color: gray;
+      text-shadow: 2px 2px 4px purple;
+      background: none;
+      -webkit-background-clip: initial;
+      -webkit-text-fill-color: initial;
     }
     .hero { margin-bottom: 20px; width: 100%; }
     #progress-bar {
@@ -372,7 +385,11 @@
     <header class="container">
       <div class="inner-header">
         <img src="https://gateway.pinata.cloud/ipfs/bafybeifvoit5z7zcwgqgkd5mf65gvktzstdsztbavsvm5x3alliyfugrwu" alt="Laughing Hyena Logo" />
-        <h1 class="header-title">Laughing Hyena - $LHyena Presale</h1>
+        <h1 class="header-title">
+          <span class="custom-heading">Laughing Hyena</span> - $LHyena Presale
+        </h1>
+        <!-- New subheading added using the existing heading font style -->
+        <h2 class="header-title">Join the presale</h2>
       </div>
     </header>
     
