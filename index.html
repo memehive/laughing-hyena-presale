@@ -7,192 +7,381 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Laughing Hyena Presale</title>
 
-  <!-- SEO / Open Graph / Twitter (unchanged as before) -->
-  <meta name="description" content="Join the $LHyena presale and experience crypto with a twist!" />
+  <!-- Open Graph Meta Tags for Link Preview -->
   <meta property="og:title" content="Laughing Hyena - $LHyena Presale" />
   <meta property="og:description" content="Join our presale and buy $LHyena tokens with ETH." />
   <meta property="og:image" content="https://gateway.pinata.cloud/ipfs/bafybeifvoit5z7zcwgqgkd5mf65gvktzstdsztbavsvm5x3alliyfugrwu" />
   <meta property="og:url" content="https://memehive.click/lhyena" />
   <meta property="og:type" content="website" />
+
+  <!-- Twitter Card Meta Tags for Link Preview -->
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Laughing Hyena - $LHyena Presale" />
+  <meta name="twitter:description" content="Join our presale and buy $LHyena tokens with ETH." />
+  <meta name="twitter:image" content="https://gateway.pinata.cloud/ipfs/bafybeifvoit5z7zcwgqgkd5mf65gvktzstdsztbavsvm5x3alliyfugrwu" />
 
-  <!-- Google Fonts (adopted fonts from attached site) -->
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka+One&family=Lexend+Zetta&family=Raleway+Dots&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
-
-  <!-- External Libraries -->
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Raleway+Dots&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <!-- New fonts as requested -->
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka+One&display=swap" rel="stylesheet">
+  
+  <!-- External Libraries (loaded with defer) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js" defer></script>
   <script src="https://unpkg.com/@coinbase/wallet-sdk/dist/wallet-sdk.umd.min.js" defer></script>
+  <!-- Use jsDelivr for Web3Modal v1.9.8 -->
   <script src="https://cdn.jsdelivr.net/npm/web3modal@1.9.8/dist/index.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   
-  <!-- Merged CSS: (Adopted Font Styles, Colour Palette & Falling Code Animation) -->
   <style>
-    /* --- CSS Variables from Attached Site --- */
-    :root {
-      --primary-blue: #0A192F;
-      --light-gray: #112240;
-      --container-bg: #1A2A40;
-      --accent-cyan: #64FFDA;
-      --golden-yellow: #F9A826;
-      --purple: rgba(149, 86, 255, 0.8);
-      --primary-text: #CCD6F6;
-      --secondary-accent: #D81B60;
-    }
-    
-    /* --- Falling Code Animation Canvas (kept from attached code) --- */
-    #falling-code {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      pointer-events: none;
-      background: var(--primary-blue);
-    }
-    
-    /* --- Global Styles: Adopted Font and Colour Palette --- */
+    /* --- CSS Styles (unchanged except for header heading modifications) --- */
     body {
-      /* Using Fredoka One for a playful feel (from attached site) */
-      font-family: 'Fredoka One', sans-serif;
+      font-family: 'Roboto Mono', monospace;
       margin: 0;
       padding: 0;
-      background-color: var(--primary-blue);
-      color: var(--primary-text);
+      background-color: #0D1B2A;
+      color: #FFFFFF;
       text-align: center;
       font-size: 16px;
       line-height: 1.6;
     }
-    .main-container { max-width: 1200px; width: 100%; }
-    
-    /* --- Header Section: Only styling is updated --- */
-    header {
-      background: var(--light-gray);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-      animation: slideDown 0.8s ease-out forwards;
+    h1, h2, h3 { font-family: 'Roboto Mono', monospace; }
+    input, .contract-address { font-family: 'Roboto Mono', monospace; }
+    input[type="number"] {
+      width: 130px;
+      height: 40px;
+      font-size: 16px;
+      line-height: 40px;
+      text-align: center;
+      box-sizing: border-box;
     }
-    @keyframes slideDown { 
-      from { transform: translateY(-100%); opacity: 0; } 
-      to { transform: translateY(0); opacity: 1; } 
+    input::placeholder {
+      text-align: left;
+      padding-left: 5px;
     }
-    .inner-header {
+    .input-container {
+      width: 130px;
+      text-align: left;
+      margin: 0 auto 10px;
+    }
+    label.input-label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 2px;
+      font-weight: bold;
+      color: #FFFFFF;
+    }
+    .wallet-button, .buy-button, .footer-button, .warning {
+      font-family: 'Roboto Mono', monospace;
+    }
+    .warning {
+      font-size: 0.8em;
+      color: #ff5555;
+      margin-top: 5px;
+    }
+    .token-receive {
+      font-weight: bold;
+      color: #F0A500;
+      margin-top: 10px;
+    }
+    .participation-box {
+      background-color: #d9edf7;
+      color: #0D0D0D;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    }
+    .participation-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .participation-list li {
+      margin: 12px 0;
+      font-size: 1.1em;
+      display: flex;
+      align-items: center;
+      text-align: left;
+    }
+    .step-icon {
+      background: #F0A500;
+      color: #0D1B2A;
+      font-weight: bold;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+    }
+    .wrapper {
+      transition: transform 0.3s ease;
+    }
+    .container {
       width: 60%;
       margin: 0 auto;
-      padding: 1rem 0;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      background-color: #1B263B;
+      width: 100%;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    header .inner-header {
+      width: 60%;
+      margin: 0 auto;
     }
     header img {
       height: 150px;
       margin-bottom: 10px;
     }
-    /* Header text: adopt fonts and sizes from attached site */
+    /* Header Heading Styles */
     .header-title {
       margin: 0;
     }
     .header-title .custom-heading {
       font-family: 'Bangers', cursive;
-      font-size: 48px;  /* Main heading size */
-      color: #ffffff;
-      text-shadow: 2px 2px 4px var(--purple);
+      color: #ffffff;        /* white */
+      font-size: 48px;        /* 48px for main heading */
+      text-shadow: 2px 2px 4px rgba(149, 86, 255, 0.8); /* purple shadow added */
     }
+    /* Header Subheading / Tagline */
     .header-subtitle {
       font-family: 'Raleway Dots', sans-serif;
-      font-size: 24px;  /* Subheading size */
-      color: var(--golden-yellow);
+      font-size: 24px;        /* 24px for subheading */
+      color: #FFD700; /* golden yellow */
       margin-top: 5px;
-      text-shadow: 1px 1px 3px var(--purple);
     }
-    
-    /* --- Presale Content Styles: (Structure remains unchanged) --- */
-    .presale-container {
-      padding: 1.875rem;
-      background: var(--container-bg);
-      margin: 2rem 0;
-      border-radius: 0.5rem;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-      width: 90%;
-      max-width: 600px;
-    }
-    .presale-container h2 {
-      font-family: 'Raleway Dots', sans-serif;
-      font-size: 2.5rem;
-      color: var(--accent-cyan);
-      margin-bottom: 1rem;
+    .hero { margin-bottom: 20px; width: 100%; }
+    #progress-bar {
+      height: 20px;
+      width: 60%;
+      margin: 10px auto;
+      border-radius: 10px;
+      background-color: #F0A500;
+      color: #0D1B2A;
+      font-weight: bold;
+      line-height: 20px;
       text-align: center;
     }
-    .input-container {
-      margin: 1rem auto;
-      text-align: left;
-      width: 130px;
-    }
-    .input-label {
-      font-size: 0.8rem;
-      margin-bottom: 0.25rem;
-    }
-    input[type="number"] {
+    #status {
       width: 100%;
-      height: 40px;
-      font-size: 1rem;
+      min-height: 40px;
+      margin: 20px auto;
+      background-color: #d9edf7;
+      color: #0D0D0D;
+      font-size: 12px;
       text-align: center;
+      padding: 5px;
+      border-radius: 0;
     }
-    .wallet-buttons-container,
-    .buy-button {
+    .status-positive { color: green; }
+    .status-negative { color: red; }
+    .wallet-buttons-container {
       display: flex;
       justify-content: center;
-      gap: 1rem;
-      margin: 1rem auto;
+      margin: 20px auto;
+      width: 60%;
+      gap: 8px;
     }
     .wallet-button, .buy-button {
-      background: linear-gradient(to bottom, var(--accent-cyan), var(--golden-yellow));
-      color: var(--primary-blue);
+      background: linear-gradient(to bottom, #F0A500, #D9A300);
+      color: #0D1B2A;
       font-weight: bold;
-      padding: 0.5rem 1rem;
+      padding: 10px 0;
+      font-size: 12px;
       border-radius: 20px;
       cursor: pointer;
       border: 2px solid #000;
-      transition: transform 0.3s, box-shadow 0.3s;
+      transition: all 0.3s ease;
       box-shadow: 0 4px 0 #000;
+      width: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+    .buy-button {
+      background: linear-gradient(to bottom, #28a745, #218838);
+      font-size: 20px;
+    }
+    .wallet-button img, .buy-button img { margin-right: 8px; }
     .wallet-button:hover, .buy-button:hover {
+      background: linear-gradient(to bottom, #D9A300, #F0A500);
       transform: translateY(2px) scale(1.05);
       box-shadow: 0 6px 10px rgba(0,0,0,0.2);
     }
-    .token-receive {
-      font-family: 'Fredoka One', sans-serif;
-      font-size: 1.2rem;
-      color: var(--golden-yellow);
-      text-align: center;
-      margin-top: 1rem;
+    .buy-tokens-heading {
+      font-family: 'Raleway Dots', sans-serif;
+      font-size: 2.5rem;
+      color: #28a745;
+      text-shadow: 1px 1px 6px rgba(0,0,0,0.5);
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+      padding: 10px 0;
     }
-    
-    /* --- Footer --- */
+    .total-raised { color: #28a745; }
+    .user-contribution { color: #F0A500; }
     footer {
-      background: var(--light-gray);
-      color: var(--primary-text);
+      background-color: #1B263B;
+      width: 60%;
+      margin: 20px auto;
+      padding: 20px;
       text-align: center;
-      padding: 1.25rem 0;
-      margin-top: 2rem;
+      font-size: 1em;
     }
+    .footer-buttons {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+      gap: 8px;
+    }
+    .footer-button {
+      display: flex;
+      width: 100px;
+      height: 25px;
+      background: #F0A500;
+      color: #0D1B2A;
+      margin: 5px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 0.8em;
+      transition: background 0.3s;
+      border: 2px solid #000;
+      box-shadow: 0 4px 0 #000;
+      align-items: center;
+      justify-content: center;
+    }
+    .footer-button:hover { background: #D9A300; }
+    .footer-logo { height: 20px; margin-right: 4px; }
+    .contract-address {
+      text-align: center;
+      font-size: 1em;
+      margin: 10px 0;
+      word-wrap: break-word;
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      /* For larger screens: shift modal downward by 25% of viewport height */
+      transform: translateY(0vh);
+    }
+    .modal button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .confirm-btn {
+      background: #F0A500;
+      color: #0D1B2A;
+      border: 2px solid #000;
+      box-shadow: 0 4px 0 #000;
+    }
+    .cancel-btn {
+      background: #d9534f;
+      color: white;
+      margin-left: 10px;
+      border: 2px solid #000;
+      box-shadow: 0 4px 0 #000;
+    }
+    #disconnectWallet {
+      background: linear-gradient(to bottom, #d9534f, #c9302c);
+      border: 2px solid #000;
+    }
+    #disconnectWallet:hover {
+      background: linear-gradient(to bottom, #c9302c, #d9534f);
+    }
+    .token-instructions {
+      font-size: 0.9em;
+      margin: 15px 0;
+      color: #F0A500;
+    }
+    .token-instructions a {
+      color: #4A90E2;
+      text-decoration: none;
+      margin: 0 5px;
+      font-weight: bold;
+    }
+    .token-instructions a:hover {
+      text-decoration: underline;
+    }
+    .copy-button {
+      border: none;
+      background: none;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+    .copy-button img {
+      width: 16px;
+      height: 16px;
+    }
+    .conversion-container input {
+      width: 130px;
+      font-size: 16px;
+      padding: 0.3em;
+      margin: 5px;
+      text-align: center;
+    }
+    #walletBalance { display: none; }
     
-    /* --- Responsive Adjustments --- */
-    @media (max-width: 768px) {
-      .main-container { padding: 0 1rem; }
-      .presale-container { width: 100%; }
+    @media (max-width: 480px) {
+      body { flex-direction: column; min-height: 100vh; }
+      .wrapper { transform: scale(0.9); }
+      .container { width: 90%; }
+      header { flex-direction: column; padding: 10px; }
+      header .inner-header { width: 90%; }
+      header img { height: 100px; margin-bottom: 10px; }
+      header h1 { font-size: 1.2em; }
+      .wallet-buttons-container, .footer-buttons {
+        flex-direction: column;
+        width: 90%;
+        margin: 0 auto;
+        justify-content: center;
+        align-items: center;
+      }
+      #status, #progress-bar { width: 100%; }
+      input[type="number"] { width: 130px; font-size: 16px; }
+      footer { width: 90%; margin: 20px auto; }
+      #warningMessage { width: 90%; }
+      
+      /* Move the modal further down on smaller screens */
+      .modal {
+        transform: translateY(60vh);
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Falling Code Animation Canvas (added without affecting functionality) -->
-  <canvas id="falling-code"></canvas>
-  
-  <div class="main-container">
-    <!-- Header Section (structure unchanged; only style updated) -->
-    <header>
+  <div class="wrapper">
+    <!-- Header Section -->
+    <header class="container">
       <div class="inner-header">
-        <img src="https://gateway.pinata.cloud/ipfs/bafybeifvoit5z7zcwgqgkd5mf65gvktzstdsztbavsvm5x3alliyfugrwu" alt="Laughing Hyena Logo" class="logo" loading="lazy">
+        <img src="https://gateway.pinata.cloud/ipfs/bafybeifvoit5z7zcwgqgkd5mf65gvktzstdsztbavsvm5x3alliyfugrwu" alt="Laughing Hyena Logo" />
         <h1 class="header-title">
           <span class="custom-heading">Laughing Hyena</span>
         </h1>
@@ -200,98 +389,114 @@
       </div>
     </header>
     
-    <!-- Presale Content (functionality and structure remain the same) -->
-    <section id="home" class="presale-container">
-      <h2>$LHyena Presale</h2>
-      <div id="progress-bar">0%</div>
-      <p>Total ETH raised: <span id="ethRaised">0</span> ETH</p>
-      <p>Your Contribution: <span id="userContribution">0</span> ETH</p>
-      <p>Hardcap: 50 ETH | Softcap: 25 ETH | Token Rate: 20,000,000 LHyena/ETH</p>
-      <p>Vesting: 25% monthly for 4 months</p>
-      <p style="font-size:0.8rem; color: #ff5555; text-align:center;">Warning: Do not send funds directly to the presale contract address.</p>
-      <div class="input-container">
-        <label class="input-label" for="ethAmount">Enter ETH:</label>
-        <input type="number" id="ethAmount" placeholder="ETH (Max 5)" min="0.001" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
+    <!-- Main Content Container -->
+    <div class="container">
+      <div class="hero">
+        <h2>Presale Progress</h2>
+        <div id="progress-bar">0%</div>
+        <p class="total-raised">Total ETH raised: <span id="ethRaised">0</span> ETH</p>
+        <p class="user-contribution">Your Contribution: <span id="userContribution">0</span> ETH</p>
+        <p>Hardcap: 50 ETH | Softcap: 25 ETH | Token Rate: 20,000,000 LHyena/ETH</p>
+        <p>Vesting: 25% monthly for 4 months</p>
+        <p class="contract-address">
+          Presale Contract Address: 
+          <strong style="color: white;">0x8aaA69666D6de35561D948f6670F262F6cAC7392</strong>
+          <button onclick="copyContractAddress()" class="copy-button" aria-label="Copy Presale Contract Address">
+            <img src="https://gateway.pinata.cloud/ipfs/bafkreichlpjusnouyhn4jgipntvamzt6pj33dlzqoeyk6ttifo6dpjiz7q" alt="Copy Icon">
+          </button>
+        </p>
+        <p class="warning">Warning: Do not send funds directly to the presale contract address.</p>
+        <div id="warningMessage"></div>
+        <div class="participation-box">
+          <h2>How to Participate?</h2>
+          <ol class="participation-list">
+            <li><span class="step-icon">1</span>Connect your wallet (Coinbase Wallet).</li>
+            <li><span class="step-icon">2</span>Enter the amount of ETH you want to contribute (max 5 ETH; minimum 0.001 ETH).</li>
+            <li><span class="step-icon">3</span>Click "BUY" and confirm your transaction.</li>
+          </ol>
+        </div>
       </div>
-      <div class="input-container">
-        <label class="input-label" for="lhyenaAmount">Enter $LHyena:</label>
-        <input type="number" id="lhyenaAmount" placeholder="$LHyena" min="0" step="any" onblur="convertLHyenaToETH();">
-      </div>
-      <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
+      
+      <!-- Status Bar -->
+      <div id="status" class="status-neutral">Not connected</div>
+      
       <div class="wallet-buttons-container">
         <button id="connectCoinbaseWallet" class="wallet-button" onclick="connectCoinbaseWallet()" aria-label="Connect Coinbase Wallet">
-          <i class="bi bi-wallet2"></i> Coinbase
+          <img src="https://gateway.pinata.cloud/ipfs/bafkreigpbedcletldnqi5ue2vgh4klft5ovlltl4q47uy5qkfthxo6wfuq" alt="Coinbase Wallet Logo" width="24" height="24">
+          <span>Coinbase</span>
         </button>
         <button id="disconnectWallet" class="wallet-button" onclick="disconnectWallet()" aria-label="Disconnect Wallet">
-          <i class="bi bi-x-circle"></i> Disconnect
+          <img src="https://gateway.pinata.cloud/ipfs/bafkreihrxilkswryoesmiwmwwlwvpcso3gtsenstcufxcwwdoq3m2yd7vm" alt="Disconnect Logo" width="24" height="24">
+          <span>Disconnect</span>
         </button>
       </div>
-      <div style="margin-top:1rem;">
-        <button id="buyTokensButton" class="buy-button" onclick="promptBuyTokens()" aria-label="Buy Tokens">
-          <i class="bi bi-cart-check"></i> BUY
-        </button>
+      
+      <div>
+        <h2 class="buy-tokens-heading">Buy $LHyena Tokens</h2>
+        <div class="input-container">
+          <label class="input-label" for="ethAmount">Enter ETH:</label>
+          <input type="number" id="ethAmount" placeholder="ETH (Max 5)" min="0.001" max="5" step="0.01" onblur="validateEthAmount(); calculateTokens()">
+        </div>
+        <div class="input-container">
+          <label class="input-label" for="lhyenaAmount">Enter $LHyena:</label>
+          <input type="number" id="lhyenaAmount" placeholder="$LHyena" min="0" step="any" onblur="convertLHyenaToETH();">
+        </div>
+        <p class="token-receive">You will receive: <span id="tokenAmount">0</span> LHyena</p>
+        <div class="wallet-buttons-container">
+          <button id="buyTokensButton" class="buy-button" onclick="promptBuyTokens()" aria-label="Buy Tokens">
+            <img src="https://gateway.pinata.cloud/ipfs/bafkreid3b6ufuleuioz3zplwxnfvl5uu4o4oafbvmma3jfiok7d6btj7fi" alt="Buy Logo" width="24" height="24">
+            <span>BUY</span>
+          </button>
+        </div>
+        <p class="token-instructions">
+          To add $LHyena to your Coinbase Wallet, copy the token contract address: 
+          <strong style="color: white;">0x8aaA69666D6de35561D948f6670F262F6cAC7392</strong>
+          <button onclick="copyTokenAddress()" class="copy-button" aria-label="Copy Token Contract Address">
+            <img src="https://gateway.pinata.cloud/ipfs/bafkreichlpjusnouyhn4jgipntvamzt6pj33dlzqoeyk6ttifo6dpjiz7q" alt="Copy Icon">
+          </button>
+          <br>
+          Don't have Coinbase Wallet? Download it from 
+          <a href="https://apps.apple.com/us/app/coinbase-wallet/id1278383455" target="_blank">iOS</a> or 
+          <a href="https://play.google.com/store/apps/details?id=org.toshi" target="_blank">Android</a>.
+        </p>
       </div>
-    </section>
+      
+      <div id="confirmationModal" class="modal-overlay">
+        <div class="modal">
+          <h3>Confirm Your Transaction</h3>
+          <p id="transactionSummary">You are about to contribute X ETH to receive Y LHyena tokens.</p>
+          <button class="confirm-btn" onclick="confirmedBuyTokens()">Confirm Purchase</button>
+          <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
     
-    <!-- Footer Section (unchanged) -->
-    <footer>
+    <footer class="container">
       <p>&copy; 2025 Laughing Hyena. All Rights Reserved.</p>
+      <div class="footer-buttons">
+        <a class="footer-button" href="https://memehive.click/lhyena" target="_blank" aria-label="Visit Website">
+          <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreifbwyukqegxt7il3odigkndzchztr2t55hibnyry7mlz6lbbl55jq" alt="Website Logo">Website
+        </a>
+        <a class="footer-button" href="https://x.com/Laughing_LHyena" target="_blank" aria-label="Visit Twitter">
+          <img class="footer-logo" src="https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg" alt="Twitter Logo">Twitter
+        </a>
+        <a class="footer-button" href="https://t.me/Laughing_LHyena" target="_blank" aria-label="Join Telegram">
+          <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreihu2e3j4xjpevv77kjjonnwro3fkak7ghrtfdttgkbjg76tqeuazm" alt="Telegram Logo">Telegram
+        </a>
+        <a class="footer-button" href="https://www.facebook.com/share/15sZairCuW/?mibextid=wwXIfr" target="_blank" aria-label="Visit Facebook">
+          <img class="footer-logo" src="https://gateway.pinata.cloud/ipfs/bafkreieghdvsc2s43xfvbetosyezg3kaukny6motwti3fz6amtqw7tatyy" alt="Facebook Logo">Facebook
+        </a>
+      </div>
     </footer>
   </div>
   
-  <!-- Falling Code Animation Script (adopted from attached site) -->
-  <script>
-    const canvas = document.getElementById('falling-code');
-    const ctxCode = canvas.getContext('2d');
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-    const fontSize = 8;
-    const columns = Math.floor(canvas.width / fontSize);
-    const drops = [];
-    const wordSet = ["$LHyena", "Crypto", "Laughing Hyena", "2025", "BASE", "Ethereum"];
-    const currentWord = [];
-    for (let i = 0; i < columns; i++) {
-      drops[i] = Math.random() * canvas.height / fontSize;
-      currentWord[i] = wordSet[Math.floor(Math.random() * wordSet.length)];
-    }
-    const speed = 0.1;
-    const letterSpacing = 2;
-    function fillTextWithSpacing(ctx, text, x, y, spacing) {
-      spacing = spacing || 2;
-      for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        ctx.fillText(char, x, y);
-        x += ctx.measureText(char).width + spacing;
-      }
-    }
-    function draw() {
-      ctxCode.fillStyle = "rgba(10, 25, 47, 0.1)";
-      ctxCode.fillRect(0, 0, canvas.width, canvas.height);
-      ctxCode.fillStyle = "#64FFDA";
-      ctxCode.font = fontSize + "px 'Lexend Zetta', monospace";
-      ctxCode.shadowColor = "#000";
-      ctxCode.shadowBlur = 3;
-      for (let i = 0; i < drops.length; i++) {
-        const text = currentWord[i];
-        const yPos = Math.floor(drops[i]) * fontSize;
-        fillTextWithSpacing(ctxCode, text, i * fontSize, yPos, letterSpacing);
-        if (yPos > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-          currentWord[i] = wordSet[Math.floor(Math.random() * wordSet.length)];
-        }
-        drops[i] += speed;
-      }
-    }
-    setInterval(draw, 100);
-  </script>
-  
-  <!-- Presale Website Functionality Script (unchanged) -->
+  <!-- Custom script: wrap in load event to ensure external libraries are ready -->
   <script>
     window.addEventListener('load', function () {
+      // Log the Web3Modal object so you can inspect it in the console
+      console.log("window.Web3Modal:", window.Web3Modal);
+      
+      // Global variables and constants
       let walletBalanceRaw = 0;
       let disconnectTimer = null;
       const BASE_CHAIN_ID_DEC = 8453;
@@ -299,15 +504,20 @@
       const PRESALE_CONTRACT_ADDRESS = "0xc9beD6d7ecb7A1ea7F064A41971549FC4ee6CD20";
       const TOKEN_RATE = 20000000;
       
+      // Helper: truncate wallet address
       function truncateAddress(address) {
-        return address ? address.slice(0, 6) + "....." + address.slice(-4) : "";
+        if (!address) return "";
+        return address.slice(0, 6) + "....." + address.slice(-4);
       }
       
+      // Global variables for provider, signer, and userAddress
       let provider, signer, userAddress = "";
       
+      // Initialize Web3Modal.
+      // Try using window.Web3Modal.default if available; otherwise, use window.Web3Modal.
       const Web3ModalConstructor = (window.Web3Modal && window.Web3Modal.default) || window.Web3Modal;
       if (!Web3ModalConstructor) {
-        console.error("Web3Modal constructor not found.");
+        console.error("Web3Modal constructor not found. Check that the Web3Modal script is loaded correctly.");
         return;
       }
       window.web3Modal = new Web3ModalConstructor({
@@ -325,9 +535,11 @@
         }
       });
       
+      // Global functions attached to window
       window.connectCoinbaseWallet = async function() {
         if (!window.ethereum) {
-          alert("Coinbase Wallet not detected. Install wallet.");
+          window.updateStatus("Coinbase Wallet not detected.", "negative");
+          alert("Install wallet");
           return;
         }
         window.web3Modal.clearCachedProvider();
@@ -337,31 +549,32 @@
           await provider.send("eth_requestAccounts", []);
           const { chainId } = await provider.getNetwork();
           if (chainId !== BASE_CHAIN_ID_DEC) {
-            alert("Please connect to Basechain using Coinbase Wallet.");
+            window.updateStatus("Please connect to Basechain using Coinbase Wallet.", "negative");
             return;
           }
           signer = provider.getSigner();
           userAddress = await signer.getAddress();
-          updateWalletStatus();
+          window.updateWalletStatus();
           await fetchWalletBalance();
           disconnectTimer = setTimeout(() => {
             alert("Your Coinbase wallet connection has timed out.");
-            disconnectWallet();
+            window.disconnectWallet();
           }, 600000);
         } catch (error) {
-          alert("Wallet connection failed: " + error.message);
+          window.updateStatus(`Coinbase Wallet connection failed: ${error.message}`, "negative");
         }
       };
       
       window.disconnectWallet = async function() {
         if (!provider || userAddress === "") {
-          alert("No wallet connected.");
+          alert("No wallet connected. Please connect a wallet before trying to disconnect.");
           return;
         }
         if (provider.disconnect) await provider.disconnect();
-        provider = signer = "";
+        provider = null;
+        signer = null;
         userAddress = "";
-        updateStatus("Not connected", "negative");
+        window.updateStatus("Not connected", "negative");
         document.getElementById("ethAmount").value = "";
         document.getElementById("lhyenaAmount").value = "";
         if (disconnectTimer) clearTimeout(disconnectTimer);
@@ -370,11 +583,34 @@
       window.validateEthAmount = function() {
         const ethInput = document.getElementById("ethAmount");
         let ethAmount = parseFloat(ethInput.value);
-        if (isNaN(ethAmount)) { updateStatus("Please enter a valid ETH amount.", "negative"); return; }
-        if (ethAmount < 0.001) { ethInput.value = "0.001"; updateStatus("Minimum contribution is 0.001 ETH", "negative"); return; }
-        if (ethAmount > 5) { ethInput.value = "5"; updateStatus("Maximum contribution is 5 ETH", "negative"); return; }
-        if (userAddress && ethAmount > walletBalanceRaw) { ethInput.value = walletBalanceRaw.toFixed(5); updateStatus("Amount reset to wallet balance", "negative"); return; }
-        updateWalletStatus();
+        if (isNaN(ethAmount)) {
+          window.updateStatus("Please enter a valid ETH amount.", "negative");
+          window.showWarning("Please enter a valid ETH amount.");
+          return;
+        }
+        if (ethAmount < 0.001) {
+          alert("Minimum contribution is 0.001 ETH.");
+          ethInput.value = "0.001";
+          ethAmount = 0.001;
+          window.updateStatus("Minimum contribution is 0.001 ETH", "negative");
+          return;
+        }
+        if (ethAmount > 5) {
+          alert("Maximum contribution is 5 ETH. Resetting value to 5 ETH.");
+          ethInput.value = "5";
+          ethAmount = 5;
+          window.updateStatus("Maximum contribution is 5 ETH", "negative");
+          window.showWarning("Maximum contribution is 5 ETH");
+          return;
+        }
+        if (userAddress && ethAmount > walletBalanceRaw) {
+          alert("Entered amount exceeds your wallet balance (" + walletBalanceRaw.toFixed(5) + " ETH).");
+          ethInput.value = walletBalanceRaw.toFixed(5);
+          window.updateStatus("Amount reset to wallet balance", "negative");
+          return;
+        }
+        window.clearWarning();
+        window.updateWalletStatus();
       };
       
       window.convertLHyenaToETH = function() {
@@ -382,9 +618,13 @@
         let lhyenaVal = parseFloat(lhyenaInput.value);
         if (isNaN(lhyenaVal)) return;
         let ethRequired = lhyenaVal / TOKEN_RATE;
-        if (ethRequired > 5) { ethRequired = 5; lhyenaInput.value = (5 * TOKEN_RATE).toFixed(2); }
+        if (ethRequired > 5) {
+          alert("Maximum contribution is 5 ETH. Resetting to 5 ETH equivalent.");
+          ethRequired = 5;
+          lhyenaInput.value = (5 * TOKEN_RATE).toFixed(2);
+        }
         document.getElementById("ethAmount").value = ethRequired.toFixed(2);
-        calculateTokens();
+        window.calculateTokens();
       };
       
       window.calculateTokens = function() {
@@ -394,27 +634,114 @@
         document.getElementById("lhyenaAmount").value = lhyenaAmount.toFixed(2);
       };
       
-      function updateWalletStatus() {
+      window.updateWalletStatus = function() {
         if (userAddress) {
           const statusEl = document.getElementById("status");
           statusEl.innerText = "Connected: " + truncateAddress(userAddress) + " | Balance: " + walletBalanceRaw.toFixed(5) + " ETH";
-          statusEl.className = "status-positive";
+          statusEl.classList.remove("status-negative");
+          statusEl.classList.add("status-positive");
         }
-      }
+      };
       
-      function updateStatus(message, type) {
+      window.updateStatus = function(message, type) {
         const statusEl = document.getElementById("status");
         statusEl.innerText = message;
-        statusEl.className = type === "positive" ? "status-positive" : "status-negative";
-      }
+        statusEl.classList.remove("status-positive", "status-negative");
+        if (type === "positive") {
+          statusEl.classList.add("status-positive");
+        } else if (type === "negative") {
+          statusEl.classList.add("status-negative");
+        }
+      };
+      
+      window.showWarning = function(message) {
+        document.getElementById("warningMessage").innerText = message;
+      };
+      
+      window.clearWarning = function() {
+        document.getElementById("warningMessage").innerText = "";
+      };
+      
+      window.promptBuyTokens = function() {
+        if (!signer) {
+          alert("No wallet connected. Please connect your wallet before buying tokens.");
+          window.updateStatus("Please connect your wallet first!", "negative");
+          return;
+        }
+        window.validateEthAmount();
+        const ethAmount = parseFloat(document.getElementById("ethAmount").value);
+        if (isNaN(ethAmount)) {
+          window.updateStatus("Please enter a valid ETH amount.", "negative");
+          return;
+        }
+        const tokenAmount = (ethAmount * TOKEN_RATE).toLocaleString();
+        document.getElementById("transactionSummary").innerText =
+          `You are about to contribute ${ethAmount} ETH (minimum 0.001 ETH) to receive ${tokenAmount} LHyena tokens.`;
+        // Use "flex" to display the modal popup
+        document.getElementById("confirmationModal").style.display = "flex";
+      };
+      
+      window.closeModal = function() {
+        document.getElementById("confirmationModal").style.display = "none";
+      };
+      
+      window.confirmedBuyTokens = async function() {
+        window.closeModal();
+        const { chainId } = await provider.getNetwork();
+        if (chainId !== BASE_CHAIN_ID_DEC) {
+          window.updateStatus("Incorrect network. Please switch to Basechain.", "negative");
+          return;
+        }
+        await window.buyTokens();
+      };
+      
+      window.buyTokens = async function() {
+        if (!signer) {
+          alert("No wallet connected. Please connect your wallet before buying tokens.");
+          window.updateStatus("Please connect your wallet first!", "negative");
+          return;
+        }
+        let ethAmount = parseFloat(document.getElementById("ethAmount").value);
+        if (isNaN(ethAmount)) {
+          window.updateStatus("Please enter a valid ETH amount.", "negative");
+          return;
+        }
+        if (ethAmount > 5) {
+          alert("Maximum contribution is 5 ETH. Resetting value to 5 ETH.");
+          ethAmount = 5;
+          document.getElementById("ethAmount").value = "5";
+          window.updateStatus("Maximum contribution is 5 ETH", "negative");
+        }
+        const contract = new ethers.Contract(
+          PRESALE_CONTRACT_ADDRESS,
+          [{
+            "inputs": [],
+            "name": "buyTokens",
+            "outputs": [],
+            "stateMutability": "payable",
+            "type": "function"
+          }],
+          signer
+        );
+        try {
+          const tx = await contract.buyTokens({ value: ethers.utils.parseEther(ethAmount.toString()) });
+          window.updateStatus("Transaction submitted. Waiting for 3 confirmations...", "positive");
+          await tx.wait(3);
+          window.updateStatus("Transaction Successful! You have purchased $LHyena tokens.", "positive");
+        } catch (error) {
+          window.updateStatus("Transaction failed: " + error.message, "negative");
+        }
+      };
       
       async function fetchWalletBalance() {
         if (!provider || !userAddress) return;
         try {
           const balance = await provider.getBalance(userAddress);
           walletBalanceRaw = parseFloat(ethers.utils.formatEther(balance));
-          updateWalletStatus();
-        } catch (err) { console.error("Error fetching wallet balance:", err); }
+          window.updateWalletStatus();
+        } catch (err) {
+          console.error("Error fetching wallet balance:", err);
+        }
       }
       
       async function fetchPresaleProgress() {
@@ -433,39 +760,76 @@
           );
           const ethRaised = await contract.totalRaised();
           const ethRaisedFormatted = ethers.utils.formatEther(ethRaised);
+          updateProgressBar(ethRaisedFormatted);
           document.getElementById("ethRaised").innerText = ethRaisedFormatted + " ETH";
-          document.getElementById("progress-bar").innerText = Math.min((ethRaisedFormatted / 50) * 100, 100).toFixed(0) + '%';
-        } catch (error) { console.error("Error fetching presale progress:", error); }
+        } catch (error) {
+          console.error("Error fetching presale progress:", error);
+        }
+      }
+      
+      function updateProgressBar(ethRaised) {
+        const hardCap = 50;
+        const progress = Math.min((ethRaised / hardCap) * 100, 100);
+        const progressBar = document.getElementById("progress-bar");
+        progressBar.style.width = "60%";
+        progressBar.style.margin = "10px auto";
+        progressBar.style.height = "20px";
+        progressBar.style.borderRadius = "10px";
+        progressBar.style.lineHeight = "20px";
+        progressBar.style.textAlign = "center";
+        progressBar.innerText = Math.round(progress) + '%';
       }
       
       setInterval(fetchPresaleProgress, 5000);
       setInterval(fetchWalletBalance, 10000);
       
-      window.promptBuyTokens = async function() {
-        if (!signer) { alert("Please connect your wallet first!"); return; }
-        validateEthAmount();
-        const ethAmount = parseFloat(document.getElementById("ethAmount").value);
-        if (isNaN(ethAmount)) { updateStatus("Please enter a valid ETH amount.", "negative"); return; }
-        try {
-          const contract = new ethers.Contract(
-            PRESALE_CONTRACT_ADDRESS,
-            [{
-              "inputs": [],
-              "name": "buyTokens",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
-            }],
-            signer
-          );
-          const tx = await contract.buyTokens({ value: ethers.utils.parseEther(ethAmount.toString()) });
-          updateStatus("Transaction submitted. Waiting for confirmations...", "positive");
-          await tx.wait(3);
-          updateStatus("Transaction Successful! You have purchased $LHyena tokens.", "positive");
-        } catch (error) {
-          updateStatus("Transaction failed: " + error.message, "negative");
+      window.copyContractAddress = function() {
+        const addressText = PRESALE_CONTRACT_ADDRESS;
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(addressText).then(() => {
+            alert("Presale contract address copied to clipboard!");
+          }).catch(() => {
+            alert("Failed to copy presale contract address. Please try again.");
+          });
+        } else {
+          const textArea = document.createElement("textarea");
+          textArea.value = addressText;
+          document.body.appendChild(textArea);
+          textArea.select();
+          try {
+            document.execCommand("copy");
+            alert("Presale contract address copied to clipboard!");
+          } catch (err) {
+            alert("Failed to copy presale contract address. Please try again.");
+          }
+          document.body.removeChild(textArea);
         }
       };
+      
+      window.copyTokenAddress = function() {
+        const tokenAddress = "0x8aaA69666D6de35561D948f6670F262F6cAC7392";
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(tokenAddress).then(() => {
+            alert("Token contract address copied to clipboard!");
+          }).catch(() => {
+            alert("Failed to copy token contract address. Please try again.");
+          });
+        } else {
+          const textArea = document.createElement("textarea");
+          textArea.value = tokenAddress;
+          document.body.appendChild(textArea);
+          textArea.select();
+          try {
+            document.execCommand("copy");
+            alert("Token contract address copied to clipboard!");
+          } catch (err) {
+            alert("Failed to copy token contract address. Please try again.");
+          }
+          document.body.removeChild(textArea);
+        }
+      };
+      
+      console.log("Setup complete.");
     });
   </script>
 </body>
